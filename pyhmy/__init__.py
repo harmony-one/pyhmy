@@ -2,16 +2,17 @@ import sys
 import warnings
 import pkg_resources
 
-from .cli import (
-    HmyCLI,
-    get_environment,
-)
-
 from .util import (
     Typgpy,
     get_gopath,
     get_goversion,
+    get_bls_build_variables,
+    download_cli,
     json_load
+)
+
+from .logging import (
+    ControlledLogger
 )
 
 if sys.version_info.major < 3:
