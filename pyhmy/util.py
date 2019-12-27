@@ -54,7 +54,7 @@ def get_bls_build_variables():
     hmy_path = f"{get_gopath()}/src/github.com/harmony-one"
     bls_dir = f"{hmy_path}/bls"
     mcl_dir = f"{hmy_path}/mcl"
-    assert os.path.exists(bls_dir), f" Harmony BLS repo not found at {bls_dir}"
+    assert os.path.exists(bls_dir), f"Harmony BLS repo not found at {bls_dir}"
     assert os.path.exists(mcl_dir), f"Harmony MCL repo not found at {mcl_dir}"
     if sys.platform.startswith("darwin"):
         variables["CGO_CFLAGS"] = f"-I{bls_dir}/include -I{mcl_dir}/include -I{openssl_dir}/include"
@@ -68,19 +68,23 @@ def get_bls_build_variables():
     return variables
 
 
-def download_cli(bin_name="hmy", replace=False):
+def download_cli(bin_name="hmy", replace=False, verbose=True):
     """
-    This function will download the statically linked CLI binary to the current
-    working directory.
+    This function will download the statically linked CLI binary into a bin directory
+    within the current working directory.
 
     :param bin_name: The desired filename of the binary
     :param replace: A flag to force a replacement of the binary/file.
+    :param verbose: A flag to enable a report message once the binary is downloaded.
     """
     assert isinstance(bin_name, str), "binary name must be a string"
     assert bin_name, "binary name must be non-empty"
     assert '/' not in bin_name, "binary name must not be path"
-    if os.path.exists(f"{os.getcwd()}/{bin_name}") and not replace:
+    if os.path.exists(f"{os.getcwd()}/bin/{bin_name}") and not replace:
         return
+    old_cwd = os.getcwd()
+    os.makedirs(f"{old_cwd}/bin", exist_ok=True)
+    os.chdir(f"{old_cwd}/bin")
     hmy_script_path = f"{os.getcwd()}/hmy.sh"
     with open(hmy_script_path, 'w') as f:
         f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
@@ -92,6 +96,9 @@ def download_cli(bin_name="hmy", replace=False):
     os.rename(f"{os.getcwd()}/hmy", f"{os.getcwd()}/{bin_name}")
     if os.path.exists(f"{os.getcwd()}/.hmy_temp"):
         os.rename(f"{os.getcwd()}/.hmy_temp", f"{os.getcwd()}/hmy")
+    if verbose:
+        print(f"Saved harmony binary to: {os.getcwd()}/{bin_name}")
+    os.chdir(old_cwd)
 
 
 def json_load(string):
