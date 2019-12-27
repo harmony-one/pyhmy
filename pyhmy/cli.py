@@ -91,6 +91,13 @@ def check_address(address):
         return address in _addresses.values()
 
 
+def get_binary_path():
+    """
+    :return: The absolute path of the CLI binary.
+    """
+    return os.path.abspath(_binary_path)
+
+
 def get_address(name):
     """
     :param name: The alias of a key used in the CLI's keystore.
