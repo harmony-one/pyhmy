@@ -5,17 +5,20 @@ import os
 import shutil
 import re
 
+from .util import get_bls_build_variables
 
-def get_environment() -> dict:
+DEFAULT_BIN_FILENAME = 'hmy'
+
+
+def get_environment():
     """
-    Fetches the environment variables from the 'setup_bls_build_flags.sh' script
-    in the harmony main repo. Also fetches the 'HOME' environment variable for HmyCLI.
+    :returns All the environment variables needed to run the CLI with dynamic linking.
+
+    Note that this assumes that the BLS & MCL repo are in the appropriate directory
+    as stated here: https://github.com/harmony-one/harmony/blob/master/README.md
     """
-    go_path = subprocess.check_output(["go", "env", "GOPATH"]).decode().strip()
-    setup_script_path = f"{go_path}/src/github.com/harmony-one/harmony/scripts/setup_bls_build_flags.sh"
-    response = subprocess.check_output(["bash", setup_script_path, "-v"], timeout=5)
-    environment = json.loads(response)
-    environment["HOME"] = os.environ.get("HOME")
+    environment = {"HOME": os.environ.get("HOME")}
+    environment.update(get_bls_build_variables())
     return environment
 
 
