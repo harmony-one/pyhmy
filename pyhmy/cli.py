@@ -1,6 +1,5 @@
 import subprocess
 import pexpect
-import json
 import os
 import shutil
 import re
@@ -124,14 +123,14 @@ class HmyCLI:
                                f"\tException: {err}") from err
         del self._addresses[name]
 
-    def remove_address(self, address) -> None:
+    def remove_address(self, address):
         """
         :param address: The 'one1...' address to be removed.
         """
-        for name in self.get_names(address):
+        for name in self.get_accounts(address):
             self.remove_account(name)
 
-    def single_call(self, command, timeout=30) -> str:
+    def single_call(self, command, timeout=60):
         """
         :param command: String fo command to execute on CLI
         :param timeout: Optional timeout in seconds
@@ -149,7 +148,7 @@ class HmyCLI:
                                f"\tException: {err}") from err
         return response
 
-    def expect_call(self, command, timeout=30) -> pexpect.pty_spawn.spawn:
+    def expect_call(self, command, timeout=60):
         """
         :param command: String fo command to execute on CLI
         :param timeout: Optional timeout in seconds
