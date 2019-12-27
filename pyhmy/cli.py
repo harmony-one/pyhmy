@@ -22,31 +22,45 @@ def get_environment():
 
 
 class HmyCLI:
-    hmy_binary_path = None  # This class attr should be set by the __init__.py of this module.
 
     def __init__(self, environment, hmy_binary_path=None):
         """
-        :param environment: Dictionary of environment variables to be used in the CLI
-        :param hmy_binary_path: An optional path to the harmony binary; defaults to
-                                class attribute.
+        :param environment: Dictionary of environment variables to be used when calling the CLI.
+        :param hmy_binary_path: The optional path to the CLI binary.
         """
-        if hmy_binary_path:
-            assert os.path.isfile(hmy_binary_path)
-            self.hmy_binary_path = hmy_binary_path.replace("./", "")
-        if not self.hmy_binary_path:
-            raise FileNotFoundError("Path to harmony CLI binary is not found")
         self.environment = environment
+        self.hmy_binary_path = ""
         self.version = ""
         self.keystore_path = ""
         self._addresses = {}
+
+        if hmy_binary_path:
+            assert os.path.isfile(hmy_binary_path), f"{hmy_binary_path} is not a file"
+            self.hmy_binary_path = hmy_binary_path
+        else:
+            self._set_default_hmy_binary_path()
         self._set_version()
         self._set_keystore_path()
         self._sync_addresses()
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"<{self.version} @ {self.hmy_binary_path}>"
 
-    def _set_version(self) -> None:
+    def _set_default_hmy_binary_path(self, file_name=DEFAULT_BIN_FILENAME):
+        """
+        Internal method to set the binary path by looking for the first file with
+        the same name as the param in the current working directory.
+
+        :param file_name: The file name to look for.
+        """
+        assert '/' not in file_name, "file name must not be a path."
+        for root, dirs, files in os.walk(os.getcwd()):
+            if file_name in files:
+                self.hmy_binary_path = os.path.join(root, file_name)
+                break
+        assert self.hmy_binary_path, f"CLI binary `{file_name}` not found in current working directory."
+
+    def _set_version(self):
         """
         Internal method to set this instance's version according to the binary's version.
         """
@@ -58,7 +72,7 @@ class HmyCLI:
                                f"\tGot exit code {proc.returncode}. Expected non-empty error message.")
         self.version = err.decode().strip()
 
-    def _set_keystore_path(self) -> None:
+    def _set_keystore_path(self):
         """
         Internal method to set this instance's keystore path with the binary's keystore path.
         """
@@ -67,31 +81,37 @@ class HmyCLI:
             os.mkdir(response)
         self.keystore_path = response
 
-    def _sync_addresses(self) -> None:
+    def _sync_addresses(self):
         """
         Internal method to sync this instance's address with the binary's keystore addresses.
         """
+        addresses = {}
         response = self.single_call("hmy keys list")
         lines = response.split("\n")
         if "NAME" not in lines[0] or "ADDRESS" not in lines[0]:
-            raise ValueError(f"Name or Address not found on first line of key list")
-        for line in lines[1:]:
-            if line:
-                columns = line.split("\t")
-                if len(columns) != 2:
-                    raise ValueError("Unexpected format of keys list")
-                name, address = columns
-                self._addresses[name.strip()] = address
+            raise ValueError("Name or Address not found on first line of key list")
+        if lines[1] != "":
+            raise ValueError("Unknown format: No blank line between label and data")
+        for line in lines[2:]:
+            columns = line.split("\t")
+            if len(columns) != 2:
+                break  # Done iterating through all of the addresses.
+            name, address = columns
+            addresses[name.strip()] = address
+        self._addresses = addresses
 
-    def check_address(self, address) -> bool:
+    def check_address(self, address):
         """
         :param address: A 'one1...' address.
-        :return: T/F If the address is in the CLI's keystore.
+        :return: Boolean of if the address is in the CLI's keystore.
         """
-        self._sync_addresses()
-        return address in self._addresses.values()
+        if address in self._addresses.values():
+            return True
+        else:
+            self._sync_addresses()
+            return address in self._addresses.values()
 
-    def get_address(self, name) -> str:
+    def get_address(self, name):
         """
         :param name: The alias of a key used in the CLI's keystore.
         :return: The associated 'one1...' address.
@@ -102,7 +122,7 @@ class HmyCLI:
             self._sync_addresses()
             return self._addresses.get(name, None)
 
-    def get_accounts(self, address) -> list:
+    def get_accounts(self, address):
         """
         :param address: The 'one1...' address
         :return: A list of account names associated with
@@ -110,9 +130,13 @@ class HmyCLI:
         self._sync_addresses()
         return [acc for acc, addr in self._addresses.items() if address == addr]
 
-    def remove_account(self, name) -> None:
+    def remove_account(self, name):
         """
+        Note that this edits the keystore directly since there is currently no
+        way to remove an address using the CLI.
+
         :param name: The alias of a key used in the CLI's keystore.
+        :raises RuntimeError: If it failed to remove an account.
         """
         if not self.get_address(name):
             return
