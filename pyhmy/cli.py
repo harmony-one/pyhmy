@@ -1,3 +1,47 @@
+"""Wrapper for Harmony's CLI.
+
+This module makes it easy for one to interact with the Harmony CLI (either
+statically or dynamically linked). It also natively manages all of the keystore
+related features to help with scripting.
+
+Example:
+    Below is a demo of how to import, manage keys, and interact with the CLI::
+        >>> from pyhmy import cli
+        >>> cli.single_call("hmy keys add test1")
+        >>> addrs = cli.get_accounts_keystore()
+        >>> assert "test1" in addrs.keys()
+        >>> check_addr = addrs["test1"]
+        >>> accounts_list = cli.get_accounts(check_addr)
+        >>> check_acc = accounts_list[0]
+        >>> assert check_acc == "test1"
+        >>> raw_cli_keys_list_print = cli.single_call("hmy keys list", timeout=2)
+        >>> assert check_addr in raw_cli_keys_list_print
+        >>> assert check_acc in raw_cli_keys_list_print
+        >>> assert addrs[check_acc] == check_addr
+        >>> cli.remove_address(check_addr)
+        >>> assert check_addr not in addrs.values()
+        >>> assert "test1" not in addrs.keys()
+
+This module refers to `accounts` as the NAME of an `address` given to by the CLI's
+account keystore.
+
+Lastly, on init, this module tries to a find a file named `hmy` within the current
+working directory; if found, said file will be the default binary used. The binary
+that is used by this module can be changed with the `set_binary` function.
+
+Example:
+    Below is a demo of how to set the CLI binary used by the module::
+        >>> from pyhmy import cli
+        >>> from pyhmy import util
+        >>> import os
+        >>> util.download_cli("test", replace=False)
+        >>> new_path = os.getcwd() + "/bin/test"
+        >>> cli.set_binary(new_path)
+        >>> assert new_path == cli.get_binary_path()
+
+For more details, reference the documentation here: TODO gitbook docs
+"""
+
 import subprocess
 import pexpect
 import os
