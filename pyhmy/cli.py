@@ -22,12 +22,12 @@ Example:
         >>> assert check_addr not in addrs.values()
         >>> assert "test1" not in addrs.keys()
 
-This module refers to `accounts` as the NAME of an `address` given to by the CLI's
-account keystore.
+This module refers to `accounts` as the NAME/ALIAS of an `address` given to by the
+CLI's account keystore.
 
 Lastly, on init, this module tries to a find a file named `hmy` within the current
-working directory; if found, said file will be the default binary used. The binary
-that is used by this module can be changed with the `set_binary` function.
+working directory. If found, said file will be the default binary used. Note that the
+binary that is used by this module can be changed with the `set_binary` function.
 
 Example:
     Below is a demo of how to set the CLI binary used by the module::
@@ -50,7 +50,7 @@ import re
 
 from .util import get_bls_build_variables, get_gopath
 
-_accounts = {}  # Internal accounts keystore, guaranteed to be up to date.
+_accounts = {}  # Internal accounts keystore, make sure to sync to keep up to date.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
 _environment = os.environ.copy()  # Internal environment dict for Subprocess & Pexpect.
@@ -206,6 +206,9 @@ def get_accounts(address):
     """
     :param address: The 'one1...' address
     :return: A list of account names associated with the param
+
+    Note that a list of account names is needed because 1 address can
+    have multiple names within the CLI's keystore.
     """
     return [acc for acc, addr in get_accounts_keystore().items() if address == addr]
 
