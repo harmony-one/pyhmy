@@ -6,34 +6,10 @@ import re
 
 from .util import get_bls_build_variables, get_gopath
 
-_account_keystore_path = "~/.hmy/account-keys"
+_accounts = {}  # Internal accounts keystore, guaranteed to be up to date.
+_account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
 _environment = os.environ.copy()  # Internal environment dict for Subprocess & Pexpect.
-
-
-def _get_default_hmy_binary_path(file_name="hmy"):
-    """
-    Internal function to get the binary path by looking for the first file with
-    the same name as the param in the current working directory.
-
-    :param file_name: The file name to look for.
-    """
-    assert '/' not in file_name, "file name must not be a path."
-    for root, dirs, files in os.walk(os.getcwd()):
-        if file_name in files:
-            return os.path.join(root, file_name)
-    return ""
-
-
-def _set_account_keystore_path():
-    """
-    Internal function to set the account keystore path according to the binary.
-    """
-    global _account_keystore_path
-    response = single_call("hmy keys location").strip()
-    if not os.path.exists(response):
-        os.mkdir(response)
-    _account_keystore_path = response
 
 
 def _cache_account_function(fn):
@@ -56,9 +32,25 @@ def _cache_account_function(fn):
     return wrap
 
 
-@_cache_account_function
-def get_accounts_keystore():
+def _get_default_hmy_binary_path(file_name="hmy"):
     """
+    Internal function to get the binary path by looking for the first file with
+    the same name as the param in the current working directory.
+
+    :param file_name: The file name to look for.
+    """
+    assert '/' not in file_name, "file name must not be a path."
+    for root, dirs, files in os.walk(os.getcwd()):
+        if file_name in files:
+            return os.path.join(root, file_name)
+    return ""
+
+
+@_cache_account_function
+def _get_current_accounts_keystore():
+    """
+    Internal function that gets the current keystore from the CLI.
+
     :returns A dictionary where the keys are the account names/aliases and the
              values are their 'one1...' addresses.
     """
@@ -78,14 +70,46 @@ def get_accounts_keystore():
     return curr_addresses
 
 
-def set_binary_path(path):
+def _set_account_keystore_path():
+    """
+    Internal function to set the account keystore path according to the binary.
+    """
+    global _account_keystore_path
+    response = single_call("hmy keys location").strip()
+    if not os.path.exists(response):
+        os.mkdir(response)
+    _account_keystore_path = response
+
+
+def _sync_accounts():
+    """
+    Internal function that UPDATES the accounts keystore with the CLI's keystore.
+    """
+    _accounts.clear()
+    _accounts.update(_get_current_accounts_keystore())
+
+
+def get_accounts_keystore():
+    """
+    :returns A dictionary where the keys are the account names/aliases and the
+             values are their 'one1...' addresses. The returned dictionary
+             will be maintained as keys gets added and removed.
+    """
+    _sync_accounts()
+    return _accounts
+
+
+def set_binary(path):
     """
     :param path: The path of the CLI binary to use.
+
+    Note that the exposed keystore will be updated accordingly.
     """
     global _binary_path
     assert os.path.isfile(path), f"`{path}` is not a file"
     _binary_path = path
     _set_account_keystore_path()
+    _sync_accounts()
 
 
 def get_binary_path():
@@ -158,6 +182,7 @@ def remove_account(name):
     except (shutil.Error, FileNotFoundError) as err:
         raise RuntimeError(f"Failed to delete dir: {keystore_path}\n"
                            f"\tException: {err}") from err
+    _sync_accounts()
 
 
 def remove_address(address):
@@ -166,6 +191,7 @@ def remove_address(address):
     """
     for name in get_accounts(address):
         remove_account(name)
+    _sync_accounts()
 
 
 def single_call(command, timeout=60):
@@ -208,4 +234,4 @@ def expect_call(command, timeout=60):
 if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
         and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
     _environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
-set_binary_path(_get_default_hmy_binary_path())
+set_binary(_get_default_hmy_binary_path())
