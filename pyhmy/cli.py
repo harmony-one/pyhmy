@@ -6,7 +6,7 @@ import re
 
 from .util import get_bls_build_variables, get_gopath
 
-_addresses = {}  # Internal address keystore, not guaranteed to be up-to-date unless needed.
+_account_keystore_path = "~/.hmy/account-keys"
 _binary_path = "hmy"  # Internal binary path.
 _environment = os.environ.copy()  # Internal environment dict for Subprocess & Pexpect.
 
@@ -25,11 +25,43 @@ def _get_default_hmy_binary_path(file_name="hmy"):
     return ""
 
 
-def _sync_addresses():
+def _set_account_keystore_path():
     """
-    Internal function to sync address with the binary's keystore addresses.
+    Internal function to set the account keystore path according to the binary.
     """
-    global _addresses
+    global _account_keystore_path
+    response = single_call("hmy keys location").strip()
+    if not os.path.exists(response):
+        os.mkdir(response)
+    _account_keystore_path = response
+
+
+def _cache_account_function(fn):
+    """
+    Internal decorator to cache account related functions. The cached value gets
+    removed as soon as the account keystore directory gets changed or edited.
+    """
+    cache = {}
+    last_mod_hash = None
+
+    def wrap(*args, **kwargs):
+        nonlocal last_mod_hash
+        key = (args, frozenset(kwargs.items()))
+        mod_hash = hash(_account_keystore_path + str(os.path.getmtime(_account_keystore_path)))
+        if last_mod_hash is None or mod_hash != last_mod_hash or key not in cache.keys():
+            last_mod_hash = mod_hash
+            cache[key] = fn(*args, **kwargs)
+        return cache[key]
+
+    return wrap
+
+
+@_cache_account_function
+def get_accounts_keystore():
+    """
+    :returns A dictionary where the keys are the account names/aliases and the
+             values are their 'one1...' addresses.
+    """
     curr_addresses = {}
     response = single_call("hmy keys list")
     lines = response.split("\n")
@@ -43,7 +75,7 @@ def _sync_addresses():
             break  # Done iterating through all of the addresses.
         name, address = columns
         curr_addresses[name.strip()] = address
-    _addresses = curr_addresses
+    return curr_addresses
 
 
 def set_binary_path(path):
@@ -53,7 +85,14 @@ def set_binary_path(path):
     global _binary_path
     assert os.path.isfile(path), f"`{path}` is not a file"
     _binary_path = path
-    _sync_addresses()
+    _set_account_keystore_path()
+
+
+def get_binary_path():
+    """
+    :return: The absolute path of the CLI binary.
+    """
+    return os.path.abspath(_binary_path)
 
 
 def get_version():
@@ -71,52 +110,36 @@ def get_version():
 
 def get_account_keystore_path():
     """
-    :return: The account keystore path of the CLI binary.
+    :return: The absolute path to the account keystore of the CLI binary.
     """
-    response = single_call("hmy keys location").strip()
-    if not os.path.exists(response):
-        os.mkdir(response)
-    return response
+    return os.path.abspath(_account_keystore_path)
 
 
+@_cache_account_function
 def check_address(address):
     """
     :param address: A 'one1...' address.
     :return: Boolean of if the address is in the CLI's keystore.
     """
-    if address in _addresses.values():
-        return True
-    else:
-        _sync_addresses()
-        return address in _addresses.values()
+    return address in get_accounts_keystore().values()
 
 
-def get_binary_path():
-    """
-    :return: The absolute path of the CLI binary.
-    """
-    return os.path.abspath(_binary_path)
-
-
+@_cache_account_function
 def get_address(name):
     """
     :param name: The alias of a key used in the CLI's keystore.
     :return: The associated 'one1...' address.
     """
-    if name in _addresses:
-        return _addresses[name]
-    else:
-        _sync_addresses()
-        return _addresses.get(name, None)
+    return get_accounts_keystore().get(name, None)
 
 
+@_cache_account_function
 def get_accounts(address):
     """
     :param address: The 'one1...' address
     :return: A list of account names associated with the param
     """
-    _sync_addresses()
-    return [acc for acc, addr in _addresses.items() if address == addr]
+    return [acc for acc, addr in get_accounts_keystore().items() if address == addr]
 
 
 def remove_account(name):
@@ -135,7 +158,6 @@ def remove_account(name):
     except (shutil.Error, FileNotFoundError) as err:
         raise RuntimeError(f"Failed to delete dir: {keystore_path}\n"
                            f"\tException: {err}") from err
-    del _addresses[name]
 
 
 def remove_address(address):
@@ -160,7 +182,7 @@ def single_call(command, timeout=60):
     try:
         response = subprocess.check_output(command_toks, env=_environment, timeout=timeout).decode()
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as err:
-        raise RuntimeError(f"Bad arguments for CLI.\n "
+        raise RuntimeError(f"Bad CLI args: `{command}`\n "
                            f"\tException: {err}") from err
     return response
 
@@ -178,12 +200,12 @@ def expect_call(command, timeout=60):
     try:
         proc = pexpect.spawn(f"{_binary_path}", command_toks, env=_environment, timeout=timeout)
     except (pexpect.ExceptionPexpect, pexpect.TIMEOUT) as err:
-        raise RuntimeError(f"Bad arguments for CLI.\n "
+        raise RuntimeError(f"Bad CLI args: `{command}`\n "
                            f"\tException: {err}") from err
     return proc
 
 
-_binary_path = _get_default_hmy_binary_path()
 if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
-        and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fail.
+        and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
     _environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
+set_binary_path(_get_default_hmy_binary_path())
