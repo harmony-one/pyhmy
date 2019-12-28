@@ -68,7 +68,7 @@ def get_bls_build_variables():
     return variables
 
 
-def download_cli(bin_name="hmy", replace=False, verbose=True):
+def download_cli(bin_name="hmy", replace=True, verbose=True):
     """
     This function will download the statically linked CLI binary into a bin directory
     within the current working directory.
