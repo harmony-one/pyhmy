@@ -13,5 +13,5 @@ setup(
     author_email='daniel@harmony.one',
     url="http://harmony.one/",
     packages=['pyhmy'],
-    install_requires=['pexpect', 'requests'],
+    install_requires=['pexpect', 'requests', 'pytest', 'pytest-ordering'],
 )
