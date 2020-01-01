@@ -30,7 +30,7 @@ install:
 	pip install -e .
 
 release: clean
-	python3 -m incremental.update pyhmy --rc
+	python3 -m incremental.update pyhmy
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
