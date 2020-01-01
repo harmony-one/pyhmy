@@ -1,6 +1,8 @@
 import sys
 import warnings
-import pkg_resources
+
+from ._version import __version__
+
 
 from .util import (
     Typgpy,
@@ -32,5 +34,3 @@ if sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
         )
     )
     warnings.resetwarnings()
-
-__version__ = pkg_resources.get_distribution("pyhmy").version
