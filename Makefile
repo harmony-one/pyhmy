@@ -1,6 +1,14 @@
 CURRENT_SIGN_SETTING := $(shell git config commit.gpgSign)
 
-.PHONY: clean-pyc clean-build
+.PHONY: clean-py clean-build
+
+help:
+	@echo "clean-build - remove build artifacts"
+	@echo "clean-py - remove Python file artifacts"
+	@echo "install - install the library locally"
+	@echo "test - run full test suite"
+	@echo "release - package and upload a release"
+	@echo "sdist - package"
 
 clean: clean-build clean-py
 
