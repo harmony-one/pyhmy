@@ -1,6 +1,6 @@
 # Pyhmy - Harmony's python utilities
 
-**This library is for python3 only.** 
+**This library is for python 3 only.** 
 
 [Full documentation is located on Harmony's GitBook](https://harmony.one/) (in progress).
 
@@ -13,10 +13,9 @@ pip install pyhmy
 ```
 
 ## Development
-Clone the repository and then run the following to install the dependencies:
+Clone the repository and then run the following:
 ```bash
-python3 -m pip install requests
-python3 -m pip install pexpect
+make install
 ```
 (Optional) Copy over the CLI binary into `<pyhmy_project_dir>/bin/`. Reference 
 [here](https://app.gitbook.com/@harmony-one/s/home/command-line-interface/using-the-harmony-cli-tool) 
@@ -25,8 +24,16 @@ to download the statically linked CLI for Linux and MacOS*.
 
 ## Running tests
 
-TODO testing flow using pytest
+You can run all of the tests with the following:
+
+```bash
+make test
+```
 
 ## Releasing
 
-TODO Automated release flow with proper versioning. 
+You can release this library with the following command (assuming you have credentials to upload):
+
+```bash
+make release
+```
