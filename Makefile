@@ -20,15 +20,12 @@ test:
 install:
 	pip install -e .
 
-release:
-	clean
+release: clean
 	python3 -m incremental.update pyhmy --rc
-	git push upstream && git push upstream --tags
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
-sdist:
-	clean
+sdist: clean
 ifdef VERSION  # Argument for incremental, reference: https://pypi.org/project/incremental/ .
 	python3 -m incremental.update pyhmy --$(VERSION)
 else
