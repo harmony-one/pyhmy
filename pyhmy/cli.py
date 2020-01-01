@@ -69,8 +69,8 @@ def _cache_account_function(fn):
         key = (args, frozenset(kwargs.items()))
         mod_hash = hash(_account_keystore_path + str(os.path.getmtime(_account_keystore_path)))
         if last_mod_hash is None or mod_hash != last_mod_hash or key not in cache.keys():
-            last_mod_hash = mod_hash
             cache[key] = fn(*args, **kwargs)
+            last_mod_hash = hash(_account_keystore_path + str(os.path.getmtime(_account_keystore_path)))
         return cache[key]
 
     return wrap
