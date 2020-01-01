@@ -17,7 +17,7 @@ Clone the repository and then run the following:
 ```bash
 make install
 ```
-(Optional) Copy over the CLI binary into `<pyhmy_project_dir>/bin/`. Reference 
+(Optional) Copy over the CLI binary into `<pyhmy_repo_directory>/bin/`. Reference 
 [here](https://app.gitbook.com/@harmony-one/s/home/command-line-interface/using-the-harmony-cli-tool) 
 for more details on the Harmony CLI. *Note that this library comes with a function (under the `pyhmy.utils`) 
 to download the statically linked CLI for Linux and MacOS*.
