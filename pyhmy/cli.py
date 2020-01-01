@@ -8,19 +8,17 @@ Example:
     Below is a demo of how to import, manage keys, and interact with the CLI::
         >>> from pyhmy import cli
         >>> cli.single_call("hmy keys add test1")
-        >>> addrs = cli.get_accounts_keystore()
-        >>> assert "test1" in addrs.keys()
-        >>> check_addr = addrs["test1"]
-        >>> accounts_list = cli.get_accounts(check_addr)
-        >>> check_acc = accounts_list[0]
-        >>> assert check_acc == "test1"
-        >>> raw_cli_keys_list_print = cli.single_call("hmy keys list", timeout=2)
-        >>> assert check_addr in raw_cli_keys_list_print
-        >>> assert check_acc in raw_cli_keys_list_print
-        >>> assert addrs[check_acc] == check_addr
-        >>> cli.remove_address(check_addr)
-        >>> assert check_addr not in addrs.values()
-        >>> assert "test1" not in addrs.keys()
+        '**Important** write this seed phrase in a safe place, it is the only way to recover your account if you ever forget your password
+        craft ... tobacco'
+        >>> cli.get_accounts_keystore()
+        {'test1': 'one1aqfeed538xf7n0cfh60tjaeat7yw333pmj6sfu'}
+        >>> check_addr = cli.get_accounts_keystore()["test1"]
+        >>> cli.get_accounts(check_addr)
+        ['test1']
+        >>> cli.single_call("hmy keys list", timeout=2)
+        'NAME                    \t\t                ADDRESS\n\ntest1                                  \tone1aqfeed538xf7n0cfh60tjaeat7yw333pmj6sfu\n'
+        >>> cli.get_accounts_keystore()
+        {}
 
 This module refers to `accounts` as the NAME/ALIAS of an `address` given to by the
 CLI's account keystore.
@@ -31,13 +29,16 @@ binary that is used by this module can be changed with the `set_binary` function
 
 Example:
     Below is a demo of how to set the CLI binary used by the module::
-        >>> from pyhmy import cli
         >>> from pyhmy import util
         >>> import os
         >>> util.download_cli("test", replace=False)
         >>> new_path = os.getcwd() + "/bin/test"
+        >>> new_path
+        '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
+        >>> from pyhmy import cli
         >>> cli.set_binary(new_path)
-        >>> assert new_path == cli.get_binary_path()
+        >>> cli.get_binary_path()
+        '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
 
 For more details, reference the documentation here: TODO gitbook docs
 """
