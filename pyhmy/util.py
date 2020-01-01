@@ -101,7 +101,7 @@ def download_cli(bin_name="hmy", replace=True, verbose=True):
     os.chdir(old_cwd)
 
 
-def json_load(string):
+def json_load(string, **kwargs):
     """
     :param string: The JSON string to load
     :returns A dictionary loaded from a JSON string to a dictionary.
@@ -110,7 +110,7 @@ def json_load(string):
     Note that this prints the failed input should an error arise.
     """
     try:
-        return json.loads(string)
+        return json.loads(string, **kwargs)
     except Exception as e:
         print(f"{Typgpy.FAIL}Could not parse input: '{string}'{Typgpy.ENDC}")
         raise e from e
