@@ -2,17 +2,18 @@ CURRENT_SIGN_SETTING := $(shell git config commit.gpgSign)
 
 .PHONY: clean-pyc clean-build
 
-clean: clean-build clean-pyc
+clean: clean-build clean-py
 
 clean-build:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
 
-clean-pyc:
+clean-py:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
+	find . -name '.pytest_cache' -exec rm -rf {} +
 
 test:
 	py.test tests
