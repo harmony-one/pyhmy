@@ -307,4 +307,6 @@ def expect_call(command, timeout=60):
 if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
         and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
     _environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
-set_binary(_get_default_hmy_binary_path())
+default_bin_path = _get_default_hmy_binary_path()
+if default_bin_path:  # Check prevents needless import fails.
+    set_binary(default_bin_path)
