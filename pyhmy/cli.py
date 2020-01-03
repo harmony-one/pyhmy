@@ -31,12 +31,13 @@ Example:
     Below is a demo of how to set the CLI binary used by the module::
         >>> from pyhmy import util
         >>> import os
-        >>> util.download_cli("test", replace=False)
+        >>> util.download_cli("./bin/test", replace=False)
         >>> new_path = os.getcwd() + "/bin/test"
         >>> new_path
         '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
         >>> from pyhmy import cli
         >>> cli.set_binary(new_path)
+        True
         >>> cli.get_binary_path()
         '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
 
@@ -48,6 +49,7 @@ import pexpect
 import os
 import shutil
 import re
+import stat
 
 from .util import get_bls_build_variables, get_gopath
 
@@ -144,17 +146,40 @@ def get_accounts_keystore():
     return _accounts
 
 
+def is_valid_binary(path):
+    """
+    :param path: Path to the Harmony CLI binary (absolute or relative).
+    :return: If the file at the path is a CLI binary.
+    """
+    path = os.path.realpath(path)
+    os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+    try:
+        proc = subprocess.Popen([path, "version"], env=_environment,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = proc.communicate()
+        if not err:
+            return False
+        return "harmony" in err.decode().strip().lower()
+    except (OSError, subprocess.CalledProcessError, subprocess.SubprocessError):
+        return False
+
+
 def set_binary(path):
     """
     :param path: The path of the CLI binary to use.
+    :returns If the binary has been set.
 
     Note that the exposed keystore will be updated accordingly.
     """
     global _binary_path
-    assert os.path.isfile(path), f"`{path}` is not a file"
+    path = os.path.realpath(path)
+    os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+    if not is_valid_binary(path):
+        return False
     _binary_path = path
     _set_account_keystore_path()
     _sync_accounts()
+    return True
 
 
 def get_binary_path():
