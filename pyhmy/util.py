@@ -94,7 +94,10 @@ def download_cli(path="./bin/hmy", replace=True, verbose=True):
     os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
     if os.path.exists(os.path.join(cwd, "hmy")):  # Save same name file.
         os.rename(os.path.join(cwd, "hmy"), os.path.join(cwd, ".hmy_tmp"))
-    subprocess.call([hmy_script_path, '-d'])
+    if verbose:
+        subprocess.call([hmy_script_path, '-d'])
+    else:
+        subprocess.call([hmy_script_path, '-d'], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
     os.rename(os.path.join(cwd, "hmy"), path)
     if os.path.exists(os.path.join(cwd, ".hmy_tmp")):
         os.rename(os.path.join(cwd, ".hmy_tmp"), os.path.join(cwd, "hmy"))
