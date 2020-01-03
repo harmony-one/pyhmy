@@ -3,6 +3,7 @@ import subprocess
 import os
 import stat
 import sys
+from pathlib import Path
 
 import requests
 
@@ -68,37 +69,39 @@ def get_bls_build_variables():
     return variables
 
 
-def download_cli(bin_name="hmy", replace=True, verbose=True):
+def download_cli(path="./bin/hmy", replace=True, verbose=True):
     """
-    This function will download the statically linked CLI binary into a bin directory
-    within the current working directory.
+    Download the statically linked CLI binary to the specified path.
+    Related files will be saved in the same directory.
 
-    :param bin_name: The desired filename of the binary
+    :param path: The desired path (absolute or relative) of the saved binary.
     :param replace: A flag to force a replacement of the binary/file.
     :param verbose: A flag to enable a report message once the binary is downloaded.
+    :returns the real path of the saved binary.
     """
-    assert isinstance(bin_name, str), "binary name must be a string"
-    assert bin_name, "binary name must be non-empty"
-    assert '/' not in bin_name, "binary name must not be path"
-    if os.path.exists(f"{os.getcwd()}/bin/{bin_name}") and not replace:
+    path = os.path.realpath(path)
+    assert not os.path.isdir(path), f"path `{path}` must specify a file, NOT a directory."
+    if os.path.exists(path) and not replace:
         return
     old_cwd = os.getcwd()
-    os.makedirs(f"{old_cwd}/bin", exist_ok=True)
-    os.chdir(f"{old_cwd}/bin")
-    hmy_script_path = f"{os.getcwd()}/hmy.sh"
+    os.makedirs(Path(path).parent, exist_ok=True)
+    os.chdir(Path(path).parent)
+    cwd = os.path.realpath(os.getcwd())
+    hmy_script_path = os.path.join(cwd, "hmy.sh")
     with open(hmy_script_path, 'w') as f:
         f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
                 .content.decode())
     os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
-    if os.path.exists(f"{os.getcwd()}/hmy"):
-        os.rename(f"{os.getcwd()}/hmy", f"{os.getcwd()}/.hmy_temp")
+    if os.path.exists(os.path.join(cwd, "hmy")):  # Save same name file.
+        os.rename(os.path.join(cwd, "hmy"), os.path.join(cwd, ".hmy_tmp"))
     subprocess.call([hmy_script_path, '-d'])
-    os.rename(f"{os.getcwd()}/hmy", f"{os.getcwd()}/{bin_name}")
-    if os.path.exists(f"{os.getcwd()}/.hmy_temp"):
-        os.rename(f"{os.getcwd()}/.hmy_temp", f"{os.getcwd()}/hmy")
+    os.rename(os.path.join(cwd, "hmy"), path)
+    if os.path.exists(os.path.join(cwd, ".hmy_tmp")):
+        os.rename(os.path.join(cwd, ".hmy_tmp"), os.path.join(cwd, "hmy"))
     if verbose:
-        print(f"Saved harmony binary to: {os.getcwd()}/{bin_name}")
+        print(f"Saved harmony binary to: `{path}`")
     os.chdir(old_cwd)
+    return path
 
 
 def json_load(string, **kwargs):
