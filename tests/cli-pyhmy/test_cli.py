@@ -1,25 +1,55 @@
 import os
+import shutil
+from pathlib import Path
 
 import pytest
 
 from pyhmy import cli
 
-BINARY_FILE_NAME = "cli_test_binary"
+TEMP_DIR = "/tmp/pyhmy-testing/test-cli"
+BINARY_FILE_PATH = f"{TEMP_DIR}/bin/cli_test_binary"
 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup():
+    shutil.rmtree(TEMP_DIR, ignore_errors=True)
+    os.makedirs(TEMP_DIR, exist_ok=True)
     from pyhmy.util import download_cli
-    download_cli(BINARY_FILE_NAME, replace=False, verbose=True)
-    assert os.path.exists(f"{os.getcwd()}/bin/{BINARY_FILE_NAME}")
+    download_cli(BINARY_FILE_PATH, replace=False, verbose=False)
+    assert os.path.exists(BINARY_FILE_PATH)
 
 
 @pytest.mark.run(order=0)
+def test_is_valid():
+    from pyhmy.util import download_cli
+    good_file_path = os.path.realpath(f"{TEMP_DIR}/test_is_valid/hmy")
+    bad_file_path = os.path.realpath(f"{TEMP_DIR}/test_is_valid/bad_hmy")
+    shutil.rmtree(Path(bad_file_path).parent, ignore_errors=True)
+    os.makedirs(Path(bad_file_path).parent, exist_ok=True)
+    Path(bad_file_path).touch()
+    download_cli(good_file_path, replace=True, verbose=False)
+    assert os.path.exists(good_file_path), "harmony cli did not download"
+    assert os.path.exists(bad_file_path), "did not create bad binary"
+    assert cli.is_valid_binary(good_file_path)
+    assert not cli.is_valid_binary(bad_file_path)
+
+
+@pytest.mark.run(order=1)
+def test_bad_bin_set():
+    bad_file_path = os.path.realpath(f"{TEMP_DIR}/test_bad_bin_set/hmy")
+    shutil.rmtree(Path(bad_file_path).parent, ignore_errors=True)
+    os.makedirs(Path(bad_file_path).parent, exist_ok=True)
+    Path(bad_file_path).touch()
+    is_set = cli.set_binary(bad_file_path)
+    assert not is_set
+    assert cli.get_binary_path() != bad_file_path
+
+
+@pytest.mark.run(order=2)
 def test_bin_set():
-    binary_path = f"{os.getcwd()}/bin/{BINARY_FILE_NAME}"
-    cli.set_binary(binary_path)
+    cli.set_binary(BINARY_FILE_PATH)
     cli_binary_path = cli.get_binary_path()
-    assert cli_binary_path == binary_path, f"Binary is invalid: {cli_binary_path} != {binary_path}"
+    assert os.path.realpath(cli_binary_path) == os.path.realpath(BINARY_FILE_PATH)
 
 
 def test_update_keystore():
@@ -37,5 +67,3 @@ def test_update_keystore():
     cli.remove_address(check_addr)
     assert check_addr not in addrs.values()
     assert "test1" not in addrs.keys()
-
-
