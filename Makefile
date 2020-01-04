@@ -16,22 +16,23 @@ clean-build:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
+	rm -fr .eggs/
 
 clean-py:
+	rm -fr .pytest_cache/
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
-	find . -name '.pytest_cache' -exec rm -rf {} +
 
 test:
-	py.test tests
+	python3 -m py.test tests
 
 install:
-	pip install -e .
+	python3 -m pip install -e .
 
 release: clean
 	python3 -m incremental.update pyhmy
-	python setup.py sdist bdist_wheel
+	python3 setup.py sdist bdist_wheel
 	twine upload dist/*
 
 sdist: clean
