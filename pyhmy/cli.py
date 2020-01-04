@@ -132,6 +132,7 @@ def _sync_accounts():
     """
     Internal function that UPDATES the accounts keystore with the CLI's keystore.
     """
+    _set_account_keystore_path()
     _accounts.clear()
     _accounts.update(_get_current_accounts_keystore())
 
@@ -178,7 +179,6 @@ def set_binary(path):
     if not is_valid_binary(path):
         return False
     _binary_path = path
-    _set_account_keystore_path()
     _sync_accounts()
     return True
 
