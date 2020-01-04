@@ -16,6 +16,7 @@ class ControlledLogger:
         """
         if log_dir.endswith('/'):
             log_dir = log_dir[:-1]
+        log_dir = os.path.realpath(log_dir)
         os.makedirs(log_dir, exist_ok=True)
         handler = logging.FileHandler(f"{log_dir}/{logger_name}.log")
         handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
