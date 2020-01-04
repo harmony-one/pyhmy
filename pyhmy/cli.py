@@ -173,6 +173,7 @@ def set_binary(path):
     """
     global _binary_path
     path = os.path.realpath(path)
+    assert os.path.exists(path)
     os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
     if not is_valid_binary(path):
         return False
@@ -307,6 +308,6 @@ def expect_call(command, timeout=60):
 if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
         and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
     _environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
-default_bin_path = _get_default_hmy_binary_path()
-if default_bin_path:  # Check prevents needless import fails.
-    set_binary(default_bin_path)
+_default_bin_path = _get_default_hmy_binary_path()
+if _default_bin_path:  # Check prevents needless import fails.
+    set_binary(_default_bin_path)
