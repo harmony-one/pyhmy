@@ -12,6 +12,7 @@ BINARY_FILE_PATH = f"{TEMP_DIR}/bin/cli_test_binary"
 
 @pytest.fixture(scope="session", autouse=True)
 def setup():
+    print(f"Running test set-up for {os.path.realpath(__file__)}")
     shutil.rmtree(TEMP_DIR, ignore_errors=True)
     os.makedirs(TEMP_DIR, exist_ok=True)
     from pyhmy.util import download_cli

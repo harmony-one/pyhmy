@@ -14,6 +14,7 @@ TEMP_DIR = "/tmp/pyhmy-testing/test-util"
 
 @pytest.fixture(scope="session", autouse=True)
 def setup():
+    print(f"Running test set-up for {os.path.realpath(__file__)}")
     shutil.rmtree(TEMP_DIR, ignore_errors=True)
     os.makedirs(TEMP_DIR, exist_ok=True)
 
