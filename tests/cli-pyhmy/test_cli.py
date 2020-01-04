@@ -12,7 +12,6 @@ BINARY_FILE_PATH = f"{TEMP_DIR}/bin/cli_test_binary"
 
 @pytest.fixture(scope="session", autouse=True)
 def setup():
-    print(f"Running test set-up for {os.path.realpath(__file__)}")
     shutil.rmtree(TEMP_DIR, ignore_errors=True)
     os.makedirs(TEMP_DIR, exist_ok=True)
     from pyhmy.util import download_cli
@@ -22,16 +21,13 @@ def setup():
 
 @pytest.mark.run(order=0)
 def test_is_valid():
-    from pyhmy.util import download_cli
-    good_file_path = os.path.realpath(f"{TEMP_DIR}/test_is_valid/hmy")
     bad_file_path = os.path.realpath(f"{TEMP_DIR}/test_is_valid/bad_hmy")
     shutil.rmtree(Path(bad_file_path).parent, ignore_errors=True)
     os.makedirs(Path(bad_file_path).parent, exist_ok=True)
     Path(bad_file_path).touch()
-    download_cli(good_file_path, replace=True, verbose=False)
-    assert os.path.exists(good_file_path), "harmony cli did not download"
+    assert os.path.exists(BINARY_FILE_PATH), "harmony cli did not download"
     assert os.path.exists(bad_file_path), "did not create bad binary"
-    assert cli.is_valid_binary(good_file_path)
+    assert cli.is_valid_binary(BINARY_FILE_PATH)
     assert not cli.is_valid_binary(bad_file_path)
 
 
