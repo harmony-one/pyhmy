@@ -1,11 +1,7 @@
 import json
 import subprocess
 import os
-import stat
 import sys
-from pathlib import Path
-
-import requests
 
 
 class Typgpy(str):
@@ -67,44 +63,6 @@ def get_bls_build_variables():
         variables["CGO_LDFLAGS"] = f"-L{bls_dir}/lib"
         variables["LD_LIBRARY_PATH"] = f"{bls_dir}/lib:{mcl_dir}/lib"
     return variables
-
-
-def download_cli(path="./bin/hmy", replace=True, verbose=True):
-    """
-    Download the statically linked CLI binary to the specified path.
-    Related files will be saved in the same directory.
-
-    :param path: The desired path (absolute or relative) of the saved binary.
-    :param replace: A flag to force a replacement of the binary/file.
-    :param verbose: A flag to enable a report message once the binary is downloaded.
-    :returns the real path of the saved binary.
-    """
-    path = os.path.realpath(path)
-    assert not os.path.isdir(path), f"path `{path}` must specify a file, NOT a directory."
-    if os.path.exists(path) and not replace:
-        return
-    old_cwd = os.getcwd()
-    os.makedirs(Path(path).parent, exist_ok=True)
-    os.chdir(Path(path).parent)
-    cwd = os.path.realpath(os.getcwd())
-    hmy_script_path = os.path.join(cwd, "hmy.sh")
-    with open(hmy_script_path, 'w') as f:
-        f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
-                .content.decode())
-    os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
-    if os.path.exists(os.path.join(cwd, "hmy")):  # Save same name file.
-        os.rename(os.path.join(cwd, "hmy"), os.path.join(cwd, ".hmy_tmp"))
-    if verbose:
-        subprocess.call([hmy_script_path, '-d'])
-    else:
-        subprocess.call([hmy_script_path, '-d'], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
-    os.rename(os.path.join(cwd, "hmy"), path)
-    if os.path.exists(os.path.join(cwd, ".hmy_tmp")):
-        os.rename(os.path.join(cwd, ".hmy_tmp"), os.path.join(cwd, "hmy"))
-    if verbose:
-        print(f"Saved harmony binary to: `{path}`")
-    os.chdir(old_cwd)
-    return path
 
 
 def json_load(string, **kwargs):

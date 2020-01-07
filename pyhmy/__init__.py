@@ -9,7 +9,6 @@ from .util import (
     get_gopath,
     get_goversion,
     get_bls_build_variables,
-    download_cli,
     json_load
 )
 
