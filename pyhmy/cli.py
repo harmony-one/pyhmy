@@ -29,9 +29,9 @@ binary that is used by this module can be changed with the `set_binary` function
 
 Example:
     Below is a demo of how to set the CLI binary used by the module::
-        >>> from pyhmy import util
         >>> import os
-        >>> util.download_cli("./bin/test", replace=False)
+        >>> env = cli.download("./bin/test", replace=False)
+        >>> cli.environment.update(env)
         >>> new_path = os.getcwd() + "/bin/test"
         >>> new_path
         '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
@@ -50,13 +50,18 @@ import os
 import shutil
 import re
 import stat
+import sys
+from pathlib import Path
+
+import requests
 
 from .util import get_bls_build_variables, get_gopath
 
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
-_environment = os.environ.copy()  # Internal environment dict for Subprocess & Pexpect.
+
+environment = os.environ.copy()  # The environment for the CLI to execute in.
 
 
 def _cache_account_function(fn):
@@ -155,7 +160,7 @@ def is_valid_binary(path):
     path = os.path.realpath(path)
     os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
     try:
-        proc = subprocess.Popen([path, "version"], env=_environment,
+        proc = subprocess.Popen([path, "version"], env=environment,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = proc.communicate()
         if not err:
@@ -194,7 +199,7 @@ def get_version():
     """
     :return: The version string of the CLI binary.
     """
-    proc = subprocess.Popen([_binary_path, "version"], env=_environment,
+    proc = subprocess.Popen([_binary_path, "version"], env=environment,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = proc.communicate()
     if not err:
@@ -280,7 +285,7 @@ def single_call(command, timeout=60):
         command_toks = command_toks[1:]
     command_toks = [_binary_path] + command_toks
     try:
-        response = subprocess.check_output(command_toks, env=_environment, timeout=timeout).decode()
+        response = subprocess.check_output(command_toks, env=environment, timeout=timeout).decode()
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as err:
         raise RuntimeError(f"Bad CLI args: `{command}`\n "
                            f"\tException: {err}") from err
@@ -298,16 +303,62 @@ def expect_call(command, timeout=60):
     if re.match(".*hmy", command_toks[0]):
         command_toks = command_toks[1:]
     try:
-        proc = pexpect.spawn(f"{_binary_path}", command_toks, env=_environment, timeout=timeout)
+        proc = pexpect.spawn(f"{_binary_path}", command_toks, env=environment, timeout=timeout)
     except (pexpect.ExceptionPexpect, pexpect.TIMEOUT) as err:
         raise RuntimeError(f"Bad CLI args: `{command}`\n "
                            f"\tException: {err}") from err
     return proc
 
 
+def download(path="./bin/hmy", replace=True, verbose=True):
+    """
+    Download the CLI binary to the specified path.
+    Related files will be saved in the same directory.
+
+    :param path: The desired path (absolute or relative) of the saved binary.
+    :param replace: A flag to force a replacement of the binary/file.
+    :param verbose: A flag to enable a report message once the binary is downloaded.
+    :returns the environment to run the saved CLI binary.
+    """
+    path = os.path.realpath(path)
+    assert not os.path.isdir(path), f"path `{path}` must specify a file, NOT a directory."
+    if os.path.exists(path) and not replace:
+        return
+    old_cwd = os.getcwd()
+    os.makedirs(Path(path).parent, exist_ok=True)
+    os.chdir(Path(path).parent)
+    cwd = os.path.realpath(os.getcwd())
+
+    hmy_script_path = os.path.join(cwd, "hmy.sh")
+    with open(hmy_script_path, 'w') as f:
+        f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
+                .content.decode())
+    os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
+    if os.path.exists(os.path.join(cwd, "hmy")):  # Save same name file.
+        os.rename(os.path.join(cwd, "hmy"), os.path.join(cwd, ".hmy_tmp"))
+    if verbose:
+        subprocess.call([hmy_script_path, '-d'])
+    else:
+        subprocess.call([hmy_script_path, '-d'], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
+    os.rename(os.path.join(cwd, "hmy"), path)
+    if os.path.exists(os.path.join(cwd, ".hmy_tmp")):
+        os.rename(os.path.join(cwd, ".hmy_tmp"), os.path.join(cwd, "hmy"))
+    if verbose:
+        print(f"Saved harmony binary to: `{path}`")
+
+    env = os.environ.copy()
+    if sys.platform.startswith("linux"):
+        env["LD_LIBRARY_PATH"] = cwd
+    else:
+        env["DYLD_FALLBACK_LIBRARY_PATH"] = cwd
+    os.remove(hmy_script_path)  # Shell script not needed if environment is returned.
+    os.chdir(old_cwd)
+    return env
+
+
 if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
         and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
-    _environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
+    environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
 _default_bin_path = _get_default_hmy_binary_path()
 if _default_bin_path:  # Check prevents needless import fails.
     set_binary(_default_bin_path)
