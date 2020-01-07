@@ -23,46 +23,60 @@ class ControlledLogger:
 
         self.logger = logging.getLogger(logger_name)
         self.logger.addHandler(handler)
-        self._clear()
-
-    def _clear(self):
-        """
-        Internal method to clear the log buffer.
-
-        Note that log buffers are lists to be thread safe.
-        """
+        self._lock = threading.Lock()
+        self._file_dir = f"{log_dir}/{logger_name}.log"
         self.info_buffer = []
         self.debug_buffer = []
         self.warning_buffer = []
         self.error_buffer = []
 
+    def __repr__(self):
+        return f"<ControlledLogger @ {self._file_dir} : {self.logger}>"
+
+    def _clear(self):
+        """
+        Internal method to clear the log buffer.
+        """
+        self.info_buffer.clear()
+        self.debug_buffer.clear()
+        self.warning_buffer.clear()
+        self.error_buffer.clear()
+
     def info(self, msg):
         """
         :param msg: The info message to log
         """
+        self._lock.acquire()
         self.info_buffer.append(f"[{threading.get_ident()}] "
                                 f"{datetime.datetime.utcnow()} : {msg}")
+        self._lock.release()
 
     def debug(self, msg):
         """
         :param msg: The debug message to log
         """
+        self._lock.acquire()
         self.debug_buffer.append(f"[{threading.get_ident()}] "
                                  f"{datetime.datetime.utcnow()} : {msg}")
+        self._lock.release()
 
     def warning(self, msg):
         """
         :param msg: The warning message to log
         """
+        self._lock.acquire()
         self.warning_buffer.append(f"[{threading.get_ident()}] "
                                    f"{datetime.datetime.utcnow()} : {msg}")
+        self._lock.release()
 
     def error(self, msg):
         """
         :param msg: The error message to log
         """
+        self._lock.acquire()
         self.error_buffer.append(f"[{threading.get_ident()}] "
                                  f"{datetime.datetime.utcnow()} : {msg}")
+        self._lock.release()
 
     def print_info(self):
         """
@@ -95,16 +109,18 @@ class ControlledLogger:
         Note that directly after this method call, the respective prints will print
         nothing since all log messages are flushed to file.
         """
-        if self.info_buffer:
-            self.logger.setLevel(logging.INFO)
-            self.logger.info('\n'.join(self.info_buffer))
-        if self.debug_buffer:
-            self.logger.setLevel(logging.DEBUG)
-            self.logger.debug('\n'.join(self.debug_buffer))
-        if self.warning_buffer:
-            self.logger.setLevel(logging.WARNING)
-            self.logger.warning('\n'.join(self.warning_buffer))
-        if self.error_buffer:
-            self.logger.setLevel(logging.ERROR)
-            self.logger.error('\n'.join(self.error_buffer))
+        self._lock.acquire()
+        self.logger.setLevel(logging.DEBUG)
+        for line in self.debug_buffer:
+            self.logger.debug(line)
+        self.logger.setLevel(logging.WARNING)
+        for line in self.warning_buffer:
+            self.logger.warning(line)
+        self.logger.setLevel(logging.ERROR)
+        for line in self.error_buffer:
+            self.logger.error(line)
+        self.logger.setLevel(logging.INFO)
+        for line in self.info_buffer:
+            self.logger.info(line)
         self._clear()
+        self._lock.release()
