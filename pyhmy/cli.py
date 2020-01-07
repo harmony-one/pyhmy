@@ -351,14 +351,13 @@ def download(path="./bin/hmy", replace=True, verbose=True):
         env["LD_LIBRARY_PATH"] = cwd
     else:
         env["DYLD_FALLBACK_LIBRARY_PATH"] = cwd
-    os.remove(hmy_script_path)  # Shell script not needed if environment is returned.
     os.chdir(old_cwd)
     return env
 
 
 if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
         and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
-    environment.update(get_bls_build_variables())  # Needed if using dynamically linked CLI binary.
+    environment.update(get_bls_build_variables())
 _default_bin_path = _get_default_hmy_binary_path()
-if _default_bin_path:  # Check prevents needless import fails.
+if _default_bin_path and is_valid_binary(_default_bin_path):
     set_binary(_default_bin_path)
