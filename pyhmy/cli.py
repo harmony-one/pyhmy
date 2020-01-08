@@ -323,7 +323,7 @@ def download(path="./bin/hmy", replace=True, verbose=True):
     """
     path = os.path.realpath(path)
     parent_dir = Path(path).parent
-    assert os.path.isfile(path), f"path `{path}` must specify a file."
+    assert not os.path.isdir(path), f"path `{path}` must specify a file, not a directory."
 
     if not os.path.exists(path) or replace:
         old_cwd = os.getcwd()
