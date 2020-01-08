@@ -57,6 +57,7 @@ import requests
 
 from .util import get_bls_build_variables, get_gopath
 
+_dylibs = {"libbls384_256.dylib", "libcrypto.1.0.0.dylib", "libgmp.10.dylib", "libgmpxx.4.dylib", "libmcl.dylib"}
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
@@ -321,37 +322,45 @@ def download(path="./bin/hmy", replace=True, verbose=True):
     :returns the environment to run the saved CLI binary.
     """
     path = os.path.realpath(path)
-    assert not os.path.isdir(path), f"path `{path}` must specify a file, NOT a directory."
-    if os.path.exists(path) and not replace:
-        return
-    old_cwd = os.getcwd()
-    os.makedirs(Path(path).parent, exist_ok=True)
-    os.chdir(Path(path).parent)
-    cwd = os.path.realpath(os.getcwd())
+    parent_dir = Path(path).parent
+    assert os.path.isfile(path), f"path `{path}` must specify a file."
 
-    hmy_script_path = os.path.join(cwd, "hmy.sh")
-    with open(hmy_script_path, 'w') as f:
-        f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
-                .content.decode())
-    os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
-    if os.path.exists(os.path.join(cwd, "hmy")):  # Save same name file.
-        os.rename(os.path.join(cwd, "hmy"), os.path.join(cwd, ".hmy_tmp"))
-    if verbose:
-        subprocess.call([hmy_script_path, '-d'])
-    else:
-        subprocess.call([hmy_script_path, '-d'], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
-    os.rename(os.path.join(cwd, "hmy"), path)
-    if os.path.exists(os.path.join(cwd, ".hmy_tmp")):
-        os.rename(os.path.join(cwd, ".hmy_tmp"), os.path.join(cwd, "hmy"))
-    if verbose:
-        print(f"Saved harmony binary to: `{path}`")
+    if not os.path.exists(path) or replace:
+        old_cwd = os.getcwd()
+        os.makedirs(parent_dir, exist_ok=True)
+        os.chdir(parent_dir)
+        hmy_script_path = os.path.join(parent_dir, "hmy.sh")
+        with open(hmy_script_path, 'w') as f:
+            f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
+                    .content.decode())
+        os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
+        same_name_file = False
+        if os.path.exists(os.path.join(parent_dir, "hmy")) and Path(path).name != "hmy":  # Save same name file.
+            same_name_file = True
+            os.rename(os.path.join(parent_dir, "hmy"), os.path.join(parent_dir, ".hmy_tmp"))
+        if verbose:
+            subprocess.call([hmy_script_path, '-d'])
+        else:
+            subprocess.call([hmy_script_path, '-d'], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
+        os.rename(os.path.join(parent_dir, "hmy"), path)
+        if same_name_file:
+            os.rename(os.path.join(parent_dir, ".hmy_tmp"), os.path.join(parent_dir, "hmy"))
+        if verbose:
+            print(f"Saved harmony binary to: `{path}`")
+        os.chdir(old_cwd)
 
     env = os.environ.copy()
-    if sys.platform.startswith("linux"):
-        env["LD_LIBRARY_PATH"] = cwd
+    files_in_parent_dir = set(os.listdir(parent_dir))
+    if files_in_parent_dir.intersection(_dylibs) == _dylibs:
+        if sys.platform.startswith("linux"):
+            env["LD_LIBRARY_PATH"] = parent_dir
+        else:
+            env["DYLD_FALLBACK_LIBRARY_PATH"] = parent_dir
+    elif os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
+            and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
+        env.update(get_bls_build_variables)
     else:
-        env["DYLD_FALLBACK_LIBRARY_PATH"] = cwd
-    os.chdir(old_cwd)
+        raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`")
     return env
 
 
