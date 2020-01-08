@@ -3,6 +3,8 @@ import subprocess
 import os
 import sys
 
+datetime_format = "%Y-%m-%d %H:%M:%S.%f"
+
 
 class Typgpy(str):
     """
