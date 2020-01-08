@@ -21,6 +21,7 @@ class ControlledLogger:
         handler = logging.FileHandler(f"{log_dir}/{logger_name}.log")
         handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
 
+        self.filename = handler.baseFilename
         self.logger = logging.getLogger(logger_name)
         self.logger.addHandler(handler)
         self._lock = threading.Lock()
