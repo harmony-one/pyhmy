@@ -205,7 +205,6 @@ def get_account_keystore_path():
     return os.path.abspath(_account_keystore_path)
 
 
-@_cache_account_function
 def check_address(address):
     """
     :param address: A 'one1...' address.
@@ -214,7 +213,6 @@ def check_address(address):
     return address in get_accounts_keystore().values()
 
 
-@_cache_account_function
 def get_address(name):
     """
     :param name: The alias of a key used in the CLI's keystore.
@@ -223,7 +221,6 @@ def get_address(name):
     return get_accounts_keystore().get(name, None)
 
 
-@_cache_account_function
 def get_accounts(address):
     """
     :param address: The 'one1...' address
