@@ -88,20 +88,6 @@ def _cache_account_function(fn):
     return wrap
 
 
-def _get_default_hmy_binary_path(file_name="hmy"):
-    """
-    Internal function to get the binary path by looking for the first file with
-    the same name as the param in the current working directory.
-
-    :param file_name: The file name to look for.
-    """
-    assert '/' not in file_name, "file name must not be a path."
-    for root, dirs, files in os.walk(os.getcwd()):
-        if file_name in files:
-            return os.path.join(root, file_name)
-    return ""
-
-
 @_cache_account_function
 def _get_current_accounts_keystore():
     """
@@ -365,11 +351,3 @@ def download(path="./bin/hmy", replace=True, verbose=True):
     else:
         raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`")
     return env
-
-
-if os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
-        and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):  # Check prevents needless import fails.
-    environment.update(get_bls_build_variables())
-    _default_bin_path = _get_default_hmy_binary_path()
-    if _default_bin_path and is_valid_binary(_default_bin_path):
-        set_binary(_default_bin_path)
