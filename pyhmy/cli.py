@@ -68,27 +68,6 @@ _binary_path = "hmy"  # Internal binary path.
 environment = os.environ.copy()  # The environment for the CLI to execute in.
 
 
-def _cache_account_function(fn):
-    """
-    Internal decorator to cache account related functions. The cached value gets
-    removed as soon as the account keystore directory gets changed or edited.
-    """
-    cache = {}
-    last_mod_hash = None
-
-    def wrap(*args, **kwargs):
-        nonlocal last_mod_hash
-        key = (args, frozenset(kwargs.items()))
-        mod_hash = hash(_account_keystore_path + str(os.path.getmtime(_account_keystore_path)))
-        if last_mod_hash is None or mod_hash != last_mod_hash or key not in cache.keys():
-            cache[key] = fn(*args, **kwargs)
-            last_mod_hash = hash(_account_keystore_path + str(os.path.getmtime(_account_keystore_path)))
-        return cache[key]
-
-    return wrap
-
-
-@_cache_account_function
 def _get_current_accounts_keystore():
     """
     Internal function that gets the current keystore from the CLI.
