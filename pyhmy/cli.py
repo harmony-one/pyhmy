@@ -51,6 +51,7 @@ import shutil
 import re
 import stat
 import sys
+from multiprocessing import Lock
 from pathlib import Path
 
 import requests
@@ -64,6 +65,7 @@ else:
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
+_keystore_lock = Lock()
 
 environment = os.environ.copy()  # The environment for the CLI to execute in.
 
@@ -75,6 +77,7 @@ def _get_current_accounts_keystore():
     :returns A dictionary where the keys are the account names/aliases and the
              values are their 'one1...' addresses.
     """
+    _keystore_lock.acquire()
     curr_addresses = {}
     response = single_call("hmy keys list")
     lines = response.split("\n")
@@ -88,6 +91,7 @@ def _get_current_accounts_keystore():
             break  # Done iterating through all of the addresses.
         name, address = columns
         curr_addresses[name.strip()] = address
+    _keystore_lock.release()
     return curr_addresses
 
 
