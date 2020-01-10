@@ -19,12 +19,6 @@ Clone the repository and then run the following:
 ```
 make install
 ```
-(Optional) Copy over the CLI binary into `<pyhmy_repo_directory>/bin/`. Reference 
-[here](https://app.gitbook.com/@harmony-one/s/home/command-line-interface/using-the-harmony-cli-tool) 
-for more details on the Harmony CLI. 
-
-> This library comes with a function (under the `pyhmy.utils`) to download the statically 
-linked CLI for Linux and MacOS.
 
 ## Running tests
 
@@ -48,7 +42,5 @@ You can release this library with the following command (assuming you have the c
 make release
 ```
 
-TODO: Rework the benchmark, do the reformatting first before tieing everything together and debugging.
-TODO: For benchmark, make sure to include documentation that one has to update the `pip install pyhmy==20.1.0` version!
 TODO: sample of how to use the library, reference Tezos.
 TODO: start (and finish) some of the documentation. 
