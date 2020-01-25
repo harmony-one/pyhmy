@@ -267,10 +267,11 @@ def remove_address(address):
     _sync_accounts()
 
 
-def single_call(command, timeout=60):
+def single_call(command, timeout=60, error_ok=False):
     """
     :param command: String of command to execute on CLI
     :param timeout: Optional timeout in seconds
+    :param error_ok: Optional flag to allow errors and return whatever possible
     :returns: Decoded string of response from hmy CLI call
     :raises: RuntimeError if bad command
     """
@@ -279,11 +280,13 @@ def single_call(command, timeout=60):
         command_toks = command_toks[1:]
     command_toks = [_binary_path] + command_toks
     try:
-        response = subprocess.check_output(command_toks, env=environment, timeout=timeout).decode()
+        return subprocess.check_output(command_toks, env=environment, timeout=timeout).decode()
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as err:
-        raise RuntimeError(f"Bad CLI args: `{command}`\n "
-                           f"\tException: {err}") from err
-    return response
+        if not error_ok:
+            raise RuntimeError(f"Bad CLI args: `{command}`\n "
+                               f"\tException: {err}") from err
+        if err == subprocess.CalledProcessError:
+            return err.output.decode()
 
 
 def expect_call(command, timeout=60):
