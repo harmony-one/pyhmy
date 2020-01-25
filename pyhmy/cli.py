@@ -65,6 +65,7 @@ else:
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
+_keystore_cache_lock = Lock()
 
 environment = os.environ.copy()  # The environment for the CLI to execute in.
 
@@ -74,22 +75,21 @@ def _cache_and_lock_accounts_keystore(fn):
     Internal decorator to cache the accounts keystore and
     prevent concurrent accesses with locks.
     """
-    lock = Lock()
-    cache_accounts = {}
+    cached_accounts = {}
     last_mod = None
 
     def wrap(*args):
         nonlocal last_mod
-        lock.acquire()
+        _keystore_cache_lock.acquire()
         files_in_dir = str(os.listdir(_account_keystore_path))
         dir_mod_time = str(os.path.getmtime(_account_keystore_path))
         curr_mod = hash(files_in_dir + dir_mod_time + _binary_path)
         if curr_mod != last_mod:
-            cache_accounts.clear()
-            cache_accounts.update(fn(*args))
+            cached_accounts.clear()
+            cached_accounts.update(fn(*args))
             last_mod = curr_mod
-        accounts = cache_accounts.copy()
-        lock.release()
+        accounts = cached_accounts.copy()
+        _keystore_cache_lock.release()
         return accounts
 
     return wrap
