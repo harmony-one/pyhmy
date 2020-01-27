@@ -281,12 +281,11 @@ def single_call(command, timeout=60, error_ok=False):
     command_toks = [_binary_path] + command_toks
     try:
         return subprocess.check_output(command_toks, env=environment, timeout=timeout).decode()
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as err:
+    except subprocess.CalledProcessError as err:
         if not error_ok:
             raise RuntimeError(f"Bad CLI args: `{command}`\n "
                                f"\tException: {err}") from err
-        if isinstance(err, subprocess.CalledProcessError):
-            return err.output.decode()
+        return err.output.decode()
 
 
 def expect_call(command, timeout=60):
@@ -301,7 +300,7 @@ def expect_call(command, timeout=60):
         command_toks = command_toks[1:]
     try:
         proc = pexpect.spawn(f"{_binary_path}", command_toks, env=environment, timeout=timeout)
-    except (pexpect.ExceptionPexpect, pexpect.TIMEOUT) as err:
+    except pexpect.ExceptionPexpect as err:
         raise RuntimeError(f"Bad CLI args: `{command}`\n "
                            f"\tException: {err}") from err
     return proc
