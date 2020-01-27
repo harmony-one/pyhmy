@@ -285,7 +285,7 @@ def single_call(command, timeout=60, error_ok=False):
         if not error_ok:
             raise RuntimeError(f"Bad CLI args: `{command}`\n "
                                f"\tException: {err}") from err
-        if err == subprocess.CalledProcessError:
+        if isinstance(err, subprocess.CalledProcessError):
             return err.output.decode()
 
 
