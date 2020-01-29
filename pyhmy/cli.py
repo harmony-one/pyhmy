@@ -1,8 +1,7 @@
 """Wrapper for Harmony's CLI.
 
-This module makes it easy for one to interact with the Harmony CLI (either
-statically or dynamically linked). It also natively manages all of the keystore
-related features to help with scripting.
+This module makes it easy for one to interact with the Harmony CLI.
+It also natively manages all of the keystore related features to help with scripting.
 
 Example:
     Below is a demo of how to import, manage keys, and interact with the CLI::
@@ -22,10 +21,6 @@ Example:
 
 This module refers to `accounts` as the NAME/ALIAS of an `address` given to by the
 CLI's account keystore.
-
-Lastly, on init, this module tries to a find a file named `hmy` within the current
-working directory. If found, said file will be the default binary used. Note that the
-binary that is used by this module can be changed with the `set_binary` function.
 
 Example:
     Below is a demo of how to set the CLI binary used by the module::
