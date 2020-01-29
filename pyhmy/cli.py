@@ -300,6 +300,7 @@ def expect_call(command, timeout=60):
         command_toks = command_toks[1:]
     try:
         proc = pexpect.spawn(f"{_binary_path}", command_toks, env=environment, timeout=timeout)
+        proc.delaybeforesend = None
     except pexpect.ExceptionPexpect as err:
         raise RuntimeError(f"Bad CLI args: `{command}`\n "
                            f"\tException: {err}") from err
