@@ -90,6 +90,7 @@ def _cache_and_lock_accounts_keystore(fn):
     return wrap
 
 
+@_cache_and_lock_accounts_keystore
 def _get_current_accounts_keystore():
     """
     Internal function that gets the current keystore from the CLI.
@@ -126,6 +127,7 @@ def _set_account_keystore_path():
 
 def _sync_accounts():
     """
+    # TODO: improve syncing...
     Internal function that UPDATES the accounts keystore with the CLI's keystore.
     """
     new_keystore = _get_current_accounts_keystore()
