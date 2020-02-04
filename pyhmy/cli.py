@@ -22,20 +22,6 @@ Example:
 This module refers to `accounts` as the NAME/ALIAS of an `address` given to by the
 CLI's account keystore.
 
-Example:
-    Below is a demo of how to set the CLI binary used by the module::
-        >>> import os
-        >>> env = cli.download("./bin/test", replace=False)
-        >>> cli.environment.update(env)
-        >>> new_path = os.getcwd() + "/bin/test"
-        >>> new_path
-        '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
-        >>> from pyhmy import cli
-        >>> cli.set_binary(new_path)
-        True
-        >>> cli.get_binary_path()
-        '/Users/danielvdm/go/src/github.com/harmony-one/pyhmy/bin/test'
-
 For more details, reference the documentation here: TODO gitbook docs
 """
 
@@ -60,11 +46,37 @@ else:
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
-_keystore_lock = Lock()
+_keystore_cache_lock = Lock()
 
 environment = os.environ.copy()  # The environment for the CLI to execute in.
 
 
+def _cache_and_lock_accounts_keystore(fn):
+    """
+    Internal decorator to cache the accounts keystore and
+    prevent concurrent accesses with locks.
+    """
+    cached_accounts = {}
+    last_mod = None
+
+    def wrap(*args):
+        nonlocal last_mod
+        _keystore_cache_lock.acquire()
+        files_in_dir = str(os.listdir(_account_keystore_path))
+        dir_mod_time = str(os.path.getmtime(_account_keystore_path))
+        curr_mod = hash(files_in_dir + dir_mod_time + _binary_path)
+        if curr_mod != last_mod:
+            cached_accounts.clear()
+            cached_accounts.update(fn(*args))
+            last_mod = curr_mod
+        accounts = cached_accounts.copy()
+        _keystore_cache_lock.release()
+        return accounts
+
+    return wrap
+
+
+@_cache_and_lock_accounts_keystore
 def _get_current_accounts_keystore():
     """
     Internal function that gets the current keystore from the CLI.
@@ -72,10 +84,8 @@ def _get_current_accounts_keystore():
     :returns A dictionary where the keys are the account names/aliases and the
              values are their 'one1...' addresses.
     """
-    _keystore_lock.acquire()
     curr_addresses = {}
     response = single_call("hmy keys list")
-    _keystore_lock.release()
     lines = response.split("\n")
     if "NAME" not in lines[0] or "ADDRESS" not in lines[0]:
         raise ValueError("Name or Address not found on first line of key list")
@@ -105,8 +115,7 @@ def _sync_accounts():
     """
     Internal function that UPDATES the accounts keystore with the CLI's keystore.
     """
-    _accounts.clear()
-    _accounts.update(_get_current_accounts_keystore())
+    _accounts = _get_current_accounts_keystore()
 
 
 def get_accounts_keystore():

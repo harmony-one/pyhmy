@@ -7,5 +7,5 @@ Provides pyhmy version information.
 
 from incremental import Version
 
-__version__ = Version('pyhmy', 20, 1, 16)
+__version__ = Version('pyhmy', 20, 1, 19)
 __all__ = ["__version__"]
