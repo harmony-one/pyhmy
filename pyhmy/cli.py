@@ -90,7 +90,6 @@ def _cache_and_lock_accounts_keystore(fn):
     return wrap
 
 
-@_cache_and_lock_accounts_keystore
 def _get_current_accounts_keystore():
     """
     Internal function that gets the current keystore from the CLI.
