@@ -65,6 +65,7 @@ _keystore_cache_lock = Lock()
 environment = os.environ.copy()  # The environment for the CLI to execute in.
 
 
+# TODO: completely remove caching... we need to improve getting address better internally to REDUCE single calls....
 def _cache_and_lock_accounts_keystore(fn):
     """
     Internal decorator to cache the accounts keystore and
@@ -126,7 +127,6 @@ def _set_account_keystore_path():
 
 def _sync_accounts():
     """
-    # TODO: improve syncing...
     Internal function that UPDATES the accounts keystore with the CLI's keystore.
     """
     new_keystore = _get_current_accounts_keystore()
@@ -354,7 +354,7 @@ def download(path="./bin/hmy", replace=True, verbose=True):
             env["DYLD_FALLBACK_LIBRARY_PATH"] = parent_dir
     elif os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
             and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
-        env.update(get_bls_build_variables)
+        env.update(get_bls_build_variables())
     else:
         raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`")
     return env
