@@ -275,7 +275,7 @@ def single_call(command, timeout=60, error_ok=False):
     :returns: Decoded string of response from hmy CLI call
     :raises: RuntimeError if bad command
     """
-    command_toks = command.split(" ")
+    command_toks = [el for el in command.split(" ") if el]
     if re.match(".*hmy", command_toks[0]):
         command_toks = command_toks[1:]
     command_toks = [_binary_path] + command_toks
@@ -295,7 +295,7 @@ def expect_call(command, timeout=60):
     :returns: A pexpect child program
     :raises: RuntimeError if bad command
     """
-    command_toks = command.split(" ")
+    command_toks = [el for el in command.split(" ") if el]
     if re.match(".*hmy", command_toks[0]):
         command_toks = command_toks[1:]
     try:
