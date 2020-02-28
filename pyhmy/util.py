@@ -2,6 +2,9 @@ import json
 import subprocess
 import os
 import sys
+import datetime
+
+import requests
 
 datetime_format = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -34,6 +37,33 @@ def get_goversion():
     :returns The go-version, assuming that go is installed.
     """
     return subprocess.check_output(["go", "version"]).decode().strip()
+
+
+def is_active_shard(endpoint, delay_tolerance=60):
+    """
+    :param endpoint: The endpoint of the SHARD to check
+    :param delay_tolerance: The time (in seconds) that the shard timestamp can be behind
+    :return: If shard is active or not
+    """
+    payload = """{
+            "jsonrpc": "2.0",
+            "method": "hmy_latestHeader",
+            "params": [  ],
+            "id": 1
+        }"""
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    try:
+        curr_time = datetime.datetime.utcnow()
+        response = requests.request('POST', endpoint, headers=headers, data=payload, allow_redirects=False, timeout=3)
+        body = json.loads(response.content)
+        time_str = body["result"]["timestamp"][:19] + '.0'  # Fit time format
+        timestamp = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=None)
+        time_delta = curr_time - timestamp
+        return abs(time_delta.seconds) < delay_tolerance
+    except (requests.ConnectionError, json.decoder.JSONDecodeError, KeyError):
+        return False
 
 
 def get_bls_build_variables():
