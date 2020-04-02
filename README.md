@@ -10,7 +10,10 @@ and [related codebases](https://github.com/harmony-one).
 ## Installation
 
 ```
-pip install pyhmy
+sudo pip3 install pathlib
+sudo pip3 install pyhmy
+
+Requires Python3.5+
 ```
 
 ## Development
