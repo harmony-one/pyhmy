@@ -10,6 +10,12 @@ and [related codebases](https://github.com/harmony-one).
 ## Installation
 
 ```
+pip install pyhmy
+
+On MacOS:
+
+Make sure you have Python3 installed, and use python3 to install pyhmy
+
 sudo pip3 install pathlib
 sudo pip3 install pyhmy
 
