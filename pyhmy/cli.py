@@ -60,6 +60,7 @@ else:
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
+_arg_prefix = "__PYHMY_ARG_PREFIX__"
 _keystore_cache_lock = Lock()
 
 environment = os.environ.copy()  # The environment for the CLI to execute in.
@@ -136,6 +137,32 @@ def _sync_accounts():
     acc_keys_to_remove = [k for k in _accounts.keys() if k not in new_keystore.keys()]
     for key in acc_keys_to_remove:
         del _accounts[key]
+
+
+def _make_call_command(command):
+    """
+    Internal function that processes a command String or String Arg List for
+    underlying pexpect or subprocess call.
+
+    Note that single quote is not respected for strings.
+    """
+    if isinstance(command, list):
+        command_toks = command
+    else:
+        all_strings = re.findall(r'"(.*?)"', command)
+        for i, string in all_strings:
+            command = command.replace(string, f"{_arg_prefix}_{i}")
+        command_toks_prefix = [el for el in command.split(" ") if el]
+        command_toks = []
+        for el in command_toks_prefix:
+            if el.startswith(f'"{_arg_prefix}_') and el.endswith(f'"'):
+                index = int(el.replace(f'"{_arg_prefix}_', '').replace('"', ''))
+                command_toks.append(all_strings[index])
+            else:
+                command_toks.append(el)
+    if re.match(".*hmy", command_toks[0]):
+        command_toks = command_toks[1:]
+    return command_toks
 
 
 def get_accounts_keystore():
@@ -269,16 +296,13 @@ def remove_address(address):
 
 def single_call(command, timeout=60, error_ok=False):
     """
-    :param command: String of command to execute on CLI
+    :param command: String or String Arg List of command to execute on CLI.
     :param timeout: Optional timeout in seconds
     :param error_ok: Optional flag to allow errors and return whatever possible
     :returns: Decoded string of response from hmy CLI call
     :raises: RuntimeError if bad command
     """
-    command_toks = [el for el in command.split(" ") if el]
-    if re.match(".*hmy", command_toks[0]):
-        command_toks = command_toks[1:]
-    command_toks = [_binary_path] + command_toks
+    command_toks = [_binary_path] + _make_call_command(command)
     try:
         return subprocess.check_output(command_toks, env=environment, timeout=timeout).decode()
     except subprocess.CalledProcessError as err:
@@ -290,14 +314,12 @@ def single_call(command, timeout=60, error_ok=False):
 
 def expect_call(command, timeout=60):
     """
-    :param command: String fo command to execute on CLI
+    :param command: String or String Arg List of command to execute on CLI.
     :param timeout: Optional timeout in seconds
     :returns: A pexpect child program
     :raises: RuntimeError if bad command
     """
-    command_toks = [el for el in command.split(" ") if el]
-    if re.match(".*hmy", command_toks[0]):
-        command_toks = command_toks[1:]
+    command_toks = _make_call_command(command)
     try:
         proc = pexpect.spawn(f"{_binary_path}", command_toks, env=environment, timeout=timeout)
         proc.delaybeforesend = None
