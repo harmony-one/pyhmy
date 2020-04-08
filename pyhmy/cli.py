@@ -150,7 +150,7 @@ def _make_call_command(command):
         command_toks = command
     else:
         all_strings = re.findall(r'"(.*?)"', command)
-        for i, string in all_strings:
+        for i, string in enumerate(all_strings):
             command = command.replace(string, f"{_arg_prefix}_{i}")
         command_toks_prefix = [el for el in command.split(" ") if el]
         command_toks = []
