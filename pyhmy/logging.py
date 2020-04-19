@@ -40,14 +40,14 @@ class ControlledLogger:
         self.logger = logging.getLogger(logger_name)
         self.logger.addHandler(handler)
         self._lock = threading.Lock()
-        self._file_dir = f"{log_dir}/{logger_name}.log"
+        self.filepath = f"{log_dir}/{logger_name}.log"
         self.info_buffer = []
         self.debug_buffer = []
         self.warning_buffer = []
         self.error_buffer = []
 
     def __repr__(self):
-        return f"<ControlledLogger @ {self._file_dir} : {self.logger}>"
+        return f"<ControlledLogger @ {self.filepath} : {self.logger}>"
 
     def _clear(self):
         """
