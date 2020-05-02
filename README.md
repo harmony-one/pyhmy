@@ -1,11 +1,11 @@
 # Pyhmy - Harmony's python utilities
 
-**This library is for python 3 only.** 
+**This library only supports Python 3.6+**
 
-A Python library for interacting and working the [Harmony blockchain](https://harmony.one/) 
+A Python library for interacting and working the [Harmony blockchain](https://harmony.one/)
 and [related codebases](https://github.com/harmony-one).
 
-[Full documentation is located on Harmony's GitBook](https://harmony.one/) (in progress).
+[Full documentation is located on Harmony's GitBook](https://harmony.one/docs) (in progress).
 
 ## Installation
 
@@ -18,8 +18,6 @@ Make sure you have Python3 installed, and use python3 to install pyhmy
 
 sudo pip3 install pathlib
 sudo pip3 install pyhmy
-
-Requires Python3.5+
 ```
 
 ## Development
@@ -52,4 +50,4 @@ make release
 ```
 
 TODO: sample of how to use the library, reference Tezos.
-TODO: start (and finish) some of the documentation. 
+TODO: start (and finish) some of the documentation.
