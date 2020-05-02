@@ -6,6 +6,17 @@ import datetime
 
 import requests
 
+from rpc.blockchain import (
+    get_latest_header
+)
+
+from rpc.exceptions import (
+    RPCError,
+    JSONDecodeError,
+    RequestsError,
+    RequestsTimeoutError,
+)
+
 datetime_format = "%Y-%m-%d %H:%M:%S.%f"
 
 
@@ -45,24 +56,14 @@ def is_active_shard(endpoint, delay_tolerance=60):
     :param delay_tolerance: The time (in seconds) that the shard timestamp can be behind
     :return: If shard is active or not
     """
-    payload = """{
-            "jsonrpc": "2.0",
-            "method": "hmy_latestHeader",
-            "params": [  ],
-            "id": 1
-        }"""
-    headers = {
-        'Content-Type': 'application/json'
-    }
     try:
         curr_time = datetime.datetime.utcnow()
-        response = requests.request('POST', endpoint, headers=headers, data=payload, allow_redirects=False, timeout=3)
-        body = json.loads(response.content)
-        time_str = body["result"]["timestamp"][:19] + '.0'  # Fit time format
+        latest_header = get_latest_header(endpoint)
+        time_str = latest_header["result"]["timestamp"][:19] + '.0'  # Fit time format
         timestamp = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=None)
         time_delta = curr_time - timestamp
         return abs(time_delta.seconds) < delay_tolerance
-    except (requests.ConnectionError, json.decoder.JSONDecodeError, KeyError):
+    except RPCError, JSONDecodeError, RequestsError, RequestsTimeoutError:
         return False
 
 
