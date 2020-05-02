@@ -1,8 +1,6 @@
-from .common import (
+from .request import (
     default_endpoint,
     default_timeout,
-)
-from .request import (
     rpc_request
 )
 

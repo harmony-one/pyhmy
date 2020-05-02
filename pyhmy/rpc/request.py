@@ -2,17 +2,16 @@ import json
 
 import requests
 
-from .common import (
-    default_endpoint,
-    default_timeout
-)
-
 from .exceptions import (
     JSONDecodeError,
     RequestsError,
     ReqesetsTimeoutError,
     RPCError
 )
+
+
+default_endpoint = 'http://localhost:9500'
+default_timeout = 150  # Timeout accounts for potential view change time (in seconds)
 
 
 def base_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout):
