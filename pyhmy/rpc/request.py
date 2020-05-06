@@ -5,7 +5,7 @@ import requests
 from .exceptions import (
     JSONDecodeError,
     RequestsError,
-    ReqesetsTimeoutError,
+    RequestsTimeoutError,
     RPCError
 )
 
