@@ -8,7 +8,7 @@ from .request import (
 ################
 # Network RPCs #
 ################
-def get_node_metadata(endpoint = default_endpoint, timeout = default_timeout):
+def get_node_metadata(endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get config for the node
 
@@ -27,7 +27,7 @@ def get_node_metadata(endpoint = default_endpoint, timeout = default_timeout):
     return rpc_request('hmy_getNodeMetadata', endpoint, [], timeout)['result']
 
 
-def get_sharding_structure(endpoint = default_endpoint, timeout = default_timeout):
+def get_sharding_structure(endpoint = default_endpoint, timeout = default_timeout) -> list:
     """
     Get network sharding structure
 
@@ -46,7 +46,7 @@ def get_sharding_structure(endpoint = default_endpoint, timeout = default_timeou
     return rpc_request('hmy_getShardingStructure', endpoint, [], timeout)['result']
 
 
-def get_leader_address(endpoint = default_endpoint, timeout = default_timeout):
+def get_leader_address(endpoint = default_endpoint, timeout = default_timeout) -> str:
     """
     Get current leader one address
 
@@ -65,7 +65,7 @@ def get_leader_address(endpoint = default_endpoint, timeout = default_timeout):
     return rpc_request('hmy_getLeader', endpoint, [], timeout)['result']
 
 
-def get_block_number(endpoint = default_endpoint, timeout = default_timeout):
+def get_block_number(endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get current block number
 
@@ -84,7 +84,7 @@ def get_block_number(endpoint = default_endpoint, timeout = default_timeout):
     return int(rpc_request('hmy_blockNumber', endpoint, [], timeout)['result'])
 
 
-def get_current_epoch(endpoint = default_endpoint, timeout = default_timeout):
+def get_current_epoch(endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get current epoch number
 
@@ -103,7 +103,7 @@ def get_current_epoch(endpoint = default_endpoint, timeout = default_timeout):
     return int(rpc_request('hmy_getEpoch', endpoint, [], timeout)['result'])
 
 
-def get_gas_price(endpoint = default_endpoint, timeout = default_timeout):
+def get_gas_price(endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get network gas price
 
@@ -122,9 +122,9 @@ def get_gas_price(endpoint = default_endpoint, timeout = default_timeout):
     return int(rpc_request('hmy_gasPrice', endpoint, [], timeout)['result'])
 
 
-def get_num_peers(endpoint = default_endpoint, timeout = default_timeout):
+def get_num_peers(endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
-    Get number of peers
+    Get number of peers connected to the node
 
     Parameters
     ----------
@@ -136,7 +136,7 @@ def get_num_peers(endpoint = default_endpoint, timeout = default_timeout):
     Returns
     -------
     int
-        Count of connected peers
+        Number of connected peers
     """
     return int(rpc_request('net_peerCount', endpoint, [], timeout)['result'])
 
@@ -144,7 +144,7 @@ def get_num_peers(endpoint = default_endpoint, timeout = default_timeout):
 ##############
 # Block RPCs #
 ##############
-def get_latest_header(endpoint = default_endpoint, timeout = default_timeout):
+def get_latest_header(endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get block header of latest block
 
@@ -163,7 +163,7 @@ def get_latest_header(endpoint = default_endpoint, timeout = default_timeout):
     return rpc_request('hmy_latestHeader', endpoint, [], timeout)['result']
 
 
-def get_latest_headers(endpoint = default_endpoint, timeout = default_timeout):
+def get_latest_headers(endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get block header of latest block for beacon chain & shard chain
 
@@ -182,7 +182,9 @@ def get_latest_headers(endpoint = default_endpoint, timeout = default_timeout):
     return rpc_request('hmy_getLatestChainHeaders', endpoint, [], timeout)['result']
 
 
-def get_block_by_hash(block_hash, endpoint = default_endpoint, include_full_tx = False, timeout = default_timeout):
+def get_block_by_hash(block_hash, endpoint = default_endpoint,
+        include_full_tx = False, timeout = default_timeout
+    ) -> dict:
     """
     Get block by hash
 
@@ -209,7 +211,9 @@ def get_block_by_hash(block_hash, endpoint = default_endpoint, include_full_tx =
     return rpc_request('hmy_getBlockByHash', endpoint, params, timeout)['result']
 
 
-def get_block_by_number(block_num, endpoint = default_endpoint, include_full_tx = False, timeout = default_timeout):
+def get_block_by_number(block_num, endpoint = default_endpoint,
+        include_full_tx = False, timeout = default_timeout
+    ) -> dict:
     """
     Get block by number
 
@@ -236,7 +240,7 @@ def get_block_by_number(block_num, endpoint = default_endpoint, include_full_tx 
     return rpc_request('hmy_getBlockByNumber', endpoint, params, timeout)['result']
 
 
-def get_block_transaction_count_by_hash(block_hash, endpoint = default_endpoint, timeout = default_timeout):
+def get_block_transaction_count_by_hash(block_hash, endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get block by hash
 
@@ -263,7 +267,7 @@ def get_block_transaction_count_by_hash(block_hash, endpoint = default_endpoint,
     return int(rpc_request('hmy_getBlockByHash', endpoint, params, timeout)['result'])
 
 
-def get_block_transaction_count_by_number(block_num, endpoint = default_endpoint, timeout = default_timeout):
+def get_block_transaction_count_by_number(block_num, endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get block by number
 
@@ -292,7 +296,7 @@ def get_block_transaction_count_by_number(block_num, endpoint = default_endpoint
 
 def get_blocks(start_block, end_block, endpoint = default_endpoint, include_full_tx = False,
         include_signers = False, timeout = default_timeout
-    ):
+    ) -> list:
     """
     Get list of blocks from a range
 
@@ -327,7 +331,7 @@ def get_blocks(start_block, end_block, endpoint = default_endpoint, include_full
     return rpc_request('hmy_getBlocks', endpoint, params, timeout)['result']
 
 
-def get_block_signers(block_num, endpoint = default_endpoint, timeout = default_timeout):
+def get_block_signers(block_num, endpoint = default_endpoint, timeout = default_timeout) -> list:
     """
     Get list of block signers
 
@@ -351,7 +355,7 @@ def get_block_signers(block_num, endpoint = default_endpoint, timeout = default_
     return rpc_request('hmy_getBlockSigners', endpoint, params, timeout)['result']
 
 
-def get_validators(epoch, endpoint = default_endpoint, timeout = default_timeout):
+def get_validators(epoch, endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get list of validators for a particular epoch
 

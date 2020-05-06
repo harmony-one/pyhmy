@@ -8,7 +8,7 @@ from .request import (
 #########################
 # Transaction Pool RPCs #
 #########################
-def get_pending_transactions(endpoint = default_endpoint, timeout = default_timeout):
+def get_pending_transactions(endpoint = default_endpoint, timeout = default_timeout) -> list:
     """
     Get list of pending transactions
 
@@ -22,7 +22,7 @@ def get_pending_transactions(endpoint = default_endpoint, timeout = default_time
     Returns
     -------
     list
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     return rpc_request('hmy_pendingTransactions', endpoint, [], timeout)['result']
 
@@ -30,7 +30,7 @@ def get_pending_transactions(endpoint = default_endpoint, timeout = default_time
 ####################
 # Transaction RPCs #
 ####################
-def get_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeout = default_timeout):
+def get_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get transaction by hash
 
@@ -46,7 +46,7 @@ def get_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeout = defa
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         tx_hash
@@ -56,7 +56,7 @@ def get_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeout = defa
 
 def get_transaction_by_block_hash_and_index(block_hash, tx_index,
         endpoint = default_endpoint, timeout = default_timeout
-    ):
+    ) -> dict:
     """
     Get transaction based on index in list of transactions for a block by block hash
 
@@ -74,7 +74,7 @@ def get_transaction_by_block_hash_and_index(block_hash, tx_index,
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         block_hash,
@@ -85,7 +85,7 @@ def get_transaction_by_block_hash_and_index(block_hash, tx_index,
 
 def get_transaction_by_block_number_and_index(block_num, tx_index,
         endpoint = default_endpoint, timeout = default_timeout
-    ):
+    ) -> dict:
     """
     Get transaction based on index in list of transactions for a block by block number
 
@@ -103,7 +103,7 @@ def get_transaction_by_block_number_and_index(block_num, tx_index,
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         str(hex(block_num)),
@@ -112,7 +112,7 @@ def get_transaction_by_block_number_and_index(block_num, tx_index,
     return rpc_request('hmy_getTransactionByBlockNumberAndIndex', endpoint, params, timeout)['result']
 
 
-def get_transaction_receipt(tx_receipt, endpoint = default_endpoint, timeout = default_timeout):
+def get_transaction_receipt(tx_receipt, endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get transaction receipt
 
@@ -128,7 +128,7 @@ def get_transaction_receipt(tx_receipt, endpoint = default_endpoint, timeout = d
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         tx_receipt
@@ -136,7 +136,7 @@ def get_transaction_receipt(tx_receipt, endpoint = default_endpoint, timeout = d
     return rpc_request('hmy_getTransactionByHash', endpoint, params, timeout)['result']
 
 
-def get_transaction_error_sink(endpoint = default_endpoint, timeout = default_timeout):
+def get_transaction_error_sink(endpoint = default_endpoint, timeout = default_timeout) -> list:
     """
     Get transaction error sink
 
@@ -150,12 +150,12 @@ def get_transaction_error_sink(endpoint = default_endpoint, timeout = default_ti
     Returns
     -------
     list
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     return rpc_request('hmy_getCurrentTransactionErrorSink', endpoint, [], timeout)['result']
 
 
-def send_raw_transaction(raw_tx, endpoint = default_endpoint, timeout = default_timeout):
+def send_raw_transaction(raw_tx, endpoint = default_endpoint, timeout = default_timeout) -> str:
     """
     Send transaction
 
@@ -182,7 +182,7 @@ def send_raw_transaction(raw_tx, endpoint = default_endpoint, timeout = default_
 ###############################
 # CrossShard Transaction RPCs #
 ###############################
-def get_pending_cx_receipts(endpoint = default_endpoint, timeout = default_timeout):
+def get_pending_cx_receipts(endpoint = default_endpoint, timeout = default_timeout) -> list:
     """
     Get list of pending cross shard transactions
 
@@ -196,12 +196,12 @@ def get_pending_cx_receipts(endpoint = default_endpoint, timeout = default_timeo
     Returns
     -------
     list
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     return rpc_request('hmy_getPendingCXReceipts', endpoint, [], timeout)['result']
 
 
-def get_cx_receipt_by_hash(cx_hash, endpoint = default_endpoint, timeout = default_timeout):
+def get_cx_receipt_by_hash(cx_hash, endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get list of pending cross shard transactions
 
@@ -217,7 +217,7 @@ def get_cx_receipt_by_hash(cx_hash, endpoint = default_endpoint, timeout = defau
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         cx_hash
@@ -225,7 +225,7 @@ def get_cx_receipt_by_hash(cx_hash, endpoint = default_endpoint, timeout = defau
     return rpc_request('hmy_getCXReceiptByHash', endpoint, params, timeout)['result']
 
 
-def resend_cx_receipt(cx_receipt, endpoint = default_endpoint, timeout = default_timeout):
+def resend_cx_receipt(cx_receipt, endpoint = default_endpoint, timeout = default_timeout) -> bool:
     """
     Get list of pending cross shard transactions
 
@@ -252,7 +252,7 @@ def resend_cx_receipt(cx_receipt, endpoint = default_endpoint, timeout = default
 ############################
 # Staking Transaction RPCs #
 ############################
-def get_staking_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeout = default_timeout):
+def get_staking_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeout = default_timeout) -> dict:
     """
     Get staking transaction by hash
 
@@ -268,14 +268,14 @@ def get_staking_transaction_by_hash(tx_hash, endpoint = default_endpoint, timeou
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     return rpc_request('hmy_getStakingTransactionByHash', endpoint, [], timeout)['result']
 
 
 def get_staking_transaction_by_block_hash_and_index(block_hash, tx_index,
         endpoint = default_endpoint, timeout = default_timeout
-    ):
+    ) -> dict:
     """
     Get staking transaction based on index in list of staking transactions for a block by block hash
 
@@ -293,7 +293,7 @@ def get_staking_transaction_by_block_hash_and_index(block_hash, tx_index,
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         block_hash,
@@ -304,7 +304,7 @@ def get_staking_transaction_by_block_hash_and_index(block_hash, tx_index,
 
 def get_staking_transaction_by_block_number_and_index(block_num, tx_index,
         endpoint = default_endpoint, timeout = default_timeout
-    ):
+    ) -> dict:
     """
     Get staking transaction based on index in list of staking transactions for a block by block number
 
@@ -322,7 +322,7 @@ def get_staking_transaction_by_block_number_and_index(block_num, tx_index,
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         str(hex(block_num)),
@@ -331,7 +331,7 @@ def get_staking_transaction_by_block_number_and_index(block_num, tx_index,
     return rpc_request('hmy_getStakingTransactionByBlockNumberAndIndex', endpoint, params, timeout)['result']
 
 
-def get_staking_transaction_error_sink(endpoint = default_endpoint, timeout = default_timeout):
+def get_staking_transaction_error_sink(endpoint = default_endpoint, timeout = default_timeout) -> list:
     """
     Get staking transaction error sink
 
@@ -345,12 +345,12 @@ def get_staking_transaction_error_sink(endpoint = default_endpoint, timeout = de
     Returns
     -------
     list
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     return rpc_request('hmy_getStakingTransactionErrorSink', endpoint, [], timeout)['result']
 
 
-def send_raw_staking_transaction(raw_tx, endpoint = default_endpoint, timeout = default_timeout):
+def send_raw_staking_transaction(raw_tx, endpoint = default_endpoint, timeout = default_timeout) -> str:
     """
     Send staking transaction
 

@@ -5,7 +5,7 @@ from .request import (
 )
 
 
-def get_balance(address, endpoint = default_endpoint, timeout = default_timeout):
+def get_balance(address, endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get current account balance
 
@@ -20,7 +20,7 @@ def get_balance(address, endpoint = default_endpoint, timeout = default_timeout)
 
     Returns
     -------
-    decimal
+    int
         Account balance in ATTO
     """
     params = [
@@ -30,7 +30,7 @@ def get_balance(address, endpoint = default_endpoint, timeout = default_timeout)
     return int(rpc_request('hmy_getBalance', endpoint, params, timeout)['result'])
 
 
-def get_balance_by_block(address, block_num, endpoint = default_endpoint, timeout = default_timeout):
+def get_balance_by_block(address, block_num, endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get account balance at time of given block
 
@@ -57,7 +57,7 @@ def get_balance_by_block(address, block_num, endpoint = default_endpoint, timeou
     return int(rpc_request('hmy_getBalanceByBlockNumber', endpoint, params, timeout)['result'])
 
 
-def get_transaction_count(address, endpoint = default_endpoint, timeout = default_timeout):
+def get_transaction_count(address, endpoint = default_endpoint, timeout = default_timeout) -> int:
     """
     Get number of transactions & staking transactions sent by an account
 
@@ -84,7 +84,7 @@ def get_transaction_count(address, endpoint = default_endpoint, timeout = defaul
 
 def get_transaction_history(address, page = 0, page_size = 1000, include_full_tx = False, tx_type = 'ALL',
         order = 'ASC', endpoint = default_endpoint, timeout = default_timeout
-    ):
+    ) -> dict:
     """
     Get list of transactions sent and/or received by the account
 
@@ -114,7 +114,7 @@ def get_transaction_history(address, page = 0, page_size = 1000, include_full_tx
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         {
@@ -131,7 +131,7 @@ def get_transaction_history(address, page = 0, page_size = 1000, include_full_tx
 
 def get_staking_transaction_history(address, page = 0, page_size = 1000, include_full_tx = False, tx_type = 'ALL',
         order = 'ASC', endpoint = default_endpoint, timeout = default_timeout
-    ):
+    ) -> dict:
     """
     Get list of staking transactions sent by the account
 
@@ -159,7 +159,7 @@ def get_staking_transaction_history(address, page = 0, page_size = 1000, include
     Returns
     -------
     dict
-        [Link]
+        # TODO: Add link to reference RPC documentation
     """
     params = [
         {

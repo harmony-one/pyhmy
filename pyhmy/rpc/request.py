@@ -14,7 +14,7 @@ default_endpoint = 'http://localhost:9500'
 default_timeout = 150  # Timeout accounts for potential view change time (in seconds)
 
 
-def base_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout):
+def base_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout) -> str:
     """
     Basic RPC request
 
@@ -69,7 +69,7 @@ def base_request(method, endpoint = default_endpoint, params = None, timeout = d
         raise RequestsError() from err
 
 
-def rpc_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout):
+def rpc_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout) -> dict:
     """
     RPC request
 
