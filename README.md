@@ -29,6 +29,7 @@ make install
 
 ## Running tests
 
+You need to run a local Harmony blockchain, in order to pass the request tests.
 You can run all of the tests with the following:
 
 ```

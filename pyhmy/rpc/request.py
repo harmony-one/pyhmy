@@ -11,10 +11,10 @@ from .exceptions import (
 
 
 default_endpoint = 'http://localhost:9500'
-default_timeout = 150  # Timeout accounts for potential view change time (in seconds)
+default_timeout = 30
 
 
-def base_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout) -> str:
+def base_request(method, endpoint=default_endpoint, params=None, timeout=default_timeout) -> str:
     """
     Basic RPC request
 
@@ -56,12 +56,11 @@ def base_request(method, endpoint = default_endpoint, params = None, timeout = d
             "params": params
         }
         headers = {
-            'Content-Type:': 'application/json'
+            'Content-Type': 'application/json'
         }
 
-        resp = requests.request('POST', endpoint, headers = headers,
-                                data = json.dumps(payload), timeout = timeout,
-                                allow_redirects = True)
+        resp = requests.request('POST', endpoint, headers=headers, data=json.dumps(payload),
+                                timeout=timeout, allow_redirects=True)
         return resp.content
     except requests.exceptions.Timeout as err:
         raise RequestsTimeoutError() from err
@@ -69,7 +68,7 @@ def base_request(method, endpoint = default_endpoint, params = None, timeout = d
         raise RequestsError() from err
 
 
-def rpc_request(method, endpoint = default_endpoint, params = None, timeout = default_timeout) -> dict:
+def rpc_request(method, endpoint=default_endpoint, params=None, timeout=default_timeout) -> dict:
     """
     RPC request
 
