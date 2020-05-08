@@ -1,13 +1,13 @@
 from .request import (
-    default_endpoint,
-    default_timeout,
+    _default_endpoint,
+    _default_timeout,
     rpc_request
 )
 
 ##################
 # Validator RPCs #
 ##################
-def get_all_validator_addresses(endpoint = default_endpoint, timeout = default_timeout) -> list:
+def get_all_validator_addresses(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get list of all created validator addresses on chain
 
@@ -23,10 +23,10 @@ def get_all_validator_addresses(endpoint = default_endpoint, timeout = default_t
     list
         List of one addresses for all validators on chain
     """
-    return rpc_request('hmy_getAllValidatorAddresses', endpoint, [], timeout)['result']
+    return rpc_request('hmy_getAllValidatorAddresses', endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_validator_information(validator_addr, endpoint = default_endpoint, timeout = default_timeout) -> dict:
+def get_validator_information(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get validator information for validator address
 
@@ -47,10 +47,10 @@ def get_validator_information(validator_addr, endpoint = default_endpoint, timeo
     params = [
         validator_addr
     ]
-    return rpc_request('hmy_getValidatorInformation', endpoint, params, timeout)['result']
+    return rpc_request('hmy_getValidatorInformation', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_all_validator_information(page = -1, endpoint = default_endpoint, timeout = default_timeout) -> list:
+def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get validator information for all validators on chain
 
@@ -71,13 +71,13 @@ def get_all_validator_information(page = -1, endpoint = default_endpoint, timeou
     params = [
         page
     ]
-    return rpc_request('hmy_getAllValidatorInformation', endpoint, params, timeout)['result']
+    return rpc_request('hmy_getAllValidatorInformation', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 ###################
 # Delegation RPCs #
 ###################
-def get_delegations_by_delegator(delegator_addr, endpoint = default_endpoint, timeout = default_timeout) -> list:
+def get_delegations_by_delegator(delegator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get list of delegations by a delegator
 
@@ -98,10 +98,10 @@ def get_delegations_by_delegator(delegator_addr, endpoint = default_endpoint, ti
     params = [
         delegator_addr
     ]
-    return rpc_request('hmy_getDelegationsByDelegator', endpoint, params, timeout)['result']
+    return rpc_request('hmy_getDelegationsByDelegator', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_delegations_by_validator(validator_addr, endpoint = default_endpoint, timeout = default_timeout) -> list:
+def get_delegations_by_validator(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get list of delegations to a validator
 
@@ -122,13 +122,13 @@ def get_delegations_by_validator(validator_addr, endpoint = default_endpoint, ti
     params = [
         validator_addr
     ]
-    return rpc_request('hmy_getDelegationsByValidator', endpoint, params, timeout)['result']
+    return rpc_request('hmy_getDelegationsByValidator', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 ########################
 # Staking Network RPCs #
 ########################
-def get_current_utility_metrics(endpoint = default_endpoint, timeout = default_timeout) -> dict:
+def get_current_utility_metrics(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get current utility metrics of network
 
@@ -144,10 +144,10 @@ def get_current_utility_metrics(endpoint = default_endpoint, timeout = default_t
     dict
         # TODO: Add link to reference RPC documentation
     """
-    return rpc_request('hmy_getCurrentUtilityMetrics', endpoint, [], timeout)['result']
+    return rpc_request('hmy_getCurrentUtilityMetrics', endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_staking_network_info(endpoint = default_endpoint, timeout = default_timeout) -> dict:
+def get_staking_network_info(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get staking network information
 
@@ -163,10 +163,10 @@ def get_staking_network_info(endpoint = default_endpoint, timeout = default_time
     dict
         # TODO: Add link to reference RPC documentation
     """
-    return rpc_request('hmy_getStakingNetworkInfo', endpoint, [], timeout)['result']
+    return rpc_request('hmy_getStakingNetworkInfo', endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_super_committees(endpoint = default_endpoint, timeout = default_timeout) -> dict:
+def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get voting committees for current & previous epoch
 
@@ -182,10 +182,10 @@ def get_super_committees(endpoint = default_endpoint, timeout = default_timeout)
     dict
         # TODO: Add link to reference RPC documentation
     """
-    return rpc_request('hmy_getSuperCommittees', endpoint, [], timeout)['result']
+    return rpc_request('hmy_getSuperCommittees', endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_raw_median_stake_snapshot(endpoint = default_endpoint, timeout = default_timeout) -> dict:
+def get_raw_median_stake_snapshot(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get median stake & additional committee data of the current epoch
 
@@ -201,4 +201,4 @@ def get_raw_median_stake_snapshot(endpoint = default_endpoint, timeout = default
     dict
         # TODO: Add link to reference RPC documentation
     """
-    return rpc_request('hmy_getMedianRawStakeSnapshot', endpoint, [], timeout)['result']
+    return rpc_request('hmy_getMedianRawStakeSnapshot', endpoint=endpoint, timeout=timeout)['result']

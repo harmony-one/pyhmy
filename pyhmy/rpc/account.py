@@ -1,11 +1,11 @@
 from .request import (
-    default_endpoint,
-    default_timeout,
+    _default_endpoint,
+    _default_timeout,
     rpc_request
 )
 
 
-def get_balance(address, endpoint = default_endpoint, timeout = default_timeout) -> int:
+def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get current account balance
 
@@ -27,10 +27,10 @@ def get_balance(address, endpoint = default_endpoint, timeout = default_timeout)
         address,
         'latest'
     ]
-    return int(rpc_request('hmy_getBalance', endpoint, params, timeout)['result'])
+    return int(rpc_request('hmy_getBalance', params=params, endpoint=endpoint, timeout=timeout)['result'], 0)
 
 
-def get_balance_by_block(address, block_num, endpoint = default_endpoint, timeout = default_timeout) -> int:
+def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get account balance at time of given block
 
@@ -54,12 +54,12 @@ def get_balance_by_block(address, block_num, endpoint = default_endpoint, timeou
         address,
         str(hex(block_num))
     ]
-    return int(rpc_request('hmy_getBalanceByBlockNumber', endpoint, params, timeout)['result'])
+    return int(rpc_request('hmy_getBalanceByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result'], 0)
 
 
-def get_transaction_count(address, endpoint = default_endpoint, timeout = default_timeout) -> int:
+def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
-    Get number of transactions & staking transactions sent by an account
+    Get number of transactions & staking transactions sent by an account at current block
 
     Parameters
     ----------
@@ -79,12 +79,12 @@ def get_transaction_count(address, endpoint = default_endpoint, timeout = defaul
         address,
         'latest'
     ]
-    return int(rpc_request('hmy_getTransactionCount', endpoint, params, timeout)['result'])
+    return int(rpc_request('hmy_getTransactionCount', params=params, endpoint=endpoint, timeout=timeout)['result'], 0)
 
 
-def get_transaction_history(address, page = 0, page_size = 1000, include_full_tx = False, tx_type = 'ALL',
-        order = 'ASC', endpoint = default_endpoint, timeout = default_timeout
-    ) -> dict:
+def get_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
+        order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
+    ) -> list:
     """
     Get list of transactions sent and/or received by the account
 
@@ -113,7 +113,7 @@ def get_transaction_history(address, page = 0, page_size = 1000, include_full_tx
 
     Returns
     -------
-    dict
+    list
         # TODO: Add link to reference RPC documentation
     """
     params = [
@@ -126,12 +126,12 @@ def get_transaction_history(address, page = 0, page_size = 1000, include_full_tx
             'order': order
         }
     ]
-    return rpc_request('hmy_getTransactionsHistory', endpoint, params, timeout)['result']
+    return rpc_request('hmy_getTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['transactions']
 
 
-def get_staking_transaction_history(address, page = 0, page_size = 1000, include_full_tx = False, tx_type = 'ALL',
-        order = 'ASC', endpoint = default_endpoint, timeout = default_timeout
-    ) -> dict:
+def get_staking_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
+        order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
+    ) -> list:
     """
     Get list of staking transactions sent by the account
 
@@ -158,7 +158,7 @@ def get_staking_transaction_history(address, page = 0, page_size = 1000, include
 
     Returns
     -------
-    dict
+    list
         # TODO: Add link to reference RPC documentation
     """
     params = [
@@ -171,4 +171,4 @@ def get_staking_transaction_history(address, page = 0, page_size = 1000, include
             'order': order
         }
     ]
-    return rpc_request('hmy_getStakingTransactionsHistory', endpoint, params, timeout)['result']
+    return rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['transactions']

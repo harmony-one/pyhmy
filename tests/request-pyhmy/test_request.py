@@ -34,7 +34,7 @@ def setup():
 
 
 @pytest.mark.run(order=1)
-def test_connection_error():
+def test_request_connection_error():
     # Find available port
     s = socket.socket()
     s.bind(('localhost', 0))
@@ -48,19 +48,19 @@ def test_connection_error():
     try:
         bad_request = request.rpc_request('hmy_getNodeMetadata', endpoint=bad_endpoint)
     except Exception as e:
-        assert type(e) == exceptions.RequestsError
+        assert isinstance(e, exceptions.RequestsError)
     assert bad_request is None
 
 
 @pytest.mark.run(order=2)
-def test_rpc_error():
+def test_request_rpc_error():
     error_request = None
     try:
         error_request = request.rpc_request('hmy_getBalance')
     except (exceptions.RequestsTimeoutError, exceptions.RequestsError) as err:
         pytest.skip("can not connect to local blockchain", allow_module_level=True)
     except Exception as e:
-        assert type(e) == exceptions.RPCError
+        assert isinstance(e, exceptions.RPCError)
     assert error_request is None
 
 
@@ -97,8 +97,8 @@ def test_rpc_request():
 
     rpc_response = None
     try:
-        rpc_response = request.rpc_request(method, endpoint, params, timeout)
-    except exceptions.JSONDecodeError as e:
+        rpc_response = request.rpc_request(method, params, endpoint, timeout)
+    except exceptions.RPCError as e:
         assert 'error' in resp
 
     if rpc_response is not None:

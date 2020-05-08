@@ -10,11 +10,11 @@ from .exceptions import (
 )
 
 
-default_endpoint = 'http://localhost:9500'
-default_timeout = 30
+_default_endpoint = 'http://localhost:9500'
+_default_timeout = 30
 
 
-def base_request(method, endpoint=default_endpoint, params=None, timeout=default_timeout) -> str:
+def base_request(method, params=None, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
     """
     Basic RPC request
 
@@ -22,10 +22,10 @@ def base_request(method, endpoint=default_endpoint, params=None, timeout=default
     ---------
     method: str
         RPC Method to call
-    endpoint: :obj:`str`, optional
-        Endpoint to send request to
     params: :obj:`list`, optional
         Parameters for the RPC method
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
     timeout: :obj:`int`, optional
         Timeout in seconds
 
@@ -46,7 +46,7 @@ def base_request(method, endpoint=default_endpoint, params=None, timeout=default
     if params is None:
         params = []
     elif not isinstance(params, list):
-        raise TypeError(f'invalid type {type(params)}')
+        raise TypeError(f'invalid type {params.__class__}')
 
     try:
         payload = {
@@ -68,7 +68,7 @@ def base_request(method, endpoint=default_endpoint, params=None, timeout=default
         raise RequestsError() from err
 
 
-def rpc_request(method, endpoint=default_endpoint, params=None, timeout=default_timeout) -> dict:
+def rpc_request(method, params=None, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     RPC request
 
@@ -76,10 +76,10 @@ def rpc_request(method, endpoint=default_endpoint, params=None, timeout=default_
     ---------
     method: str
         RPC Method to call
-    endpoint: :obj:`str`, optional
-        Endpoint to send request to
     params: :obj:`list`, optional
         Parameters for the RPC method
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
     timeout: :obj:`int`, optional
         Timeout in seconds
 
@@ -105,7 +105,7 @@ def rpc_request(method, endpoint=default_endpoint, params=None, timeout=default_
     --------
     base_request
     """
-    raw_resp = base_request(method, endpoint, params, timeout)
+    raw_resp = base_request(method, params, endpoint, timeout)
 
     try:
         resp = json.loads(raw_resp)
