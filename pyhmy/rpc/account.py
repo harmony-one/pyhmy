@@ -171,4 +171,4 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
             'order': order
         }
     ]
-    return rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['transactions']
+    return rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['staking_transactions']
