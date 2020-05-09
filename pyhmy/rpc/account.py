@@ -4,6 +4,10 @@ from .request import (
     rpc_request
 )
 
+from .blockchain import (
+    get_sharding_structure
+)
+
 
 def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
@@ -172,3 +176,27 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
         }
     ]
     return rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['staking_transactions']
+
+def get_balance_on_all_shards(address, endpoint=_default_endpoint, timeout=_default_timeout):
+    """
+    Get current account balance in all shards
+
+    Parameters
+    ----------
+    address: str
+        Address to get balance for
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds per request
+
+    Returns
+    -------
+    dict
+        Account balance per shard in ATTO
+    """
+    balances = {}
+    sharding_structure = get_sharding_structure(endpoint=endpoint, timeout=timeout)
+    for shard in sharding_structure:
+        balances[shard['shardID']] = get_balance(address, endpoint=shard['http'], timeout=timeout)
+    return balances
