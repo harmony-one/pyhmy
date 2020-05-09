@@ -3,6 +3,12 @@ import warnings
 
 from ._version import __version__
 
+from .rpc import (
+    account,
+    blockchain,
+    staking,
+    transaction
+)
 
 from .util import (
     Typgpy,

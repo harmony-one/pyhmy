@@ -1,8 +1,11 @@
 import pytest
 import requests
 
+from pyhmy import (
+    account
+)
+
 from pyhmy.rpc import (
-    account,
     exceptions
 )
 

@@ -1,8 +1,11 @@
 import pytest
 import requests
 
+from pyhmy import (
+    transaction
+)
+
 from pyhmy.rpc import (
-    transaction,
     exceptions
 )
 

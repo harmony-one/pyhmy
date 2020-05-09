@@ -1,8 +1,11 @@
 import pytest
 import requests
 
+from pyhmy import (
+    blockchain
+)
+
 from pyhmy.rpc import (
-    blockchain,
     exceptions
 )
 

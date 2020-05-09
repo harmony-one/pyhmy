@@ -1,8 +1,11 @@
 import pytest
 import requests
 
+from pyhmy import (
+    staking
+)
+
 from pyhmy.rpc import (
-    staking,
     exceptions
 )
 
