@@ -7,7 +7,8 @@ from pyhmy.rpc import (
 )
 
 
-explorer_node = 'http://localhost:9599'
+explorer_endpoint = 'http://localhost:9599'
+endpoint_shard_one = 'http://localhost:9501'
 local_test_address = 'one1zksj3evekayy90xt4psrz8h6j2v3hla4qwz4ur'
 test_validator_address = 'one18tvf56zqjkjnak686lwutcp5mqfnvee35xjnhc'
 genesis_block_number = 0
@@ -38,15 +39,15 @@ def test_get_balance_by_block(setup_blockchain):
 
 @pytest.mark.run(order=3)
 def test_get_transaction_count(setup_blockchain):
-    transactions = _test_account_rpc(account.get_transaction_count, local_test_address)
+    transactions = _test_account_rpc(account.get_transaction_count, local_test_address, endpoint=endpoint_shard_one)
     assert transactions > 0
 
 @pytest.mark.run(order=4)
 def test_get_transaction_history(setup_blockchain):
-    tx_history = _test_account_rpc(account.get_transaction_history, local_test_address, endpoint=explorer_node)
+    tx_history = _test_account_rpc(account.get_transaction_history, local_test_address, endpoint=explorer_endpoint)
     assert len(tx_history) >= 0
 
 @pytest.mark.run(order=5)
 def test_get_staking_transaction_history(setup_blockchain):
-    staking_tx_history = _test_account_rpc(account.get_staking_transaction_history, test_validator_address, endpoint=explorer_node)
+    staking_tx_history = _test_account_rpc(account.get_staking_transaction_history, test_validator_address, endpoint=explorer_endpoint)
     assert len(staking_tx_history) > 0
