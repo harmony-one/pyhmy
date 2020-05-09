@@ -238,12 +238,12 @@ def get_block_by_hash(block_hash, endpoint=_default_endpoint, include_full_tx=Fa
 
 def get_block_transaction_count_by_number(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
-    Get block by number
+    Get transaction count for specific block number
 
     Parameters
     ----------
     block_num: int
-        Block number to get transaction count
+        Block number to get transaction count for
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     include_full_tx: :obj:`bool`, optional
@@ -266,7 +266,7 @@ def get_block_transaction_count_by_number(block_num, endpoint=_default_endpoint,
 
 def get_block_transaction_count_by_hash(block_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
-    Get block by hash
+    Get transaction count for specific block hash for
 
     Parameters
     ----------
@@ -331,7 +331,7 @@ def get_blocks(start_block, end_block, endpoint=_default_endpoint, include_full_
 
 def get_block_signers(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
-    Get list of block signers
+    Get list of block signers for specific block number
 
     Parameters
     ----------
@@ -355,7 +355,7 @@ def get_block_signers(block_num, endpoint=_default_endpoint, timeout=_default_ti
 
 def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
-    Get list of validators for a particular epoch
+    Get list of validators for specific epoch number
 
     Parameters
     ----------

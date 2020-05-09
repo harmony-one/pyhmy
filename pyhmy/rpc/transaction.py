@@ -58,14 +58,14 @@ def get_transaction_by_block_hash_and_index(block_hash, tx_index,
         endpoint=_default_endpoint, timeout=_default_timeout
     ) -> dict:
     """
-    Get transaction based on index in list of transactions for a block by block hash
+    Get transaction based on index in list of transactions in a block by block hash
 
     Parameters
     ----------
     block_hash: str
         Block hash for transaction
     tx_index: int
-        Transaction hash to fetch
+        Transaction index to fetch
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -87,14 +87,14 @@ def get_transaction_by_block_number_and_index(block_num, tx_index,
         endpoint=_default_endpoint, timeout=_default_timeout
     ) -> dict:
     """
-    Get transaction based on index in list of transactions for a block by block number
+    Get transaction based on index in list of transactions in a block by block number
 
     Parameters
     ----------
     block_num: int
         Block number for transaction
     tx_index: int
-        Transaction hash to fetch
+        Transaction index to fetch
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -133,7 +133,7 @@ def get_transaction_receipt(tx_receipt, endpoint=_default_endpoint, timeout=_def
     params = [
         tx_receipt
     ]
-    return rpc_request('hmy_getTransactionByHash', params=params, endpoint=endpoint, timeout=timeout)['result']
+    return rpc_request('hmy_getTransactionReceipt', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_transaction_error_sink(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -157,7 +157,7 @@ def get_transaction_error_sink(endpoint=_default_endpoint, timeout=_default_time
 
 def send_raw_transaction(raw_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
     """
-    Send transaction
+    Send signed transaction
 
     Parameters
     ----------
@@ -203,7 +203,7 @@ def get_pending_cx_receipts(endpoint=_default_endpoint, timeout=_default_timeout
 
 def get_cx_receipt_by_hash(cx_hash, endpoint = _default_endpoint, timeout = _default_timeout) -> dict:
     """
-    Get list of pending cross shard transactions
+    Get cross shard receipt by hash
 
     Parameters
     ----------
@@ -227,7 +227,7 @@ def get_cx_receipt_by_hash(cx_hash, endpoint = _default_endpoint, timeout = _def
 
 def resend_cx_receipt(cx_receipt, endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
     """
-    Get list of pending cross shard transactions
+    Send cross shard receipt
 
     Parameters
     ----------
@@ -287,7 +287,7 @@ def get_staking_transaction_by_block_hash_and_index(block_hash, tx_index,
     block_hash: str
         Block hash for staking transaction
     tx_index: int
-        Index of staking transaction in block
+        Staking transaction index to fetch
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -316,7 +316,7 @@ def get_staking_transaction_by_block_number_and_index(block_num, tx_index,
     block_num: int
         Block number for staking transaction
     tx_index: int
-        Index of staking transaction in block
+        Staking transaction index to fetch
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -355,7 +355,7 @@ def get_staking_transaction_error_sink(endpoint=_default_endpoint, timeout=_defa
 
 def send_raw_staking_transaction(raw_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
     """
-    Send staking transaction
+    Send signed staking transaction
 
     Parameters
     ----------

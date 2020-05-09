@@ -63,7 +63,7 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
 
 def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
-    Get number of transactions & staking transactions sent by an account at current block
+    Get number of transactions & staking transactions sent by an account
 
     Parameters
     ----------
@@ -77,7 +77,7 @@ def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_
     Returns
     -------
     int
-        Number of transaction sent by the account (account nonce)
+        Number of transactions sent by the account (account nonce)
     """
     params = [
         address,
@@ -98,7 +98,7 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
         Address to get transaction history for
     page: :obj:`int`, optional
         Page to request for pagination
-    page-size: :obj:`int`, optional
+    page_size: :obj:`int`, optional
         Size of page for pagination
     include_full_tx: :obj:`bool`, optional
         True to include full transaction data
@@ -175,7 +175,9 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
             'order': order
         }
     ]
+    # Using v2 API, because getStakingTransactionHistory not implemented in v1
     return rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['staking_transactions']
+
 
 def get_balance_on_all_shards(address, endpoint=_default_endpoint, timeout=_default_timeout):
     """

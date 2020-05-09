@@ -53,3 +53,5 @@ make release
 TODO: sample of how to use the library, reference Tezos.
 TODO: start (and finish) some of the documentation.
 TODO: add more blockchain rpcs
+TODO: check None return types for rpcs
+TODO: more detailed tests for rpcs
