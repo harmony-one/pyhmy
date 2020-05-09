@@ -5,7 +5,7 @@
 A Python library for interacting and working the [Harmony blockchain](https://harmony.one/)
 and [related codebases](https://github.com/harmony-one).
 
-[Full documentation is located on Harmony's GitBook](https://harmony.one/docs) (in progress).
+[Full documentation is located on Harmony's GitBook](https://docs.harmony.one/) (in progress).
 
 ## Installation
 
@@ -29,7 +29,7 @@ make install
 
 ## Running tests
 
-You need to run a local Harmony blockchain, in order to pass the request tests.
+You need to run a local Harmony blockchain (instructions [here](https://github.com/harmony-one/harmony/README.md)) that has staking enabled.
 You can run all of the tests with the following:
 
 ```
@@ -52,3 +52,4 @@ make release
 
 TODO: sample of how to use the library, reference Tezos.
 TODO: start (and finish) some of the documentation.
+TODO: add more blockchain rpcs
