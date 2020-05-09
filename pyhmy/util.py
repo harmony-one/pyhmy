@@ -24,7 +24,7 @@ class Typgpy(str):
     """
     Typography constants for pretty printing.
 
-    Note that an ENDC is needed to made the end of a 'highlighted' text segment.
+    Note that an ENDC is needed to mark the end of a 'highlighted' text segment.
     """
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -58,8 +58,8 @@ def is_active_shard(endpoint, delay_tolerance=60):
     """
     try:
         curr_time = datetime.datetime.utcnow()
-        latest_header = get_latest_header(endpoint)
-        time_str = latest_header["result"]["timestamp"][:19] + '.0'  # Fit time format
+        latest_header = get_latest_header(endpoint=endpoint)
+        time_str = latest_header["timestamp"][:19] + '.0'  # Fit time format
         timestamp = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=None)
         time_delta = curr_time - timestamp
         return abs(time_delta.seconds) < delay_tolerance
