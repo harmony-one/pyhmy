@@ -1,11 +1,11 @@
 # Pyhmy - Harmony's python utilities
 
-**This library is for python 3 only.** 
+**This library only supports Python 3.6+**
 
-A Python library for interacting and working the [Harmony blockchain](https://harmony.one/) 
+A Python library for interacting and working the [Harmony blockchain](https://harmony.one/)
 and [related codebases](https://github.com/harmony-one).
 
-[Full documentation is located on Harmony's GitBook](https://harmony.one/) (in progress).
+[Full documentation is located on Harmony's GitBook](https://docs.harmony.one/) (in progress).
 
 ## Installation
 
@@ -18,8 +18,6 @@ Make sure you have Python3 installed, and use python3 to install pyhmy
 
 sudo pip3 install pathlib
 sudo pip3 install pyhmy
-
-Requires Python3.5+
 ```
 
 ## Development
@@ -31,6 +29,7 @@ make install
 
 ## Running tests
 
+You need to run a local Harmony blockchain (instructions [here](https://github.com/harmony-one/harmony/README.md)) that has staking enabled.
 You can run all of the tests with the following:
 
 ```
@@ -52,4 +51,7 @@ make release
 ```
 
 TODO: sample of how to use the library, reference Tezos.
-TODO: start (and finish) some of the documentation. 
+TODO: start (and finish) some of the documentation.
+TODO: add more blockchain rpcs
+TODO: check None return types for rpcs
+TODO: more detailed tests for rpcs

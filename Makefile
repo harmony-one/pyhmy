@@ -25,7 +25,7 @@ clean-py:
 	find . -name '*~' -exec rm -f {} +
 
 test:
-	python3 -m py.test tests
+	python3 -m py.test -r s -s tests
 
 install:
 	python3 -m pip install -e .
