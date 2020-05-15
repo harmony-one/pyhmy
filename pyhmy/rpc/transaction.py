@@ -1,8 +1,10 @@
 from .request import (
-    _default_endpoint,
-    _default_timeout,
     rpc_request
 )
+
+
+_default_endpoint = 'http://localhost:9500'
+_default_timeout = 30
 
 
 #########################

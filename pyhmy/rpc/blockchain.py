@@ -1,8 +1,9 @@
 from .request import (
-    _default_endpoint,
-    _default_timeout,
     rpc_request
 )
+
+_default_endpoint = 'http://localhost:9500'
+_default_timeout = 30
 
 
 ################
@@ -81,7 +82,7 @@ def get_block_number(endpoint=_default_endpoint, timeout=_default_timeout) -> in
     int
         Current block number
     """
-    return int(rpc_request('hmy_blockNumber', endpoint=endpoint, timeout=timeout)['result'], 0)
+    return int(rpc_request('hmy_blockNumber', endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 def get_current_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -100,7 +101,7 @@ def get_current_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> i
     int
         Current epoch number
     """
-    return int(rpc_request('hmy_getEpoch', endpoint=endpoint, timeout=timeout)['result'], 0)
+    return int(rpc_request('hmy_getEpoch', endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 def get_gas_price(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -119,7 +120,7 @@ def get_gas_price(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     int
         Network gas price
     """
-    return int(rpc_request('hmy_gasPrice', endpoint=endpoint, timeout=timeout)['result'])
+    return int(rpc_request('hmy_gasPrice', endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 def get_num_peers(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -138,7 +139,7 @@ def get_num_peers(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     int
         Number of connected peers
     """
-    return int(rpc_request('net_peerCount', endpoint=endpoint, timeout=timeout)['result'], 0)
+    return int(rpc_request('net_peerCount', endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 ##############
@@ -260,7 +261,7 @@ def get_block_transaction_count_by_number(block_num, endpoint=_default_endpoint,
         str(hex(block_num))
     ]
     return int(rpc_request('hmy_getBlockTransactionCountByNumber', params=params,
-        endpoint=endpoint, timeout=timeout)['result'], 0
+        endpoint=endpoint, timeout=timeout)['result'], 16
     )
 
 
@@ -288,7 +289,7 @@ def get_block_transaction_count_by_hash(block_hash, endpoint=_default_endpoint, 
         block_hash
     ]
     return int(rpc_request('hmy_getBlockTransactionCountByHash', params=params,
-        endpoint=endpoint, timeout=timeout)['result'], 0
+        endpoint=endpoint, timeout=timeout)['result'], 16
     )
 
 

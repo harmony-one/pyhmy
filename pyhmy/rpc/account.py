@@ -1,12 +1,13 @@
 from .request import (
-    _default_endpoint,
-    _default_timeout,
     rpc_request
 )
 
 from .blockchain import (
     get_sharding_structure
 )
+
+_default_endpoint = 'http://localhost:9500'
+_default_timeout = 30
 
 
 def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -31,7 +32,7 @@ def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -
         address,
         'latest'
     ]
-    return int(rpc_request('hmy_getBalance', params=params, endpoint=endpoint, timeout=timeout)['result'], 0)
+    return int(rpc_request('hmy_getBalance', params=params, endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -58,7 +59,7 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
         address,
         str(hex(block_num))
     ]
-    return int(rpc_request('hmy_getBalanceByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result'], 0)
+    return int(rpc_request('hmy_getBalanceByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -83,7 +84,7 @@ def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_
         address,
         'latest'
     ]
-    return int(rpc_request('hmy_getTransactionCount', params=params, endpoint=endpoint, timeout=timeout)['result'], 0)
+    return int(rpc_request('hmy_getTransactionCount', params=params, endpoint=endpoint, timeout=timeout)['result'], 16)
 
 
 def get_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
@@ -130,7 +131,8 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
             'order': order
         }
     ]
-    return rpc_request('hmy_getTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['transactions']
+    tx_history = rpc_request('hmy_getTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)
+    return tx_history['result']['transactions']
 
 
 def get_staking_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
@@ -176,7 +178,8 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
         }
     ]
     # Using v2 API, because getStakingTransactionHistory not implemented in v1
-    return rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)['result']['staking_transactions']
+    stx_history =  rpc_request('hmyv2_getStakingTransactionsHistory', params=params, endpoint=endpoint, timeout=timeout)
+    return stx_history['result']['staking_transactions']
 
 
 def get_balance_on_all_shards(address, endpoint=_default_endpoint, timeout=_default_timeout):
