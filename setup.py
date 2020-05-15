@@ -1,5 +1,5 @@
 import pathlib
-from setuptools import setup
+from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -14,19 +14,16 @@ setup(
     author='Daniel Van Der Maden',
     author_email='daniel@harmony.one',
     url="http://harmony.one/",
-    packages=['pyhmy'],
+    packages=find_packages(),
     keywords=['Harmony', 'blockchain', 'protocol'],
     install_requires=[
         'pexpect',
         'requests',
-        'pytest',
-        'pytest-ordering',
-        'incremental',
-        'click',
-        'twisted'
     ],
     setup_requires=[
         'incremental',
+        'pytest',
+        'pytest-ordering',
         'click',
         'twisted'
     ],
