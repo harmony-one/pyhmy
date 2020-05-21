@@ -10,6 +10,7 @@ from pyhmy.rpc import (
 )
 
 
+explorer_endpoint = 'http://localhost:9599'
 test_validator_address = 'one18tvf56zqjkjnak686lwutcp5mqfnvee35xjnhc'
 
 def _test_staking_rpc(fn, *args, **kwargs):
@@ -64,3 +65,17 @@ def test_get_super_committees(setup_blockchain):
 @pytest.mark.run(order=9)
 def test_get_raw_median_stake_snapshot(setup_blockchain):
     _test_staking_rpc(staking.get_raw_median_stake_snapshot)
+
+@pytest.mark.run(order=10)
+def test_get_validator_information_by_block(setup_blockchain):
+    # Apparently validator information not created until block after create-validator transaction is accepted, so +1 block
+    _test_staking_rpc(staking.get_validator_information_by_block, test_validator_address, setup_blockchain + 1, endpoint=explorer_endpoint)
+
+@pytest.mark.run(order=11)
+def test_get_validator_information_by_block(setup_blockchain):
+    # Apparently validator information not created until block after create-validator transaction is accepted, so +1 block
+    _test_staking_rpc(staking.get_all_validator_information_by_block, setup_blockchain + 1, endpoint=explorer_endpoint)
+
+@pytest.mark.run(order=12)
+def test_get_delegations_by_delegator_by_block(setup_blockchain):
+    _test_staking_rpc(staking.get_delegations_by_delegator_by_block, test_validator_address, setup_blockchain + 1, endpoint=explorer_endpoint)

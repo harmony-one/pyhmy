@@ -53,6 +53,33 @@ def get_validator_information(validator_addr, endpoint=_default_endpoint, timeou
     return rpc_request('hmy_getValidatorInformation', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
+def get_validator_information_by_block(validator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout):
+    """
+    Get validator information for validator address at a block
+
+    Parameters
+    ----------
+    validator_addr: str
+        One address of the validator to get information for
+    block_num: int
+        Block number to query validator information at
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+        # TODO: Add link to reference RPC documentation
+    """
+    params = [
+        validator_addr,
+        str(hex(block_num))
+    ]
+    return rpc_request('hmy_getValidatorInformationByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
 def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get validator information for all validators on chain
@@ -75,6 +102,33 @@ def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_
         page
     ]
     return rpc_request('hmy_getAllValidatorInformation', params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
+def get_all_validator_information_by_block(block_num, page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+    """
+    Get validator information at block number for all validators on chain
+
+    Parameters
+    ----------
+    block_num: int
+        Block number to get validator information for
+    page: :obj:`int`, optional
+        Page to request (-1 for all validators)
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+        # TODO: Add link to reference RPC documentation
+    """
+    params = [
+        page,
+        str(hex(block_num))
+    ]
+    return rpc_request('hmy_getAllValidatorInformationByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 ###################
@@ -102,6 +156,33 @@ def get_delegations_by_delegator(delegator_addr, endpoint=_default_endpoint, tim
         delegator_addr
     ]
     return rpc_request('hmy_getDelegationsByDelegator', params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
+def get_delegations_by_delegator_by_block(delegator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+    """
+    Get list of delegations by a delegator at a specific block
+
+    Parameters
+    ----------
+    delegator_addr: str
+        Delegator address to get list of delegations for
+    block_num: int
+        Block number to query delgator information at
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+        # TODO: Add link to reference RPC documentation
+    """
+    params = [
+        delegator_addr,
+        str(hex(block_num))
+    ]
+    return rpc_request('hmy_getDelegationsByDelegatorByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_delegations_by_validator(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
