@@ -19,6 +19,7 @@ setup(
     install_requires=[
         'pexpect',
         'requests',
+        'incremental',
     ],
     setup_requires=[
         'incremental',
@@ -37,4 +38,3 @@ setup(
         'Programming Language :: Python :: 3.8',
     ]
 )
-

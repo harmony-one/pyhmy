@@ -24,6 +24,10 @@ clean-py:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
+dev:
+	python3 -m pip install pytest
+	python3 -m pip install pytest-ordering
+
 test:
 	python3 -m py.test -r s -s tests
 

@@ -48,6 +48,12 @@ def setup_blockchain():
         if not stx_data['result']:
             pytest.skip(f"Staking transaction failed: {staking_tx_hash}", allow_module_level=True)
 
+    # TODO: Build data object to return data instead of hard coded values in the test files
+    try:
+        return int(stx_data['result']['blockNumber'], 16)
+    except (TypeError, KeyError) as e:
+        pytest.skip(f"Unexpected reply for hmy_getStakingTransactionByHash: {stx_data['result']}", allow_module_level=True)
+
 
 def _check_connection():
     try:
