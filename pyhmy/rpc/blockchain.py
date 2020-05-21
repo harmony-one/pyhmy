@@ -501,3 +501,22 @@ def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) 
         epoch
     ]
     return rpc_request('hmy_getValidators', params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
+def get_bad_blocks(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+    """
+    Get list of bad blocks in memory of specific node
+
+    Parameters
+    ----------
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+        # TODO: Add link to reference RPC documentation
+    """
+    return rpc_request('hmy_getCurrentBadBlocks', endpoint=endpoint, timeout=timeout)['result']

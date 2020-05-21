@@ -109,3 +109,9 @@ def test_get_staking_epoch(setup_blockchain):
 @pytest.mark.run(order=19)
 def test_get_prestaking_epoch(setup_blockchain):
     _test_blockchain_rpc(blockchain.get_prestaking_epoch)
+
+@pytest.mark.run(order=20)
+def test_get_bad_blocks(setup_blockchain):
+    # TODO: Remove skip when RPC is fixed
+    pytest.skip("Known error with hmy_getCurrentBadBlocks")
+    _test_blockchain_rpc(blockchain.get_bad_blocks)
