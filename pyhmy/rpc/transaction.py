@@ -49,6 +49,7 @@ def get_transaction_by_hash(tx_hash, endpoint=_default_endpoint, timeout=_defaul
     -------
     dict
         # TODO: Add link to reference RPC documentation
+        None if transaction hash not found
     """
     params = [
         tx_hash
@@ -131,6 +132,7 @@ def get_transaction_receipt(tx_receipt, endpoint=_default_endpoint, timeout=_def
     -------
     dict
         # TODO: Add link to reference RPC documentation
+        None if transcation receipt hash not found
     """
     params = [
         tx_receipt
@@ -220,6 +222,7 @@ def get_cx_receipt_by_hash(cx_hash, endpoint = _default_endpoint, timeout = _def
     -------
     dict
         # TODO: Add link to reference RPC documentation
+        None if cx receipt hash not found
     """
     params = [
         cx_hash
@@ -271,6 +274,7 @@ def get_staking_transaction_by_hash(tx_hash, endpoint=_default_endpoint, timeout
     -------
     dict
         # TODO: Add link to reference RPC documentation
+        None if staking transaction hash not found
     """
     params = [
         tx_hash

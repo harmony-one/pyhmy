@@ -354,6 +354,7 @@ def get_block_by_hash(block_hash, endpoint=_default_endpoint, include_full_tx=Fa
     -------
     dict
         # TODO: Add link to reference RPC documentation
+        None if block hash is not found
     """
     params = [
         block_hash,
