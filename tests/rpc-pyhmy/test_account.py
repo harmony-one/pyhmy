@@ -41,16 +41,31 @@ def test_get_balance_by_block(setup_blockchain):
     assert balance > 0
 
 @pytest.mark.run(order=3)
-def test_get_transaction_count(setup_blockchain):
-    transactions = _test_account_rpc(account.get_transaction_count, local_test_address, endpoint=endpoint_shard_one)
-    assert transactions > 0
+def test_get_true_nonce(setup_blockchain):
+    true_nonce = _test_account_rpc(account.get_account_nonce, local_test_address, true_nonce=True, endpoint=endpoint_shard_one)
+    assert true_nonce > 0
 
 @pytest.mark.run(order=4)
+def test_get_pending_nonce(setup_blockchain):
+    pending_nonce = _test_account_rpc(account.get_account_nonce, local_test_address, endpoint=endpoint_shard_one)
+    assert pending_nonce > 0
+
+@pytest.mark.run(order=5)
 def test_get_transaction_history(setup_blockchain):
     tx_history = _test_account_rpc(account.get_transaction_history, local_test_address, endpoint=explorer_endpoint)
     assert len(tx_history) >= 0
 
-@pytest.mark.run(order=5)
+@pytest.mark.run(order=6)
 def test_get_staking_transaction_history(setup_blockchain):
     staking_tx_history = _test_account_rpc(account.get_staking_transaction_history, test_validator_address, endpoint=explorer_endpoint)
     assert len(staking_tx_history) > 0
+
+@pytest.mark.run(order=7)
+def test_get_balance_on_all_shards(setup_blockchain):
+    balances = _test_account_rpc(account.get_balance_on_all_shards, local_test_address)
+    assert len(balances) == 2
+
+@pytest.mark.run(order=8)
+def test_get_total_balance(setup_blockchain):
+    total_balance = _test_account_rpc(account.get_total_balance, local_test_address)
+    assert total_balance > 0
