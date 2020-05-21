@@ -6,7 +6,7 @@ import datetime
 
 import requests
 
-from .rpc.blockchain import (
+from .blockchain import (
     get_latest_header
 )
 
