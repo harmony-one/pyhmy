@@ -1,17 +1,17 @@
-from .request import (
+from .rpc.request import (
     rpc_request
+)
+
+from .rpc.exceptions import (
+    RPCError,
+    InvalidRPCReplyError,
+    RequestsError,
+    RequestsTimeoutError,
+    JSONDecodeError
 )
 
 from .blockchain import (
     get_sharding_structure
-)
-
-from .exceptions import (
-    RPCError,
-    InvalidRPCReplyError,
-    JSONDecodeError,
-    RequestsError,
-    RequestsTimeoutError
 )
 
 _default_endpoint = 'http://localhost:9500'

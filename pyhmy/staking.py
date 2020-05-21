@@ -1,7 +1,6 @@
-from .request import (
+from .rpc.request import (
     rpc_request
 )
-
 
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30

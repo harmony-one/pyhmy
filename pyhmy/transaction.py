@@ -1,4 +1,4 @@
-from .request import (
+from .rpc.request import (
     rpc_request
 )
 
