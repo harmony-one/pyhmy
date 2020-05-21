@@ -96,3 +96,16 @@ def test_get_block_signers(setup_blockchain):
 @pytest.mark.run(order=16)
 def test_get_validators(setup_blockchain):
     _test_blockchain_rpc(blockchain.get_validators, test_epoch_number)
+
+@pytest.mark.run(order=17)
+def test_get_shard(setup_blockchain):
+    shard = _test_blockchain_rpc(blockchain.get_shard)
+    assert shard == 0
+
+@pytest.mark.run(order=18)
+def test_get_staking_epoch(setup_blockchain):
+    _test_blockchain_rpc(blockchain.get_staking_epoch)
+
+@pytest.mark.run(order=19)
+def test_get_prestaking_epoch(setup_blockchain):
+    _test_blockchain_rpc(blockchain.get_prestaking_epoch)

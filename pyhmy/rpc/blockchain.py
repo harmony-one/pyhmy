@@ -2,6 +2,10 @@ from .request import (
     rpc_request
 )
 
+from .exceptions import (
+    InvalidRPCReplyError
+)
+
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
 
@@ -26,6 +30,92 @@ def get_node_metadata(endpoint=_default_endpoint, timeout=_default_timeout) -> d
         # TODO: Add link to reference RPC documentation
     """
     return rpc_request('hmy_getNodeMetadata', endpoint=endpoint, timeout=timeout)['result']
+
+
+def get_shard(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    Get config for the node
+
+    Parameters
+    ----------
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    int
+        Shard ID of node
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+    """
+    method = 'hmy_getNodeMetadata'
+    try:
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']['shard-id']
+    except KeyError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
+
+
+def get_staking_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    Get epoch number when blockchain switches to EPoS election
+
+    Parameters
+    ----------
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    int
+        Epoch at which blockchain switches to EPoS election
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+    """
+    method = 'hmy_getNodeMetadata'
+    data = rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+    try:
+        return int(data['chain-config']['staking-epoch'])
+    except (KeyError, TypeError) as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
+
+
+def get_prestaking_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    Get epoch number when blockchain switches to allow staking features without election
+
+    Parameters
+    ----------
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    int
+        Epoch at which blockchain switches to allow staking features without election
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+    """
+    method = 'hmy_getNodeMetadata'
+    data = rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+    try:
+        return int(data['chain-config']['prestaking-epoch'])
+    except (KeyError, TypeError) as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 def get_sharding_structure(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -81,8 +171,17 @@ def get_block_number(endpoint=_default_endpoint, timeout=_default_timeout) -> in
     -------
     int
         Current block number
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
     """
-    return int(rpc_request('hmy_blockNumber', endpoint=endpoint, timeout=timeout)['result'], 16)
+    method = 'hmy_blockNumber'
+    try:
+        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 def get_current_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -100,8 +199,17 @@ def get_current_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> i
     -------
     int
         Current epoch number
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
     """
-    return int(rpc_request('hmy_getEpoch', endpoint=endpoint, timeout=timeout)['result'], 16)
+    method = 'hmy_getEpoch'
+    try:
+        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 def get_gas_price(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -119,8 +227,17 @@ def get_gas_price(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     -------
     int
         Network gas price
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
     """
-    return int(rpc_request('hmy_gasPrice', endpoint=endpoint, timeout=timeout)['result'], 16)
+    method = 'hmy_gasPrice'
+    try:
+        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 def get_num_peers(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
@@ -138,8 +255,16 @@ def get_num_peers(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     -------
     int
         Number of connected peers
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
     """
-    return int(rpc_request('net_peerCount', endpoint=endpoint, timeout=timeout)['result'], 16)
+    method = 'net_peerCount'
+    try:
+        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 ##############
