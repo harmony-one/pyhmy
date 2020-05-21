@@ -37,12 +37,16 @@ def _test_transaction_rpc(fn, *args, **kwargs):
 
 @pytest.mark.run(order=1)
 def test_get_pending_transactions(setup_blockchain):
-    _test_transaction_rpc(transaction.get_pending_transactions)
+    pool = _test_transaction_rpc(transaction.get_pending_transactions)
+    assert isinstance(pool, list)
 
 @pytest.mark.run(order=2)
 def test_get_transaction_by_hash(setup_blockchain):
     tx = _test_transaction_rpc(transaction.get_transaction_by_hash, tx_hash, endpoint=localhost_shard_one)
-    assert tx is not None
+    assert tx
+    assert isinstance(tx, dict)
+    assert 'blockNumber' in tx.keys()
+    assert 'blockHash' in tx.keys()
     global tx_block_num
     tx_block_num = int(tx['blockNumber'], 0)
     global tx_block_hash
@@ -54,7 +58,8 @@ def test_get_transaction_by_block_hash_and_index(setup_blockchain):
         pytest.skip('Failed to get reference block hash')
     tx = _test_transaction_rpc(transaction.get_transaction_by_block_hash_and_index,
                                tx_block_hash, test_index, endpoint=localhost_shard_one)
-    assert tx is not None
+    assert tx
+    assert isinstance(tx, dict)
 
 @pytest.mark.run(order=4)
 def test_get_transaction_by_block_number_and_index(setup_blockchain):
@@ -62,40 +67,50 @@ def test_get_transaction_by_block_number_and_index(setup_blockchain):
         pytest.skip('Failed to get reference block num')
     tx = _test_transaction_rpc(transaction.get_transaction_by_block_number_and_index, tx_block_num, test_index,
                                endpoint=localhost_shard_one)
-    assert tx is not None
+    assert tx
+    assert isinstance(tx, dict)
 
 @pytest.mark.run(order=5)
 def test_get_transaction_receipt(setup_blockchain):
     tx_receipt = _test_transaction_rpc(transaction.get_transaction_receipt, tx_hash, endpoint=localhost_shard_one)
-    assert tx_receipt is not None
+    assert tx_receipt
+    assert isinstance(tx_receipt, dict)
 
 @pytest.mark.run(order=6)
 def test_get_transaction_error_sink(setup_blockchain):
-    _test_transaction_rpc(transaction.get_transaction_error_sink)
+    errors = _test_transaction_rpc(transaction.get_transaction_error_sink)
+    assert isinstance(errors, list)
 
 @pytest.mark.run(order=7)
 def test_send_raw_transaction(setup_blockchain):
     test_tx_hash = _test_transaction_rpc(transaction.send_raw_transaction, raw_tx)
+    assert isinstance(test_tx_hash, str)
     assert test_tx_hash == tx_hash
 
 @pytest.mark.run(order=8)
 def test_get_pending_cx_receipts(setup_blockchain):
-    _test_transaction_rpc(transaction.get_pending_cx_receipts)
+    pending = _test_transaction_rpc(transaction.get_pending_cx_receipts)
+    assert isinstance(pending, list)
 
 @pytest.mark.run(order=9)
 def test_get_cx_receipt_by_hash(setup_blockchain):
     cx = _test_transaction_rpc(transaction.get_cx_receipt_by_hash, cx_hash)
-    assert cx is not None
+    assert cx
+    assert isinstance(cx, dict)
 
 @pytest.mark.run(order=10)
 def test_resend_cx_receipt(setup_blockchain):
     sent = _test_transaction_rpc(transaction.resend_cx_receipt, cx_hash)
+    assert isinstance(sent, bool)
     assert not sent
 
 @pytest.mark.run(order=11)
 def test_get_staking_transaction_by_hash(setup_blockchain):
     staking_tx = _test_transaction_rpc(transaction.get_staking_transaction_by_hash, stx_hash)
-    assert staking_tx is not None
+    assert staking_tx
+    assert isinstance(staking_tx, dict)
+    assert 'blockNumber' in staking_tx.keys()
+    assert 'blockHash' in staking_tx.keys()
     global stx_block_num
     stx_block_num = int(staking_tx['blockNumber'], 0)
     global stx_block_hash
@@ -106,20 +121,24 @@ def test_get_transaction_by_block_hash_and_index(setup_blockchain):
     if not stx_block_hash:
         pytest.skip('Failed to get reference block hash')
     stx = _test_transaction_rpc(transaction.get_staking_transaction_by_block_hash_and_index, stx_block_hash, test_index)
-    assert stx is not None
+    assert stx
+    assert isinstance(stx, dict)
 
 @pytest.mark.run(order=13)
 def test_get_transaction_by_block_number_and_index(setup_blockchain):
     if not stx_block_num:
         pytest.skip('Failed to get reference block num')
     stx = _test_transaction_rpc(transaction.get_staking_transaction_by_block_number_and_index, stx_block_num, test_index)
-    assert stx is not None
+    assert stx
+    assert isinstance(stx, dict)
 
 @pytest.mark.run(order=14)
 def test_get_staking_transaction_error_sink(setup_blockchain):
-    _test_transaction_rpc(transaction.get_staking_transaction_error_sink)
+    errors = _test_transaction_rpc(transaction.get_staking_transaction_error_sink)
+    assert isinstance(errors, list)
 
 @pytest.mark.run(order=15)
 def test_send_raw_staking_transaction(setup_blockchain):
     test_stx_hash = _test_transaction_rpc(transaction.send_raw_staking_transaction, raw_stx)
+    assert isinstance(test_stx_hash, str)
     assert test_stx_hash == stx_hash
