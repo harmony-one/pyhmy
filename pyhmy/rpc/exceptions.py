@@ -7,6 +7,9 @@ class RPCError(RuntimeError):
     Exception raised when RPC call returns an error
     """
 
+    def __init__(self, method, endpoint, error):
+        super().__init__(f'Error in reply from {endpoint}: {method} returned {error}')
+
 class InvalidRPCReplyError(RuntimeError):
     """
     Exception raised when RPC call returns unexpected result
@@ -14,19 +17,20 @@ class InvalidRPCReplyError(RuntimeError):
     """
 
     def __init__(self, method, endpoint):
-        self.message = f'Unexpected reply for {method} from {endpoint}'
-
-class JSONDecodeError(json.decoder.JSONDecodeError):
-    """
-    Wrapper for json lib DecodeError exception
-    """
+        super().__init__(f'Unexpected reply for {method} from {endpoint}')
 
 class RequestsError(requests.exceptions.RequestException):
     """
     Wrapper for requests lib exceptions
     """
 
+    def __init__(self, endpoint):
+        super().__init__(f'Error connecting to {endpoint}')
+
 class RequestsTimeoutError(requests.exceptions.Timeout):
     """
     Wrapper for requests lib Timeout exceptions
     """
+
+    def __init__(self, endpoint):
+        super().__init__(f'Error connecting to {endpoint}')
