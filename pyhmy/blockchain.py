@@ -480,6 +480,30 @@ def get_block_signers(block_num, endpoint=_default_endpoint, timeout=_default_ti
     return rpc_request('hmy_getBlockSigners', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
+def get_block_signer_keys(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+    """
+    Get list of block signer public bls keys for specific block number
+
+    Parameters
+    ----------
+    block_num: int
+        Block number to get signers for
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+        List of one addresses that signed the block
+    """
+    params = [
+        str(hex(block_num))
+    ]
+    return rpc_request('hmy_getBlockSignerKeys', params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
 def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get list of validators for specific epoch number
@@ -502,6 +526,30 @@ def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) 
         epoch
     ]
     return rpc_request('hmy_getValidators', params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
+def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+    """
+    Get list of validator public bls keys for specific epoch number
+
+    Parameters
+    ----------
+    epoch: int
+        Epoch to get list of validators for
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+        # TODO: Add link to reference RPC documentation
+    """
+    params = [
+        epoch
+    ]
+    return rpc_request('hmy_getValidatorKeys', params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_bad_blocks(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
