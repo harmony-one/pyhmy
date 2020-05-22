@@ -12,7 +12,6 @@ from .blockchain import (
 
 from .rpc.exceptions import (
     RPCError,
-    JSONDecodeError,
     RequestsError,
     RequestsTimeoutError,
 )
@@ -63,7 +62,7 @@ def is_active_shard(endpoint, delay_tolerance=60):
         timestamp = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=None)
         time_delta = curr_time - timestamp
         return abs(time_delta.seconds) < delay_tolerance
-    except (RPCError, JSONDecodeError, RequestsError, RequestsTimeoutError):
+    except (RPCError, RequestsError, RequestsTimeoutError):
         return False
 
 

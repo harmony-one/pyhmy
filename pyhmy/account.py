@@ -6,8 +6,7 @@ from .rpc.exceptions import (
     RPCError,
     InvalidRPCReplyError,
     RequestsError,
-    RequestsTimeoutError,
-    JSONDecodeError
+    RequestsTimeoutError
 )
 
 from .blockchain import (
@@ -303,7 +302,7 @@ def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoi
                 'shard': shard['shardID'],
                 'balance': get_balance(address, endpoint=shard['http'], timeout=timeout)
             })
-        except (KeyError, RPCError, RequestsError, RequestsTimeoutError, JSONDecodeError):
+        except (KeyError, RPCError, RequestsError, RequestsTimeoutError):
             if not skip_error:
                 balances.append({
                     'shard': shard['shardID'],

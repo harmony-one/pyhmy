@@ -3,7 +3,6 @@ import json
 import requests
 
 from .exceptions import (
-    JSONDecodeError,
     RequestsError,
     RequestsTimeoutError,
     RPCError
@@ -63,9 +62,9 @@ def base_request(method, params=None, endpoint=_default_endpoint, timeout=_defau
                                 timeout=timeout, allow_redirects=True)
         return resp.content
     except requests.exceptions.Timeout as err:
-        raise RequestsTimeoutError() from err
+        raise RequestsTimeoutError(endpoint) from err
     except requests.exceptions.RequestException as err:
-        raise RequestsError() from err
+        raise RequestsError(endpoint) from err
 
 
 def rpc_request(method, params=None, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
@@ -110,10 +109,10 @@ def rpc_request(method, params=None, endpoint=_default_endpoint, timeout=_defaul
     try:
         resp = json.loads(raw_resp)
         if 'error' in resp:
-            raise RPCError(str(resp['error']))
+            raise RPCError(method, endpoint, str(resp['error']))
         return resp
     except json.decoder.JSONDecodeError as err:
-        raise JSONDecodeError() from err
+        raise RPCError(method, endpoint, raw_resp) from err
 
 
 # TODO: Add GET requests
