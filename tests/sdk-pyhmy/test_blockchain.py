@@ -142,3 +142,15 @@ def test_get_bad_blocks(setup_blockchain):
     pytest.skip("Known error with hmy_getCurrentBadBlocks")
     bad_blocks = _test_blockchain_rpc(blockchain.get_bad_blocks)
     assert isinstance(bad_blocks, list)
+
+@pytest.mark.run(order=21)
+def test_get_validator_keys(setup_blockchain):
+    keys = _test_blockchain_rpc(blockchain.get_validator_keys, test_epoch_number)
+    assert isinstance(keys, list)
+    assert len(keys) > 0
+
+@pytest.mark.run(order=22)
+def test_get_block_signer_keys(setup_blockchain):
+    keys = _test_blockchain_rpc(blockchain.get_block_signer_keys, test_block_number)
+    assert isinstance(keys, list)
+    assert len(keys) > 0
