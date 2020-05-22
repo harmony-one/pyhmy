@@ -487,7 +487,7 @@ def get_block_signer_keys(block_num, endpoint=_default_endpoint, timeout=_defaul
     Parameters
     ----------
     block_num: int
-        Block number to get signers for
+        Block number to get signer keys for
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -496,7 +496,7 @@ def get_block_signer_keys(block_num, endpoint=_default_endpoint, timeout=_defaul
     Returns
     -------
     list
-        List of one addresses that signed the block
+        List of bls public keys that signed the block
     """
     params = [
         str(hex(block_num))
@@ -535,7 +535,7 @@ def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeo
     Parameters
     ----------
     epoch: int
-        Epoch to get list of validators for
+        Epoch to get list of validator keys for
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -544,7 +544,7 @@ def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeo
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        List of bls public keys in the validator committee
     """
     params = [
         epoch
