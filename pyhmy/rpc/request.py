@@ -97,8 +97,6 @@ def rpc_request(method, params=None, endpoint=_default_endpoint, timeout=_defaul
     ------
     RPCError
         If RPC response returned a blockchain error
-    JSONDecodeError
-        If RPC response format is not valid JSON object
 
     See Also
     --------
