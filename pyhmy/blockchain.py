@@ -2,8 +2,8 @@ from .rpc.request import (
     rpc_request
 )
 
-from .rpc.exceptions import (
-    InvalidRPCReplyError,
+from .exceptions import (
+    InvalidRPCReplyError
 )
 
 _default_endpoint = 'http://localhost:9500'

@@ -4,9 +4,12 @@ from .rpc.request import (
 
 from .rpc.exceptions import (
     RPCError,
-    InvalidRPCReplyError,
     RequestsError,
     RequestsTimeoutError
+)
+
+from .exceptions import (
+    InvalidRPCReplyError
 )
 
 from .blockchain import (
