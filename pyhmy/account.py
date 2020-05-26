@@ -18,7 +18,27 @@ from .blockchain import (
 
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
+_address_length = 42
 
+
+# TODO: Implement real address validity check
+def is_valid_address(address) -> bool:
+    """
+    Check if given string is valid one address
+
+    Parameters
+    ----------
+    address: str
+        String to check if valid one address
+
+    Returns
+    -------
+    bool
+        Is valid address
+    """
+    if not address.startswith('one1') and len(address) != _address_length:
+        return False
+    return True
 
 def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
