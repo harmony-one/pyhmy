@@ -130,9 +130,10 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        name = str(name)
         if len(name) > _name_char_limit:
             raise InvalidValidatorError(3, f'Name must be less than {_name_char_limit} characters')
-        self._name = str(name)
+        self._name = name
 
     def get_name(self) -> str:
         """
@@ -159,9 +160,10 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        identity = str(identity)
         if len(identity) > _identity_char_limit:
             raise InvalidValidatorError(3, f'Identity must be less than {_identity_char_limit} characters')
-        self._identity = str(identity)
+        self._identity = identity
 
     def get_identity(self) -> str:
         """
@@ -188,9 +190,10 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        website = str(website)
         if len(website) > _website_char_limit:
             raise InvalidValidatorError(3, f'Website must be less than {_website_char_limit} characters')
-        self._website = str(website)
+        self._website = website
 
     def get_website(self) -> str:
         """
@@ -217,9 +220,10 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        contact = str(contact)
         if len(contact) > _security_contact_char_limit:
             raise InvalidValidatorError(3, f'Security contact must be less than {_security_contact_char_limit} characters')
-        self._security_contact = str(contact)
+        self._security_contact = contact
 
     def get_security_contact(self) -> str:
         """
@@ -246,6 +250,7 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        details = str(details)
         if len(details) > _details_char_limit:
             raise InvalidValidatorError(3, f'Details must be less than {_details_char_limit} characters')
         self._details = details
@@ -281,7 +286,7 @@ class Validator:
             raise InvalidValidatorError(3, f'Min self delegation must be a number') from e
         if min < _min_required_delegation:
             raise InvalidValidatorError(3, f'Min self delegation must be greater than {_min_required_delegation} ONE')
-        self._min_self_delegation = min
+        self._min_self_delegation = min.normalize()
 
     def get_min_self_delegation(self) -> Decimal:
         """
@@ -317,7 +322,7 @@ class Validator:
                 raise InvalidValidatorError(3, f'Max total delegation must be greater than min self delegation: {self._min_self_delegation}')
         else:
             raise InvalidValidatorError(4, 'Min self delegation must be set before max total delegation')
-        self._max_total_delegation = max
+        self._max_total_delegation = max.normalize()
 
     def get_max_total_delegation(self) -> Decimal:
         """
@@ -358,7 +363,7 @@ class Validator:
                 raise InvalidValidatorError(3, f'Amount must be less than max total delegation: {self._max_self_delegation}')
         else:
             raise InvalidValidatorError(4, f'Max total delegation mus be set before amount')
-        self._inital_delegation = amount
+        self._inital_delegation = amount.normalize()
 
     def get_amount(self) -> Decimal:
         """
@@ -391,7 +396,7 @@ class Validator:
             raise InvalidValidatorError(3, f'Rate must be a number') from e
         if rate < 0 or rate > 1:
             raise InvalidValidatorError(3, f'Rate must be between 0 and 1')
-        self._max_rate = rate
+        self._max_rate = rate.normalize()
 
     def get_max_rate(self) -> Decimal:
         """
@@ -429,7 +434,7 @@ class Validator:
                 raise InvalidValidatorError(3, f'Max change rate must be less than or equal to max rate: {self._max_rate}')
         else:
             raise InvalidValidatorError(4, f'Max rate must be set before max change rate')
-        self._max_change_rate = rate
+        self._max_change_rate = rate.normalize()
 
     def get_max_change_rate(self) -> Decimal:
         """
@@ -467,7 +472,7 @@ class Validator:
                 raise InvalidValidatorError(3, f'Rate must be less than or equal to max rate: {self._max_rate}')
         else:
             raise InvalidValidatorError(4, f'Max rate must be set before rate')
-        self._rate = rate
+        self._rate = rate.normalize()
 
     def get_rate(self) -> Decimal:
         """
@@ -545,7 +550,7 @@ class Validator:
         self.set_amount(info['amount'])
 
         self.set_max_rate(info['max-rate'])
-        self.set_max_change_rate(nfo['max-change-rate'])
+        self.set_max_change_rate(info['max-change-rate'])
         self.set_rate(info['rate'])
 
     def import_from_blockchain(self, endpoint=_default_endpoint, timeout=_default_timeout):
@@ -583,13 +588,13 @@ class Validator:
             self._details = info['details']
             self._security_contact = info['security-contact']
 
-            self._min_self_delegation = convert_atto_to_one(info['min-self-delegation'])
-            self._max_total_delegation = convert_atto_to_one(info['max-total-delegation'])
-            self._amount = 0  # Since validator exists, set initial delegation to 0
+            self._min_self_delegation = convert_atto_to_one(info['min-self-delegation']).normalize()
+            self._max_total_delegation = convert_atto_to_one(info['max-total-delegation']).normalize()
+            self._amount = Decimal(0) # Since validator exists, set initial delegation to 0
 
-            self._max_rate = info['max-rate']
-            self._max_change_rate = info['max-change-rate']
-            self._rate = info['rate']
+            self._max_rate = Decimal(info['max-rate']).normalize()
+            self._max_change_rate = Decimal(info['max-change-rate']).normalize()
+            self._rate = Decimal(info['rate']).normalize()
         except KeyError as e:
             raise InvalidValidatorError(5, f'Error importing validator information from RPC result') from e
 
@@ -619,9 +624,14 @@ class Validator:
         }
         return info
 
-    def export_as_json(self) -> str:
+    def export_json(self, pretty=False) -> str:
         """
         Export validator information as JSON string
+
+        Parameters
+        ----------
+        pretty: :obj:`bool`, optional
+            True to return pretty print json string
 
         Returns
         -------
@@ -632,4 +642,10 @@ class Validator:
         --------
         export
         """
-        return json.dumps(self.export())
+        info = self.export()
+        for key, value in info.items():
+            if isinstance(value, Decimal):
+                info[key] = str(value)
+        if pretty:
+            return json.dumps(info, indent=4)
+        return json.dumps(info)
