@@ -22,7 +22,7 @@ class InvalidValidatorError(ValueError):
         1: 'Invalid ONE address',
         2: 'Field not initialized',
         3: 'Invalid field input',
-        4: 'Unable to validate field input',  # FIXME: Come back to this string
+        4: 'Error checking blockchain', 
         5: 'Unable to import validator information from blockchain'
     }
 
