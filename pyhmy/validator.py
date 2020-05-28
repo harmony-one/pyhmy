@@ -140,6 +140,8 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        if not name:
+            name = ''
         name = str(name)
         if len(name) > self.name_char_limit:
             raise InvalidValidatorError(3, f'Name must be less than {self.name_char_limit} characters')
@@ -170,6 +172,8 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        if not identity:
+            identity = ''
         identity = str(identity)
         if len(identity) > self.identity_char_limit:
             raise InvalidValidatorError(3, f'Identity must be less than {self.identity_char_limit} characters')
@@ -200,6 +204,8 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        if not website:
+            website = ''
         website = str(website)
         if len(website) > self.website_char_limit:
             raise InvalidValidatorError(3, f'Website must be less than {self.website_char_limit} characters')
@@ -230,6 +236,8 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        if not contact:
+            contact = ''
         contact = str(contact)
         if len(contact) > self.security_contact_char_limit:
             raise InvalidValidatorError(3, f'Security contact must be less than {self.security_contact_char_limit} characters')
@@ -260,6 +268,8 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
+        if not details:
+            details = ''
         details = str(details)
         if len(details) > self.details_char_limit:
             raise InvalidValidatorError(3, f'Details must be less than {self.details_char_limit} characters')
@@ -292,7 +302,7 @@ class Validator:
         """
         try:
             min = Decimal(min)
-        except InvalidOperation as e:
+        except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, f'Min self delegation must be a number') from e
         if min < self.min_required_delegation:
             raise InvalidValidatorError(3, f'Min self delegation must be greater than {self.min_required_delegation} ONE')
@@ -325,7 +335,7 @@ class Validator:
         """
         try:
             max = Decimal(max)
-        except InvalidOperation as e:
+        except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, 'Max total delegation must be a number') from e
         if self._min_self_delegation:
             if max < self._min_self_delegation:
@@ -361,7 +371,7 @@ class Validator:
         """
         try:
             amount = Decimal(amount)
-        except InvalidOperation as e:
+        except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, f'Amount must be a number') from e
         if self._min_self_delegation:
             if amount < self._min_self_delegation:
@@ -402,7 +412,7 @@ class Validator:
         """
         try:
             rate = Decimal(rate)
-        except InvalidOperation as e:
+        except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, f'Max rate must be a number') from e
         if rate < 0 or rate > 1:
             raise InvalidValidatorError(3, f'Max rate must be between 0 and 1')
@@ -435,7 +445,7 @@ class Validator:
         """
         try:
             rate = Decimal(rate)
-        except InvalidOperation as e:
+        except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, f'Max change rate must be a number') from e
         if rate < 0:
             raise InvalidValidatorError(3, f'Max change rate must be greater than or equal to 0')
@@ -473,7 +483,7 @@ class Validator:
         """
         try:
             rate = Decimal(rate)
-        except InvalidOperation as e:
+        except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, f'Rate must be a number') from e
         if rate < 0:
             raise InvalidValidatorError(3, f'Rate must be greater than or equal to 0')
