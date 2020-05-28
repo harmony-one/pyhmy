@@ -31,17 +31,17 @@ from .staking import (
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
 
-_name_char_limit = 140
-_identity_char_limit = 140
-_website_char_limit = 140
-_security_contact_char_limit = 140
-_details_char_limit = 280
-_min_required_delegation = 10000
-
 
 # TODO: Add validator transcation functions
 # TODO: Add unit testing
 class Validator:
+
+    name_char_limit = 140
+    identity_char_limit = 140
+    website_char_limit = 140
+    security_contact_char_limit = 140
+    details_char_limit = 280
+    min_required_delegation = 10000
 
     def __init__(self, address):
         if not is_valid_address(address):
@@ -57,14 +57,24 @@ class Validator:
 
         self._min_self_delegation = None
         self._max_total_delegation = None
-        self._inital_delegation = None  # amount
+        self._inital_delegation = None
 
         self._rate = None
         self._max_change_rate = None
         self._max_rate = None
 
-    def __repr__(self):
-        return f'Validator: {self._address}'
+    def __str__(self) -> str:
+        """
+        Returns JSON string representation of Validator fields
+        """
+        info = self.export()
+        for key, value in info.items():
+            if isinstance(value, Decimal):
+                info[key] = str(value)
+        return json.dumps(info)
+
+    def __repr__(self) -> str:
+        return f'<Validator: {hex(id(self))}>'
 
     def get_address(self) -> str:
         """
@@ -131,8 +141,8 @@ class Validator:
             If input is invalid
         """
         name = str(name)
-        if len(name) > _name_char_limit:
-            raise InvalidValidatorError(3, f'Name must be less than {_name_char_limit} characters')
+        if len(name) > self.name_char_limit:
+            raise InvalidValidatorError(3, f'Name must be less than {self.name_char_limit} characters')
         self._name = name
 
     def get_name(self) -> str:
@@ -161,8 +171,8 @@ class Validator:
             If input is invalid
         """
         identity = str(identity)
-        if len(identity) > _identity_char_limit:
-            raise InvalidValidatorError(3, f'Identity must be less than {_identity_char_limit} characters')
+        if len(identity) > self.identity_char_limit:
+            raise InvalidValidatorError(3, f'Identity must be less than {self.identity_char_limit} characters')
         self._identity = identity
 
     def get_identity(self) -> str:
@@ -191,8 +201,8 @@ class Validator:
             If input is invalid
         """
         website = str(website)
-        if len(website) > _website_char_limit:
-            raise InvalidValidatorError(3, f'Website must be less than {_website_char_limit} characters')
+        if len(website) > self.website_char_limit:
+            raise InvalidValidatorError(3, f'Website must be less than {self.website_char_limit} characters')
         self._website = website
 
     def get_website(self) -> str:
@@ -221,8 +231,8 @@ class Validator:
             If input is invalid
         """
         contact = str(contact)
-        if len(contact) > _security_contact_char_limit:
-            raise InvalidValidatorError(3, f'Security contact must be less than {_security_contact_char_limit} characters')
+        if len(contact) > self.security_contact_char_limit:
+            raise InvalidValidatorError(3, f'Security contact must be less than {self.security_contact_char_limit} characters')
         self._security_contact = contact
 
     def get_security_contact(self) -> str:
@@ -251,8 +261,8 @@ class Validator:
             If input is invalid
         """
         details = str(details)
-        if len(details) > _details_char_limit:
-            raise InvalidValidatorError(3, f'Details must be less than {_details_char_limit} characters')
+        if len(details) > self.details_char_limit:
+            raise InvalidValidatorError(3, f'Details must be less than {self.details_char_limit} characters')
         self._details = details
 
     def get_details(self) -> str:
@@ -284,8 +294,8 @@ class Validator:
             min = Decimal(min)
         except InvalidOperation as e:
             raise InvalidValidatorError(3, f'Min self delegation must be a number') from e
-        if min < _min_required_delegation:
-            raise InvalidValidatorError(3, f'Min self delegation must be greater than {_min_required_delegation} ONE')
+        if min < self.min_required_delegation:
+            raise InvalidValidatorError(3, f'Min self delegation must be greater than {self.min_required_delegation} ONE')
         self._min_self_delegation = min.normalize()
 
     def get_min_self_delegation(self) -> Decimal:
@@ -342,7 +352,7 @@ class Validator:
         Parameters
         ----------
         amount: str
-            Initial delegatino amount of validator in ONE
+            Initial delegation amount of validator in ONE
 
         Raises
         ------
@@ -362,7 +372,7 @@ class Validator:
             if amount > self._max_total_delegation:
                 raise InvalidValidatorError(3, f'Amount must be less than max total delegation: {self._max_self_delegation}')
         else:
-            raise InvalidValidatorError(4, f'Max total delegation mus be set before amount')
+            raise InvalidValidatorError(4, f'Max total delegation must be set before amount')
         self._inital_delegation = amount.normalize()
 
     def get_amount(self) -> Decimal:
@@ -393,9 +403,9 @@ class Validator:
         try:
             rate = Decimal(rate)
         except InvalidOperation as e:
-            raise InvalidValidatorError(3, f'Rate must be a number') from e
+            raise InvalidValidatorError(3, f'Max rate must be a number') from e
         if rate < 0 or rate > 1:
-            raise InvalidValidatorError(3, f'Rate must be between 0 and 1')
+            raise InvalidValidatorError(3, f'Max rate must be between 0 and 1')
         self._max_rate = rate.normalize()
 
     def get_max_rate(self) -> Decimal:
@@ -511,7 +521,7 @@ class Validator:
             return True
         return False
 
-    def import_validator(self, info):
+    def load(self, info):
         """
         Import validator information
 
@@ -519,6 +529,7 @@ class Validator:
         ----------
         info: dict
             Validator information with dictionary
+            Will ignore any extra fields in the input dictionary
             Example input:
             {
                 "name": "",
@@ -553,7 +564,7 @@ class Validator:
         self.set_max_change_rate(info['max-change-rate'])
         self.set_rate(info['rate'])
 
-    def import_from_blockchain(self, endpoint=_default_endpoint, timeout=_default_timeout):
+    def load_from_blockchain(self, endpoint=_default_endpoint, timeout=_default_timeout):
         """
         Import validator information from blockchain with given address
 
@@ -623,29 +634,3 @@ class Validator:
             "max-change-rate": self._max_change_rate
         }
         return info
-
-    def export_json(self, pretty=False) -> str:
-        """
-        Export validator information as JSON string
-
-        Parameters
-        ----------
-        pretty: :obj:`bool`, optional
-            True to return pretty print json string
-
-        Returns
-        -------
-        str
-            JSON representation of validator
-
-        See also
-        --------
-        export
-        """
-        info = self.export()
-        for key, value in info.items():
-            if isinstance(value, Decimal):
-                info[key] = str(value)
-        if pretty:
-            return json.dumps(info, indent=4)
-        return json.dumps(info)
