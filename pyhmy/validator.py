@@ -44,6 +44,8 @@ class Validator:
     min_required_delegation = 10000
 
     def __init__(self, address):
+        if not isinstance(address, str):
+            raise InvalidValidatorError(1, f'given ONE address was not a string.')
         if not is_valid_address(address):
             raise InvalidValidatorError(1, f'{address} is not valid ONE address')
         self._address = address
