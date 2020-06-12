@@ -98,8 +98,8 @@ class Validator:
         bool
             If adding BLS key succeeded
         """
-        if key not in self.bls_keys:
-            self.bls_keys.append(key)
+        if key not in self._bls_keys:
+            self._bls_keys.append(key)
             return True
         return False
 
@@ -112,8 +112,8 @@ class Validator:
         bool
             If removing BLS key succeeded
         """
-        if key in self.bls_keys:
-            self.bls_keys.remove(key)
+        if key in self._bls_keys:
+            self._bls_keys.remove(key)
             return True
         return False
 
@@ -288,13 +288,13 @@ class Validator:
         """
         return self._details
 
-    def set_min_self_delegation(self, min):
+    def set_min_self_delegation(self, delegation):
         """
         Set validator min self delegation
 
         Parameters
         ----------
-        min: str
+        delegation: str
             Minimum self delegation of validator in ONE
 
         Raises
@@ -303,12 +303,12 @@ class Validator:
             If input is invalid
         """
         try:
-            min = Decimal(min)
+            delegation = Decimal(delegation)
         except (TypeError, InvalidOperation) as e:
             raise InvalidValidatorError(3, f'Min self delegation must be a number') from e
-        if min < self.min_required_delegation:
+        if delegation < self.min_required_delegation:
             raise InvalidValidatorError(3, f'Min self delegation must be greater than {self.min_required_delegation} ONE')
-        self._min_self_delegation = min.normalize()
+        self._min_self_delegation = delegation.normalize()
 
     def get_min_self_delegation(self) -> Decimal:
         """
@@ -341,7 +341,8 @@ class Validator:
             raise InvalidValidatorError(3, 'Max total delegation must be a number') from e
         if self._min_self_delegation:
             if max < self._min_self_delegation:
-                raise InvalidValidatorError(3, f'Max total delegation must be greater than min self delegation: {self._min_self_delegation}')
+                raise InvalidValidatorError(3, f'Max total delegation must be greater than min self delegation: '
+                                               f'{self._min_self_delegation}')
         else:
             raise InvalidValidatorError(4, 'Min self delegation must be set before max total delegation')
         self._max_total_delegation = max.normalize()
@@ -377,12 +378,14 @@ class Validator:
             raise InvalidValidatorError(3, f'Amount must be a number') from e
         if self._min_self_delegation:
             if amount < self._min_self_delegation:
-                raise InvalidValidatorError(3, f'Amount must be greater than min self delegation: {self._min_self_delegation}')
+                raise InvalidValidatorError(3, f'Amount must be greater than min self delegation: '
+                                               f'{self._min_self_delegation}')
         else:
             raise InvalidValidatorError(4, f'Min self delegation must be set before amount')
         if self._max_total_delegation:
             if amount > self._max_total_delegation:
-                raise InvalidValidatorError(3, f'Amount must be less than max total delegation: {self._max_self_delegation}')
+                raise InvalidValidatorError(3, f'Amount must be less than max total delegation: '
+                                               f'{self._max_total_delegation}')
         else:
             raise InvalidValidatorError(4, f'Max total delegation must be set before amount')
         self._inital_delegation = amount.normalize()
@@ -613,14 +616,13 @@ class Validator:
 
             self._min_self_delegation = convert_atto_to_one(info['min-self-delegation']).normalize()
             self._max_total_delegation = convert_atto_to_one(info['max-total-delegation']).normalize()
-            self._amount = Decimal(0) # Since validator exists, set initial delegation to 0
+            self._inital_delegation = Decimal(0)  # Since validator exists, set initial delegation to 0
 
             self._max_rate = Decimal(info['max-rate']).normalize()
             self._max_change_rate = Decimal(info['max-change-rate']).normalize()
             self._rate = Decimal(info['rate']).normalize()
         except KeyError as e:
             raise InvalidValidatorError(5, f'Error importing validator information from RPC result') from e
-
 
     def export(self) -> dict:
         """

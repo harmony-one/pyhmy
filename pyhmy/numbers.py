@@ -3,7 +3,8 @@ from decimal import Decimal
 
 _conversion_unit = Decimal(1e18)
 
-def convert_atto_to_one(atto):
+
+def convert_atto_to_one(atto) -> Decimal:
     """
     Convert ATTO to ONE
 
@@ -23,7 +24,7 @@ def convert_atto_to_one(atto):
     return Decimal(atto) / _conversion_unit
 
 
-def convert_one_to_atto(one):
+def convert_one_to_atto(one) -> Decimal:
     """
     Convert ONE to ATTO
 
