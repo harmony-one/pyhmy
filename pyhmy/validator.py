@@ -616,7 +616,7 @@ class Validator:
 
             self._min_self_delegation = convert_atto_to_one(info['min-self-delegation']).normalize()
             self._max_total_delegation = convert_atto_to_one(info['max-total-delegation']).normalize()
-            self._inital_delegation = Decimal(0)  # Since validator exists, set initial delegation to 0
+            self._inital_delegation = self._min_self_delegation  # Since validator exists, set initial delegation to 0
 
             self._max_rate = Decimal(info['max-rate']).normalize()
             self._max_change_rate = Decimal(info['max-change-rate']).normalize()
