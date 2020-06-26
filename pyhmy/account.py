@@ -16,12 +16,13 @@ from .blockchain import (
     get_sharding_structure
 )
 
+import bech32
+
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
 _address_length = 42
 
 
-# TODO: Implement real address validity check
 def is_valid_address(address) -> bool:
     """
     Check if given string is valid one address
@@ -36,7 +37,10 @@ def is_valid_address(address) -> bool:
     bool
         Is valid address
     """
-    if not address.startswith('one1') and len(address) != _address_length:
+    if not address.startswith('one1'):
+        return False
+    hrp, _ = bech32.bech32_decode(address)
+    if not hrp:
         return False
     return True
 
