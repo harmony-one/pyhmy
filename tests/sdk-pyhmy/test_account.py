@@ -77,3 +77,8 @@ def test_get_total_balance(setup_blockchain):
     total_balance = _test_account_rpc(account.get_total_balance, local_test_address)
     assert isinstance(total_balance, int)
     assert total_balance > 0
+
+@pytest.mark.run(order=0)
+def test_is_valid_address():
+    assert account.is_valid_address('one1zksj3evekayy90xt4psrz8h6j2v3hla4qwz4ur')
+    assert not account.is_valid_address('one1wje75aedczmj4dwjs0812xcg7vx0dy231cajk0')
