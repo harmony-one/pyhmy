@@ -19,7 +19,6 @@ setup(
     install_requires=[
         'pexpect',
         'requests',
-        'bech32',
         'incremental',
     ],
     setup_requires=[

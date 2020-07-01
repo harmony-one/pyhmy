@@ -16,7 +16,9 @@ from .blockchain import (
     get_sharding_structure
 )
 
-import bech32
+from bech32 import (
+    bech32_decode
+)
 
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
@@ -39,7 +41,7 @@ def is_valid_address(address) -> bool:
     """
     if not address.startswith('one1'):
         return False
-    hrp, _ = bech32.bech32_decode(address)
+    hrp, _ = bech32_decode(address)
     if not hrp:
         return False
     return True
