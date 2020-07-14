@@ -32,7 +32,7 @@ _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
 
 
-# TODO: Add validator transcation functions
+# TODO: Add validator transaction functions
 # TODO: Add unit testing
 class Validator:
 

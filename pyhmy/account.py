@@ -28,6 +28,7 @@ _address_length = 42
 def is_valid_address(address) -> bool:
     """
     Check if given string is valid one address
+    NOTE: This function is NOT thread safe due to the C function used by the bech32 library.
 
     Parameters
     ----------
