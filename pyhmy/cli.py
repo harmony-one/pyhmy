@@ -368,15 +368,16 @@ def download(path="./bin/hmy", replace=True, verbose=True):
         os.chdir(old_cwd)
 
     env = os.environ.copy()
-    files_in_parent_dir = set(os.listdir(parent_dir))
-    if files_in_parent_dir.intersection(_libs) == _libs:
-        if sys.platform.startswith("linux"):
-            env["LD_LIBRARY_PATH"] = parent_dir
-        else:
-            env["DYLD_FALLBACK_LIBRARY_PATH"] = parent_dir
-    elif os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
-            and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
-        env.update(get_bls_build_variables())
-    else:
-        raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`")
+    if sys.platform.startswith("darwin"):  # Dynamic linking for darwin
+        try:
+            files_in_parent_dir = set(os.listdir(parent_dir))
+            if files_in_parent_dir.intersection(_libs) == _libs:
+                env["DYLD_FALLBACK_LIBRARY_PATH"] = parent_dir
+            elif os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
+                    and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
+                env.update(get_bls_build_variables())
+            else:
+                raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`")
+        except Exception as e:
+            raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`") from e
     return env
