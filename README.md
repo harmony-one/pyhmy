@@ -29,7 +29,7 @@ make install
 
 ## Running tests
 
-You need to run a local Harmony blockchain (instructions [here](https://github.com/harmony-one/harmony/README.md)) that has staking enabled.
+You need to run a local Harmony blockchain (instructions [here](https://github.com/harmony-one/harmony/blob/main/README.md)) that has staking enabled.
 You can run all of the tests with the following:
 
 ```
