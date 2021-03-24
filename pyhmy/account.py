@@ -81,7 +81,6 @@ def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-
 def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get account balance for address at a given block number
@@ -107,7 +106,8 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
     InvalidRPCReplyError
         If received unknown result from endpoint
     """
-    method = 'hmy_getBalanceByBlockNumber'
+    # update to v2 API, getBalanceByBlockNumber same as v1
+    method = 'hmyv2_getBalanceByBlockNumber'
     params = [
         address,
         str(hex(block_num))
@@ -117,7 +117,6 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
         return int(balance, 16)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
-
 
 def get_account_nonce(address, true_nonce=False, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
@@ -156,7 +155,6 @@ def get_account_nonce(address, true_nonce=False, endpoint=_default_endpoint, tim
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-
 def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get number of transactions & staking transactions sent by an account
@@ -165,6 +163,8 @@ def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_
     ----------
     address: str
         Address to get transaction count for
+    type: str
+        Type of staking transaction (SENT, RECEIVED, ALL)
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -180,7 +180,6 @@ def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_
     get_account_nonce
     """
     return get_account_nonce(address, true_nonce=True, endpoint=endpoint, timeout=timeout)
-
 
 def get_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
         order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
@@ -238,7 +237,6 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-
 def get_staking_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
         order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
     ) -> list:
@@ -294,6 +292,36 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
+def get_staking_transaction_count(address, staking_type, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    Get number of staking transactions sent by staking type
+
+    Parameters
+    ----------
+    address: str
+        Address to get staking transaction history for
+    tx_type: :obj:`str`, optional
+        'ALL' to include all staking transactions
+
+    Returns
+    -------
+    int
+        Number of staking transactions sent by the account and by staking type
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+    """
+    params = [
+        {
+            'address': address,
+            'staking_type': staking_type
+        }
+    ]
+    # Using v2 API, because getStakingTransactionHistory not implemented in v1
+    method = 'hmyv2_getStakingTransactionsCount'
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
 
 def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
@@ -339,7 +367,6 @@ def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoi
                     'balance': None
                 })
     return balances
-
 
 def get_total_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
