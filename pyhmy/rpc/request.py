@@ -9,7 +9,7 @@ from .exceptions import (
 )
 
 
-_default_endpoint = 'http://localhost:9500'
+_default_endpoint = 'https://api.harmony.one'
 _default_timeout = 30
 
 
