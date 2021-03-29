@@ -1,7 +1,11 @@
-
-m .rpc.request import (
+from .rpc.request import (
     rpc_request
 )
+
+from .exceptions import (
+    InvalidRPCReplyError
+)
+
 
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
@@ -10,29 +14,9 @@ _default_timeout = 30
 ##################
 # Validator RPCs #
 ##################
-def get_all_validator_addresses(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_all_validator_addresses(page_num = -1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get list of all created validator addresses on chain
-
-    Parameters
-    ----------
-    endpoint: :obj:`str`, optional
-        Endpoint to send request to
-    timeout: :obj:`int`, optional
-        Timeout in seconds
-
-    Returns
-    -------
-    list
-         List of wallet addresses that have created validators on the network
-    """
-    method = "hmyv2_getAllValidatorAddresses"
-    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-
-
-def get_validator_information(page_num, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get validator information for validator address
 
     Parameters
     ----------
@@ -45,15 +29,46 @@ def get_validator_information(page_num, endpoint=_default_endpoint, timeout=_def
 
     Returns
     -------
-    dict
-        https://api.hmny.io/#df5f1631-7397-48e8-87b4-8dd873235b9c
+    list
+         List of wallet addresses that have created validators on the network
     """
     params = [
         page_num
     ]
-    method = "hmyv2_getAllValidatorInformation"
-    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getAllValidatorAddresses"
+    try:
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
+
+def get_validator_information(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+    """
+    Get validator information for validator address
+
+    Parameters
+    ----------
+    validator_addr:str
+        One address of the validator to get information for 
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    dict
+        https://api.hmny.io/#df5f1631-7397-48e8-87b4-8dd873235b9c
+    """
+    params = [
+        validator_addr
+    ]
+    method = "hmyv2_getValidatorInformation"
+    try:
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
+    
 
 def get_validator_information_by_block(validator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout):
     """
@@ -77,7 +92,7 @@ def get_validator_information_by_block(validator_addr, block_num, endpoint=_defa
     """
     params = [
         validator_addr,
-        str(hex(block_num))
+        block_num
     ]
     return rpc_request('hmy_getValidatorInformationByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result']
 
@@ -104,7 +119,10 @@ def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_
         page
     ]
     method = "hmyv2_getAllValidatorInformation"
-    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    try:
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 def get_all_validator_information_by_block(block_num, page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -132,7 +150,10 @@ def get_all_validator_information_by_block(block_num, page=-1, endpoint=_default
         block_num
     ]
     method = "hmyv2_getAllValidatorInformationByBlockNumber"
-    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    try:
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 def get_elected_validator_address(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -153,7 +174,10 @@ def get_elected_validator_address(endpoint=_default_endpoint, timeout=_default_t
 
     """
     method = "hmyv2_getElectedValidatorAddresses"
-    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+    try:
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 
 ###################
