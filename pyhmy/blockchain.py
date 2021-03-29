@@ -161,7 +161,7 @@ def get_block_number(endpoint=_default_endpoint, timeout=_default_timeout) -> in
     #update to v2
     method = 'hmyv2_blockNumber'
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 

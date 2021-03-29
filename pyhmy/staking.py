@@ -1,4 +1,5 @@
-from .rpc.request import (
+
+m .rpc.request import (
     rpc_request
 )
 
@@ -23,19 +24,20 @@ def get_all_validator_addresses(endpoint=_default_endpoint, timeout=_default_tim
     Returns
     -------
     list
-        List of one addresses for all validators on chain
+         List of wallet addresses that have created validators on the network
     """
-    return rpc_request('hmy_getAllValidatorAddresses', endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getAllValidatorAddresses"
+    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
 
 
-def get_validator_information(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+def get_validator_information(page_num, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
     Get validator information for validator address
 
     Parameters
     ----------
-    validator_addr: str
-        One address of the validator to get information for
+    page_num: int
+        Page to request (page size is 100), -1 for all validators
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -44,12 +46,13 @@ def get_validator_information(validator_addr, endpoint=_default_endpoint, timeou
     Returns
     -------
     dict
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#df5f1631-7397-48e8-87b4-8dd873235b9c
     """
     params = [
-        validator_addr
+        page_num
     ]
-    return rpc_request('hmy_getValidatorInformation', params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getAllValidatorInformation"
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_validator_information_by_block(validator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout):
@@ -70,7 +73,7 @@ def get_validator_information_by_block(validator_addr, block_num, endpoint=_defa
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#df5f1631-7397-48e8-87b4-8dd873235b9c
     """
     params = [
         validator_addr,
@@ -95,12 +98,13 @@ def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#df5f1631-7397-48e8-87b4-8dd873235b9c
     """
     params = [
         page
     ]
-    return rpc_request('hmy_getAllValidatorInformation', params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getAllValidatorInformation"
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_all_validator_information_by_block(block_num, page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -121,13 +125,35 @@ def get_all_validator_information_by_block(block_num, page=-1, endpoint=_default
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#659ad999-14ca-4498-8f74-08ed347cab49
     """
     params = [
         page,
-        str(hex(block_num))
+        block_num
     ]
-    return rpc_request('hmy_getAllValidatorInformationByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getAllValidatorInformationByBlockNumber"
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+
+
+def get_elected_validator_address(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+    """
+    Get elected validtor address
+
+    Parameters
+    ----------
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    list
+         List of wallet addresses that are currently elected
+
+    """
+    method = "hmyv2_getElectedValidatorAddresses"
+    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
 
 
 ###################
@@ -149,12 +175,13 @@ def get_delegations_by_delegator(delegator_addr, endpoint=_default_endpoint, tim
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#454b032c-6072-4ecb-bf24-38b3d6d2af69
     """
     params = [
         delegator_addr
     ]
-    return rpc_request('hmy_getDelegationsByDelegator', params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getDelegationsByDelegator"
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_delegations_by_delegator_by_block(delegator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -175,13 +202,14 @@ def get_delegations_by_delegator_by_block(delegator_addr, block_num, endpoint=_d
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#454b032c-6072-4ecb-bf24-38b3d6d2af69
     """
     params = [
         delegator_addr,
-        str(hex(block_num))
+        block_num
     ]
-    return rpc_request('hmy_getDelegationsByDelegatorByBlockNumber', params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getDelegationsByDelegator "
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_delegations_by_validator(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
@@ -200,12 +228,13 @@ def get_delegations_by_validator(validator_addr, endpoint=_default_endpoint, tim
     Returns
     -------
     list
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#2e02d8db-8fec-41d9-a672-2c9862f63f39
     """
     params = [
         validator_addr
     ]
-    return rpc_request('hmy_getDelegationsByValidator', params=params, endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getDelegationsByValidator"
+    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
 
 
 ########################
@@ -225,9 +254,10 @@ def get_current_utility_metrics(endpoint=_default_endpoint, timeout=_default_tim
     Returns
     -------
     dict
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#78dd2d94-9ff1-4e0c-bbac-b4eec1cdf10b
     """
-    return rpc_request('hmy_getCurrentUtilityMetrics', endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getCurrentUtilityMetrics"
+    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_staking_network_info(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
@@ -244,9 +274,10 @@ def get_staking_network_info(endpoint=_default_endpoint, timeout=_default_timeou
     Returns
     -------
     dict
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#4a10fce0-2aa4-4583-bdcb-81ee0800993b
     """
-    return rpc_request('hmy_getStakingNetworkInfo', endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getStakingNetworkInfo"
+    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
@@ -263,9 +294,10 @@ def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -
     Returns
     -------
     dict
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#8eef2fc4-92db-4610-a9cd-f7b75cfbd080
     """
-    return rpc_request('hmy_getSuperCommittees', endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getSuperCommittees"
+    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
 
 
 def get_raw_median_stake_snapshot(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
@@ -282,6 +314,8 @@ def get_raw_median_stake_snapshot(endpoint=_default_endpoint, timeout=_default_t
     Returns
     -------
     dict
-        # TODO: Add link to reference RPC documentation
+        https://api.hmny.io/#bef93b3f-6763-4121-9c17-f0b0d9e5cc40
     """
-    return rpc_request('hmy_getMedianRawStakeSnapshot', endpoint=endpoint, timeout=timeout)['result']
+    method = "hmyv2_getMedianRawStakeSnapshot"
+    return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+

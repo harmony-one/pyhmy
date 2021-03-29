@@ -110,11 +110,11 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
     method = 'hmyv2_getBalanceByBlockNumber'
     params = [
         address,
-        str(hex(block_num))
+        block_num
     ]
     balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
     try:
-        return int(balance, 16)
+        return balance
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
