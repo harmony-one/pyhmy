@@ -14,14 +14,12 @@ _default_timeout = 30
 ##################
 # Validator RPCs #
 ##################
-def get_all_validator_addresses(page_num = -1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_all_validator_addresses(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get list of all created validator addresses on chain
 
     Parameters
     ----------
-    page_num: int
-        Page to request (page size is 100), -1 for all validators
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -32,12 +30,9 @@ def get_all_validator_addresses(page_num = -1, endpoint=_default_endpoint, timeo
     list
          List of wallet addresses that have created validators on the network
     """
-    params = [
-        page_num
-    ]
     method = "hmyv2_getAllValidatorAddresses"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method,endpoint=endpoint, timeout=timeout)['result']
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 

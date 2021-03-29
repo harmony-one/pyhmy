@@ -114,6 +114,7 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
     ]
     balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
     try:
+        print(balance)
         return balance
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
@@ -292,7 +293,7 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_staking_transaction_count(address, staking_type, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+def get_staking_transaction_count(address, tx_type='ALL', endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get number of staking transactions sent by staking type
 
@@ -314,15 +315,15 @@ def get_staking_transaction_count(address, staking_type, endpoint=_default_endpo
         If received unknown result from endpoint
     """
     params = [
-        {
-            'address': address,
-            'staking_type': staking_type
-        }
+        address,staking_type
     ]
     # Using v2 API, because getStakingTransactionHistory not implemented in v1
     method = 'hmyv2_getStakingTransactionsCount'
-    return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-
+    try:
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+    except KeyError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
+    
 def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get current account balance in all shards & optionally report errors getting account balance for a shard
@@ -396,3 +397,4 @@ def get_total_balance(address, endpoint=_default_endpoint, timeout=_default_time
         return sum(b['balance'] for b in balances)
     except TypeError as e:
         raise RuntimeError from e
+

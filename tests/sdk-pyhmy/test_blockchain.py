@@ -14,6 +14,8 @@ test_epoch_number = 0
 genesis_block_number = 0
 test_block_number = 1
 test_block_hash = None
+test_block_number_start = 10
+test_block_number_end = 20
 
 def _test_blockchain_rpc(fn, *args, **kwargs):
     if not callable(fn):
@@ -109,7 +111,7 @@ def test_get_blocks(setup_blockchain):
 
 @pytest.mark.run(order=15)
 def test_get_block_signers(setup_blockchain):
-    block_signers = _test_blockchain_rpc(blockchain.get_block_signers, test_block_number)
+    block_signers = _test_blockchain_rpc(blockchain.get_block_signers, test_block_number_start,test_block_number_end)
     assert isinstance(block_signers, list)
     assert len(block_signers) > 0
 

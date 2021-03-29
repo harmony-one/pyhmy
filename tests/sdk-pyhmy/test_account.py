@@ -1,6 +1,8 @@
 import pytest
 import requests
+import sys
 
+sys.path.append("../../")
 from pyhmy import (
     account
 )

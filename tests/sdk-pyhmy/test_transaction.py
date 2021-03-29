@@ -48,7 +48,7 @@ def test_get_transaction_by_hash(setup_blockchain):
     assert 'blockNumber' in tx.keys()
     assert 'blockHash' in tx.keys()
     global tx_block_num
-    tx_block_num = int(tx['blockNumber'], 0)
+    tx_block_num = tx['blockNumber']
     global tx_block_hash
     tx_block_hash = tx['blockHash']
 
