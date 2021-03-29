@@ -3,7 +3,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-
+import sys
+sys.path.append("../../")
 from pyhmy import cli
 
 TEMP_DIR = "/tmp/pyhmy-testing/test-cli"

@@ -348,6 +348,7 @@ def download(path="./bin/hmy", replace=True, verbose=True):
         os.makedirs(parent_dir, exist_ok=True)
         os.chdir(parent_dir)
         hmy_script_path = os.path.join(parent_dir, "hmy.sh")
+	# the old url has been removed
         with open(hmy_script_path, 'w') as f:
             f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
                     .content.decode())
