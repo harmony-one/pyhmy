@@ -703,7 +703,7 @@ def get_block_transaction_count_by_hash(block_hash, endpoint=_default_endpoint, 
     ]
     method = "hmyv2_getBlockTransactionCountByHash"
     try:
-        return int(rpc_request(method, params=params,endpoint=endpoint, timeout=timeout)['result'], 16)
+        return rpc_request(method, params=params,endpoint=endpoint, timeout=timeout)['result']
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e     
 

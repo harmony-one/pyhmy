@@ -112,7 +112,7 @@ def test_get_staking_transaction_by_hash(setup_blockchain):
     assert 'blockNumber' in staking_tx.keys()
     assert 'blockHash' in staking_tx.keys()
     global stx_block_num
-    stx_block_num = int(staking_tx['blockNumber'], 0)
+    stx_block_num = staking_tx['blockNumber']
     global stx_block_hash
     stx_block_hash = staking_tx['blockHash']
 

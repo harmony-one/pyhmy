@@ -59,7 +59,7 @@ else:
     _libs = {"libbls384_256.dylib", "libcrypto.1.0.0.dylib", "libgmp.10.dylib", "libgmpxx.4.dylib", "libmcl.dylib"}
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
-_binary_path = "hmy"  # Internal binary path.
+_binary_path = "./hmy"  # Internal binary path.
 _arg_prefix = "__PYHMY_ARG_PREFIX__"
 _keystore_cache_lock = Lock()
 
