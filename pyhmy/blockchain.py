@@ -749,7 +749,6 @@ def get_blocks(start_block, end_block, endpoint=_default_endpoint, include_full_
         raise InvalidRPCReplyError(method, endpoint) from e    
 
 
-
 def get_block_signers(start_block_num, end_block_num, withSigners = True, fullTx = True, inclStaking = True, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get list of block signers wallet for a series of blocks

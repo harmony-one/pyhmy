@@ -29,13 +29,13 @@ if "dfxx" not in name_dict.keys():
 
 if "test1" not in name_dict.keys():
     #create a user
-    cli.single_call("hmy keys add test10")
+    cli.single_call("hmy keys add test1")
 
 
 #get address of account
 difeng_address = cli.get_address("difeng")
 dfxx_address = cli.get_address("dfxx")
-test1_address = cli.get_address("test10")
+test1_address = cli.get_address("test1")
 print("The one address of account difeng is %s"%(difeng_address))
 print("The one address of account dfxx is %s"%(dfxx_address))
 
@@ -46,6 +46,7 @@ cli.single_call("hmy keys import-ks /root/go/src/github.com/harmony-one/harmony/
 #remove address
 cli.remove_address(test1_address)
 print("%s has been successfully removed"%test1_address)
+
 #go to website https://faucet.pops.one/
 #input your address and get test one
 #use --node testnet
