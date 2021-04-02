@@ -1,5 +1,4 @@
 import pytest
-import requests
 
 from pyhmy import (
     transaction
@@ -20,7 +19,12 @@ stx_block_num = None
 stx_block_hash = None
 test_index = 0
 
-raw_tx = '0xf86f80843b9aca008252080180943ad89a684095a53edb47d7ddc5e034d8133667318a152d02c7e14af68000008027a0ec6c8ad0f70b3c826fa77574c6815a8f73936fafb7b2701a7082ad7d278c95a9a0429f9f166b1c1d385a4ec8f8b86604c26e427c2b0a1c85d9cf4ec6bbd0719508'
+# raw_txt generated via:
+# hmy transfer --from one12fuf7x9rgtdgqg7vgq0962c556m3p7afsxgvll --to one12fuf7x9rgtdgqg7vgq0962c556m3p7afsxgvll
+# --from-shard 0 --to-shard 1 --amount 0.1 --dry-run
+raw_tx = '0xf86d01843b9aca0082520880019452789f18a342da8023cc401e5d2b14a6b710fba988016345785d8a00008028a01095f775386e0e3203446179a7a62e5ce1e765c200b5d885f6bb5b141155bd4da0651350a31e1797035cbf878e4c26069e9895845071d01308573532512cca5820'
+raw_tx_hash = '0x86bce2e7765937b776bdcf927339c85421b95c70ddf06ba8e4cc0441142b0f53'
+
 raw_stx = '0xf9015680f90105943ad89a684095a53edb47d7ddc5e034d813366731d984746573748474657374847465737484746573748474657374ddc988016345785d8a0000c9880c7d713b49da0000c887b1a2bc2ec500008a022385a827e8155000008b084595161401484a000000f1b0282554f2478661b4844a05a9deb1837aac83931029cb282872f0dcd7239297c499c02ea8da8746d2f08ca2b037e89891f862b86003557e18435c201ecc10b1664d1aea5b4ec59dbfe237233b953dbd9021b86bc9770e116ed3c413fe0334d89562568a10e133d828611f29fee8cdab9719919bbcc1f1bf812c73b9ccd0f89b4f0b9ca7e27e66d58bbb06fcf51c295b1d076cfc878a0228f16f86157860000080843b9aca008351220027a018385211a150ca032c3526cef0aba6a75f99a18cb73f547f67bab746be0c7a64a028be921002c6eb949b3932afd010dfe1de2459ec7fe84403b9d9d8892394a78c'
 
 def _test_transaction_rpc(fn, *args, **kwargs):
@@ -83,9 +87,10 @@ def test_get_transaction_error_sink(setup_blockchain):
 
 @pytest.mark.run(order=7)
 def test_send_raw_transaction(setup_blockchain):
+    # Note: this test is not yet idempotent since the localnet will reject transactions which were previously finalized.
     test_tx_hash = _test_transaction_rpc(transaction.send_raw_transaction, raw_tx)
     assert isinstance(test_tx_hash, str)
-    assert test_tx_hash == tx_hash
+    assert test_tx_hash == raw_tx_hash
 
 @pytest.mark.run(order=8)
 def test_get_pending_cx_receipts(setup_blockchain):
@@ -139,6 +144,6 @@ def test_get_staking_transaction_error_sink(setup_blockchain):
 
 @pytest.mark.run(order=15)
 def test_send_raw_staking_transaction(setup_blockchain):
-    test_stx_hash = _test_transaction_rpc(transaction.send_raw_staking_transaction, raw_stx)
+    test_stx_hash = _test_transaction_rpc(transaction.send_raw_staking_transaction, raw_stx, endpoint=localhost_shard_one)
     assert isinstance(test_stx_hash, str)
     assert test_stx_hash == stx_hash
