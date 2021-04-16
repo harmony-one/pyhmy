@@ -16,7 +16,7 @@ from .blockchain import (
     get_sharding_structure
 )
 
-from bech32 import (
+from .bech32.bech32 import (
     bech32_decode
 )
 
