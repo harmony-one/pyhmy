@@ -314,7 +314,7 @@ def get_staking_transaction_count(address, tx_type='ALL', endpoint=_default_endp
         If received unknown result from endpoint
     """
     params = [
-        address,staking_type
+        address,tx_type
     ]
     # Using v2 API, because getStakingTransactionHistory not implemented in v1
     method = 'hmyv2_getStakingTransactionsCount'

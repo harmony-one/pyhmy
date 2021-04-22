@@ -80,7 +80,20 @@ def test_get_total_balance(setup_blockchain):
     assert isinstance(total_balance, int)
     assert total_balance > 0
 
-@pytest.mark.run(order=0)
+@pytest.mark.run(order=9)
 def test_is_valid_address():
     assert account.is_valid_address('one1zksj3evekayy90xt4psrz8h6j2v3hla4qwz4ur')
     assert not account.is_valid_address('one1wje75aedczmj4dwjs0812xcg7vx0dy231cajk0')
+
+@pytest.mark.run(order=10)
+def test_get_staking_transaction_count():
+    staking_tx_count = _test_account_rpc(account.get_staking_transaction_count, test_validator_address, endpoint=explorer_endpoint)
+    assert isinstance(staking_tx_count, int)
+    assert staking_tx_count > 0
+
+@pytest.mark.run(order=11)
+def test_get_transaction_count():
+    tx_count = _test_account_rpc(account.get_transaction_count, test_validator_address, endpoint=explorer_endpoint)
+    assert isinstance(tx_count, int)
+    assert tx_count > 0
+    

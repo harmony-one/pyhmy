@@ -1,5 +1,8 @@
 import pytest
 import requests
+import sys
+
+sys.path.append("../../")
 
 from pyhmy import (
     blockchain
@@ -156,3 +159,9 @@ def test_get_block_signer_keys(setup_blockchain):
     keys = _test_blockchain_rpc(blockchain.get_block_signer_keys, test_block_number)
     assert isinstance(keys, list)
     assert len(keys) > 0
+
+@pytest.mark.run(order=23)
+def test_get_circulate_supply(setup_blockchain):
+    supply = _test_blockchain_rpc(blockchain.get_circulate_supply)
+    assert isinstance(supply, int)
+    assert supply > 0

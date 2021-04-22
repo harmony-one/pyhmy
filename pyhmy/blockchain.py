@@ -275,7 +275,7 @@ def get_circulate_supply(endpoint=_default_endpoint, timeout=_default_timeout) -
     #update to v2
     method = 'hmyv2_getCirculatingSupply'
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
