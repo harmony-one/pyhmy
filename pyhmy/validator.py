@@ -45,9 +45,9 @@ class Validator:
 
     def __init__(self, address):
         if not isinstance(address, str):
-            raise InvalidValidatorError(1, f'given ONE address was not a string.')
+            raise InvalidValidatorError(1, 'given ONE address was not a string.')
         if not is_valid_address(address):
-            raise InvalidValidatorError(1, f'{address} is not valid ONE address')
+            raise InvalidValidatorError(1, f'{address} is not a valid ONE address')
         self._address = address
         self._bls_keys = []
 
@@ -77,6 +77,19 @@ class Validator:
 
     def __repr__(self) -> str:
         return f'<Validator: {hex(id(self))}>'
+    
+    def _sanitize_input(self, data):
+        """
+        Check and return empty string if input is not a string. 
+
+        Returns
+        -------
+        str
+            Original or empty str
+        """
+        if not data:
+            return ''
+        return str(data)
 
     def get_address(self) -> str:
         """
@@ -142,9 +155,7 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
-        if not name:
-            name = ''
-        name = str(name)
+        name = self._sanitize_input(name)
         if len(name) > self.name_char_limit:
             raise InvalidValidatorError(3, f'Name must be less than {self.name_char_limit} characters')
         self._name = name
@@ -174,9 +185,7 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
-        if not identity:
-            identity = ''
-        identity = str(identity)
+        identity = self._sanitize_input(identity)
         if len(identity) > self.identity_char_limit:
             raise InvalidValidatorError(3, f'Identity must be less than {self.identity_char_limit} characters')
         self._identity = identity
@@ -206,9 +215,7 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
-        if not website:
-            website = ''
-        website = str(website)
+        website = self._sanitize_input(website)
         if len(website) > self.website_char_limit:
             raise InvalidValidatorError(3, f'Website must be less than {self.website_char_limit} characters')
         self._website = website
@@ -238,9 +245,7 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
-        if not contact:
-            contact = ''
-        contact = str(contact)
+        contact = self._sanitize_input(contact)
         if len(contact) > self.security_contact_char_limit:
             raise InvalidValidatorError(3, f'Security contact must be less than {self.security_contact_char_limit} characters')
         self._security_contact = contact
@@ -270,9 +275,7 @@ class Validator:
         InvalidValidatorError
             If input is invalid
         """
-        if not details:
-            details = ''
-        details = str(details)
+        details = self._sanitize_input(details)
         if len(details) > self.details_char_limit:
             raise InvalidValidatorError(3, f'Details must be less than {self.details_char_limit} characters')
         self._details = details
@@ -305,7 +308,7 @@ class Validator:
         try:
             delegation = Decimal(delegation)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, f'Min self delegation must be a number') from e
+            raise InvalidValidatorError(3, 'Min self delegation must be a number') from e
         if delegation < self.min_required_delegation:
             raise InvalidValidatorError(3, f'Min self delegation must be greater than {self.min_required_delegation} ONE')
         self._min_self_delegation = delegation.normalize()
@@ -341,7 +344,7 @@ class Validator:
             raise InvalidValidatorError(3, 'Max total delegation must be a number') from e
         if self._min_self_delegation:
             if max < self._min_self_delegation:
-                raise InvalidValidatorError(3, f'Max total delegation must be greater than min self delegation: '
+                raise InvalidValidatorError(3, 'Max total delegation must be greater than min self delegation: '
                                                f'{self._min_self_delegation}')
         else:
             raise InvalidValidatorError(4, 'Min self delegation must be set before max total delegation')
@@ -378,16 +381,16 @@ class Validator:
             raise InvalidValidatorError(3, f'Amount must be a number') from e
         if self._min_self_delegation:
             if amount < self._min_self_delegation:
-                raise InvalidValidatorError(3, f'Amount must be greater than min self delegation: '
+                raise InvalidValidatorError(3, 'Amount must be greater than min self delegation: '
                                                f'{self._min_self_delegation}')
         else:
-            raise InvalidValidatorError(4, f'Min self delegation must be set before amount')
+            raise InvalidValidatorError(4, 'Min self delegation must be set before amount')
         if self._max_total_delegation:
             if amount > self._max_total_delegation:
-                raise InvalidValidatorError(3, f'Amount must be less than max total delegation: '
+                raise InvalidValidatorError(3, 'Amount must be less than max total delegation: '
                                                f'{self._max_total_delegation}')
         else:
-            raise InvalidValidatorError(4, f'Max total delegation must be set before amount')
+            raise InvalidValidatorError(4, 'Max total delegation must be set before amount')
         self._inital_delegation = amount.normalize()
 
     def get_amount(self) -> Decimal:
@@ -418,7 +421,7 @@ class Validator:
         try:
             rate = Decimal(rate)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, f'Max rate must be a number') from e
+            raise InvalidValidatorError(3, 'Max rate must be a number') from e
         if rate < 0 or rate > 1:
             raise InvalidValidatorError(3, f'Max rate must be between 0 and 1')
         self._max_rate = rate.normalize()
@@ -451,14 +454,14 @@ class Validator:
         try:
             rate = Decimal(rate)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, f'Max change rate must be a number') from e
+            raise InvalidValidatorError(3, 'Max change rate must be a number') from e
         if rate < 0:
-            raise InvalidValidatorError(3, f'Max change rate must be greater than or equal to 0')
+            raise InvalidValidatorError(3, 'Max change rate must be greater than or equal to 0')
         if self._max_rate:
             if rate > self._max_rate:
                 raise InvalidValidatorError(3, f'Max change rate must be less than or equal to max rate: {self._max_rate}')
         else:
-            raise InvalidValidatorError(4, f'Max rate must be set before max change rate')
+            raise InvalidValidatorError(4, 'Max rate must be set before max change rate')
         self._max_change_rate = rate.normalize()
 
     def get_max_change_rate(self) -> Decimal:
@@ -489,14 +492,14 @@ class Validator:
         try:
             rate = Decimal(rate)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, f'Rate must be a number') from e
+            raise InvalidValidatorError(3, 'Rate must be a number') from e
         if rate < 0:
-            raise InvalidValidatorError(3, f'Rate must be greater than or equal to 0')
+            raise InvalidValidatorError(3, 'Rate must be greater than or equal to 0')
         if self._max_rate:
             if rate > self._max_rate:
                 raise InvalidValidatorError(3, f'Rate must be less than or equal to max rate: {self._max_rate}')
         else:
-            raise InvalidValidatorError(4, f'Max rate must be set before rate')
+            raise InvalidValidatorError(4, 'Max rate must be set before rate')
         self._rate = rate.normalize()
 
     def get_rate(self) -> Decimal:
@@ -599,11 +602,11 @@ class Validator:
             if not self.does_validator_exist(endpoint, timeout):
                 raise InvalidValidatorError(5, f'Validator does not exist on chain according to {endpoint}')
         except (RPCError, RequestsError, RequestsTimeoutError) as e:
-            raise InvalidValidatorError(5, f'Error requesting validator information') from e
+            raise InvalidValidatorError(5, 'Error requesting validator information') from e
         try:
             validator_info = get_validator_information(self._address, endpoint, timeout)
         except (RPCError, RequestsError, RequestsTimeoutError) as e:
-            raise InvalidValidatorError(5, f'Error requesting validator information') from e
+            raise InvalidValidatorError(5, 'Error requesting validator information') from e
 
         # Skip additional sanity checks when importing from chain
         try:
@@ -622,7 +625,7 @@ class Validator:
             self._max_change_rate = Decimal(info['max-change-rate']).normalize()
             self._rate = Decimal(info['rate']).normalize()
         except KeyError as e:
-            raise InvalidValidatorError(5, f'Error importing validator information from RPC result') from e
+            raise InvalidValidatorError(5, 'Error importing validator information from RPC result') from e
 
     def export(self) -> dict:
         """
