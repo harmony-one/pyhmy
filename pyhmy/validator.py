@@ -78,7 +78,7 @@ class Validator:
     def __repr__(self) -> str:
         return f'<Validator: {hex(id(self))}>'
     
-    def _sanitize_input(self, data):
+    def _sanitize_input(self, data) -> str:
         """
         Check and return empty string if input is not a string. 
 
