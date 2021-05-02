@@ -58,7 +58,6 @@ You can release this library with the following command (assuming you have the c
 ```
 make release
 ```
-
 ## Usage
 ```
 test_net = 'https://api.s0.b.hmny.io'				# this is shard 0
@@ -553,3 +552,19 @@ transaction_dict = {
 signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
 ```
 For validator-related transactions, see the [section on the Validator class](#validator-class).
+## Keeping your private key safe
+You need `eth-keyfile` installed
+```
+pip install eth-keyfile
+```
+In a `Python` shell, you can save or load the key into / from a key file.
+```
+import eth_keyfile
+from eth_utils import to_bytes, to_hex
+import json
+keyfile = eth_keyfile.create_keyfile_json(to_bytes(hexstr='01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD'), b'password')
+with open('keyfile.json', 'w+') as outfile:
+    json.dump(keyfile, outfile)
+
+private_key = to_hex(eth_keyfile.extract_key_from_keyfile('keyfile.json', b'password'))[2:].upper()
+```

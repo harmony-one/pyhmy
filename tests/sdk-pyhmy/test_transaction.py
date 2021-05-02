@@ -8,6 +8,10 @@ from pyhmy.rpc import (
     exceptions
 )
 
+from pyhmy.exceptions import (
+    TxConfirmationTimedoutError
+)
+
 
 localhost_shard_one = 'http://localhost:9501'
 tx_hash = '0x1fa20537ea97f162279743139197ecf0eac863278ac1c8ada9a6be5d1e31e633'
@@ -18,6 +22,7 @@ stx_hash = '0x57ec011aabdeb078a4816502224022f291fa8b07c82bbae8476f514a1d71c730'
 stx_block_num = None
 stx_block_hash = None
 test_index = 0
+fake_shard = 'http://example.com'
 
 # raw_txt generated via:
 # hmy transfer --from one12fuf7x9rgtdgqg7vgq0962c556m3p7afsxgvll --to one12fuf7x9rgtdgqg7vgq0962c556m3p7afsxgvll
@@ -36,6 +41,8 @@ def _test_transaction_rpc(fn, *args, **kwargs):
     except Exception as e:
         if isinstance(e, exceptions.RPCError) and 'does not exist/is not available' in str(e):
             pytest.skip(f'{str(e)}')
+        if isinstance(e, TxConfirmationTimedoutError):
+            pytest.skip(f'{str(e)}')
         pytest.fail(f'Unexpected error: {e.__class__} {e}')
     return response
 
@@ -52,7 +59,7 @@ def test_get_transaction_by_hash(setup_blockchain):
     assert 'blockNumber' in tx.keys()
     assert 'blockHash' in tx.keys()
     global tx_block_num
-    tx_block_num = int(tx['blockNumber'], 0)
+    tx_block_num = int(tx['blockNumber'])
     global tx_block_hash
     tx_block_hash = tx['blockHash']
 
@@ -86,11 +93,25 @@ def test_get_transaction_error_sink(setup_blockchain):
     assert isinstance(errors, list)
 
 @pytest.mark.run(order=7)
-def test_send_raw_transaction(setup_blockchain):
+def test_send_and_confirm_raw_transaction(setup_blockchain):
     # Note: this test is not yet idempotent since the localnet will reject transactions which were previously finalized.
-    test_tx_hash = _test_transaction_rpc(transaction.send_raw_transaction, raw_tx)
-    assert isinstance(test_tx_hash, str)
-    assert test_tx_hash == raw_tx_hash
+    # Secondly, this is a test that seems to return None values - for example the below curl call has the same null value
+    # curl --location --request POST 'http://localhost:9501' \
+    # --header 'Content-Type: application/json' \
+    # --data-raw '{
+    #     "jsonrpc": "2.0",
+    #     "id": 1,
+    #     "method": "hmyv2_getTransactionByHash",
+    #     "params": [
+    #         "0x86bce2e7765937b776bdcf927339c85421b95c70ddf06ba8e4cc0441142b0f53"
+    #     ]
+    # }'
+    # {"jsonrpc":"2.0","id":1,"result":null}
+    # which is why it is wrapped in an AssertionError
+    test_tx = _test_transaction_rpc(transaction.send_and_confirm_raw_transaction,
+                raw_tx)
+    assert isinstance(test_tx, dict)
+    assert test_tx[ 'hash' ] == raw_tx_hash
 
 @pytest.mark.run(order=8)
 def test_get_pending_cx_receipts(setup_blockchain):
@@ -117,7 +138,7 @@ def test_get_staking_transaction_by_hash(setup_blockchain):
     assert 'blockNumber' in staking_tx.keys()
     assert 'blockHash' in staking_tx.keys()
     global stx_block_num
-    stx_block_num = int(staking_tx['blockNumber'], 0)
+    stx_block_num = int(staking_tx['blockNumber'])
     global stx_block_hash
     stx_block_hash = staking_tx['blockHash']
 
@@ -147,3 +168,50 @@ def test_send_raw_staking_transaction(setup_blockchain):
     test_stx_hash = _test_transaction_rpc(transaction.send_raw_staking_transaction, raw_stx, endpoint=localhost_shard_one)
     assert isinstance(test_stx_hash, str)
     assert test_stx_hash == stx_hash
+
+@pytest.mark.run(order=16)
+def test_get_pool_stats(setup_blockchain):
+    test_pool_stats = _test_transaction_rpc(transaction.get_pool_stats, endpoint=localhost_shard_one)
+    assert isinstance(test_pool_stats, dict)
+
+@pytest.mark.run(order=17)
+def test_get_pending_staking_transactions(setup_blockchain):
+    pending_staking_transactions = _test_transaction_rpc(transaction.get_pending_staking_transactions, endpoint=localhost_shard_one)
+    assert isinstance(pending_staking_transactions, list)
+
+@pytest.mark.run(order=18)
+def test_errors():
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_pending_transactions(fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_transaction_error_sink(fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_pool_stats(fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_transaction_by_hash('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_transaction_by_block_hash_and_index('', 1, endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_transaction_by_block_number_and_index(1, 1, endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_transaction_receipt('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.send_raw_transaction('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_pending_cx_receipts(fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_cx_receipt_by_hash('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.resend_cx_receipt('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_staking_transaction_by_hash('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_staking_transaction_by_block_hash_and_index('', 1, endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_staking_transaction_by_block_number_and_index(1, 1, endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_staking_transaction_error_sink(endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.send_raw_staking_transaction('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        transaction.get_pending_staking_transactions(endpoint=fake_shard)

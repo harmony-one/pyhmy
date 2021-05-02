@@ -16,7 +16,7 @@ from .blockchain import (
     get_sharding_structure
 )
 
-from bech32 import (
+from .bech32.bech32 import (
     bech32_decode
 )
 
@@ -69,18 +69,20 @@ def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -
     ------
     InvalidRPCReplyError
         If received unknown result from endpoint
-    """
-    method = 'hmy_getBalance'
-    params = [
-        address,
-        'latest'
-    ]
-    balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    try:
-        return int(balance, 16)
-    except TypeError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
 
+    API Reference
+    -------------
+    https://api.hmny.io/#da8901d2-d237-4c3b-9d7d-10af9def05c4
+    """
+    method = 'hmyv2_getBalance'
+    params = [
+        address
+    ]
+    try:
+        balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return int(balance)     # v2 returns the result as it is
+    except TypeError as e:      # check will work if rpc returns None
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
@@ -106,20 +108,24 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
     ------
     InvalidRPCReplyError
         If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://api.hmny.io/#9aeae4b8-1a09-4ed2-956b-d7c96266dd33
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/blockchain.go#L92
     """
-    method = 'hmy_getBalanceByBlockNumber'
+    method = 'hmyv2_getBalanceByBlockNumber'
     params = [
         address,
-        str(hex(block_num))
+        block_num
     ]
-    balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
     try:
-        return int(balance, 16)
+        balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return int(balance)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-
-def get_account_nonce(address, true_nonce=False, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+def get_account_nonce(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get the account nonce
 
@@ -127,9 +133,8 @@ def get_account_nonce(address, true_nonce=False, endpoint=_default_endpoint, tim
     ----------
     address: str
         Address to get transaction count for
-    true_nonce: :obj:`bool`, optional
-        True to get on-chain nonce
-        False to get nonce based on pending transaction pool
+    block_num: :obj:`int` or 'latest'
+        Block to get nonce at
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -144,27 +149,34 @@ def get_account_nonce(address, true_nonce=False, endpoint=_default_endpoint, tim
     ------
     InvalidRPCReplyError
         If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L51
     """
-    method = 'hmy_getTransactionCount'
+    method = 'hmyv2_getAccountNonce'
     params = [
         address,
-        'latest' if true_nonce else 'pending'
+        block_num
     ]
-    nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
     try:
-        return int(nonce, 16)
+        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return int(nonce)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-
-def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+def get_transaction_count(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
-    Get number of transactions & staking transactions sent by an account
+    Get the number of transactions the given address has sent for the given block number
+    Legacy for apiv1. For apiv2, please use get_account_nonce/get_transactions_count/get_staking_transactions_count apis for
+    more granular transaction counts queries
 
     Parameters
     ----------
     address: str
         Address to get transaction count for
+    block_num: :obj:`int` or 'latest'
+        Block to get nonce at
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -173,14 +185,111 @@ def get_transaction_count(address, endpoint=_default_endpoint, timeout=_default_
     Returns
     -------
     int
-        Number of transactions sent by the account
+        The number of transactions the given address has sent for the given block number
 
-    See also
-    --------
-    get_account_nonce
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L69
     """
-    return get_account_nonce(address, true_nonce=True, endpoint=endpoint, timeout=timeout)
+    method = 'hmyv2_getTransactionCount'
+    params = [
+        address,
+        block_num
+    ]
+    try:
+        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return int(nonce)
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
+def get_transactions_count(address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    Get the number of regular transactions from genesis of input type
+
+    Parameters
+    ----------
+    address: str
+        Address to get transaction count for
+    tx_type: str
+        Type of transactions to include in the count
+        currently supported are 'SENT', 'RECEIVED', 'ALL'
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    int
+        Count of transactions of type tx_type
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://api.hmny.io/#fc97aed2-e65e-4cf4-bc01-8dadb76732c0
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L114
+    """
+    method = 'hmyv2_getTransactionsCount'
+    params = [
+        address,
+        tx_type
+    ]
+    try:
+        tx_count = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return int(tx_count)
+    except TypeError as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
+
+def get_staking_transactions_count(address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    Get the number of staking transactions from genesis of input type ("SENT", "RECEIVED", "ALL")
+
+    Parameters
+    ----------
+    address: str
+        Address to get staking transaction count for
+    tx_type: str
+        Type of staking transactions to include in the count
+        currently supported are 'SENT', 'RECEIVED', 'ALL'
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    int
+        Count of staking transactions of type tx_type
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://api.hmny.io/#ddc1b029-f341-4c4d-ba19-74b528d6e5e5
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L134
+    """
+    method = 'hmyv2_getStakingTransactionsCount'
+    params = [
+        address,
+        tx_type
+    ]
+    try:
+        tx_count = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return int(tx_count)
+    except (KeyError, TypeError) as e:
+        raise InvalidRPCReplyError(method, endpoint) from e
 
 def get_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
         order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
@@ -204,8 +313,8 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
         'SENT' to get all transactions sent by the address
         'RECEIVED' to get all transactions received by the address
     order: :obj:`str`, optional
-        'ASC' to sort transactions in ascending order based on timestamp
-        'DESC' to sort transactions in descending order based on timestamp
+        'ASC' to sort transactions in ascending order based on timestamp (oldest first)
+        'DESC' to sort transactions in descending order based on timestamp (newest first)
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -213,13 +322,20 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
 
     Returns
     -------
-    list
-        # TODO: Add link to reference RPC documentation
+    list of transactions
+    if include_full_tx is True, each transaction is a dictionary with the following keys
+        see transaction/get_transaction_by_hash for a description
+    if include_full_tx is False, each element represents the transaction hash
 
     Raises
     ------
     InvalidRPCReplyError
         If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://api.hmny.io/#2200a088-81b5-4420-a291-312a7c6d880e
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L255
     """
     params = [
         {
@@ -231,13 +347,12 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
             'order': order
         }
     ]
-    method = 'hmy_getTransactionsHistory'
-    tx_history = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)
+    method = 'hmyv2_getTransactionsHistory'
     try:
+        tx_history = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)
         return tx_history['result']['transactions']
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
-
 
 def get_staking_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
         order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
@@ -268,13 +383,33 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
 
     Returns
     -------
-    list
-        # TODO: Add link to reference RPC documentation
+    list of transactions
+    if include_full_tx is True, each transaction is a dictionary with the following kets
+        blockHash: :obj:`str` Block hash that transaction was finalized; "0x0000000000000000000000000000000000000000000000000000000000000000" if tx is pending
+        blockNumber: :obj:`int` Block number that transaction was finalized; None if tx is pending
+        from: :obj:`str` Wallet address
+        timestamp: :obj:`int` Timestamp in Unix time when transaction was finalized
+        gas: :obj:`int` Gas limit in Atto
+        gasPrice :obj:`int` Gas price in Atto
+        hash: :obj:`str` Transaction hash
+        nonce: :obj:`int` Wallet nonce for the transaction
+        transactionIndex: :obj:`int` Index of transaction in block; None if tx is pending
+        type: :obj:`str` Type of staking transaction, for example, "CollectRewards", "Delegate", "Undelegate"
+        msg: :obj:`dict` Message attached to the staking transaction
+        r: :obj:`str` First 32 bytes of the transaction signature
+        s: :obj:`str` Next  32 bytes of the transaction signature
+        v: :obj:`str` Recovery value + 27, as hex string
+    if include_full_tx is False, each element represents the transaction hash
 
     Raises
     ------
     InvalidRPCReplyError
         If received unknown result from endpoint
+
+    API Reference
+    -------------
+    https://api.hmny.io/#c5d25b36-57be-4e43-a23b-17ace350e322
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L303
     """
     params = [
         {
@@ -288,12 +423,11 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
     ]
     # Using v2 API, because getStakingTransactionHistory not implemented in v1
     method = 'hmyv2_getStakingTransactionsHistory'
-    stx_history =  rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
     try:
+        stx_history =  rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
         return stx_history['staking_transactions']
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
-
 
 def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
@@ -313,8 +447,7 @@ def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoi
 
     Returns
     -------
-    list
-        Account balance per shard in ATTO
+    list of dictionaries, each dictionary to contain shard number and balance of that shard in ATTO
         Example reply:
         [
             {
@@ -340,7 +473,6 @@ def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoi
                 })
     return balances
 
-
 def get_total_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get total account balance on all shards
@@ -363,6 +495,10 @@ def get_total_balance(address, endpoint=_default_endpoint, timeout=_default_time
     ------
     RuntimeError
         If error occurred getting account balance for a shard
+
+    See also
+    ------
+    get_balance_on_all_shards
     """
     try:
         balances = get_balance_on_all_shards(address, skip_error=False, endpoint=endpoint, timeout=timeout)

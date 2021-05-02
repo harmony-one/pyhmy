@@ -33,3 +33,12 @@ class InvalidValidatorError(ValueError):
 
     def __str__(self):
         return f'[Errno {self.code}] {self.errors[self.code]}: {self.msg}'
+
+class TxConfirmationTimedoutError(AssertionError):
+    """
+    Exception raised when a transaction is sent to the chain
+    But not confirmed during the timeout period specified
+    """
+
+    def __init__(self, msg):
+        super().__init__(f'{msg}')

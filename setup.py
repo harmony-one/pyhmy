@@ -26,7 +26,12 @@ setup(
         'pytest',
         'pytest-ordering',
         'click',
-        'twisted'
+        'twisted',
+        'eth-rlp',
+        'eth-account',
+        'eth-utils',
+        'hexbytes',
+        'cytoolz'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
