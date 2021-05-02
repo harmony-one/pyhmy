@@ -27,7 +27,7 @@ make install
 ```
 
 ## Running tests
-Before you can run tests, you need the python dependencies (`make install`), as well as `docker` and `go` installed to quickly run a local blockchain with staking enabled (detailed instructions [here](https://github.com/harmony-one/harmony/blob/main/README.md)):
+Before you can run tests, you need the python dependencies (`make install`), `docker` and `go` installed to quickly run a local blockchain with staking enabled (detailed instructions [here](https://github.com/harmony-one/harmony/blob/main/README.md)):
 ```
 mkdir -p $(go env GOPATH)/src/github.com/harmony-one
 cd $(go env GOPATH)/src/github.com/harmony-one
