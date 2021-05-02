@@ -8,13 +8,12 @@ and [related codebases](https://github.com/harmony-one).
 [Full documentation is located on Harmony's GitBook](https://docs.harmony.one/) (in progress).
 
 ## Installation
-```
+```bash
 pip install pyhmy
-
+```
 On MacOS:
-
 Make sure you have Python3 installed, and use python3 to install pyhmy
-
+```bash
 sudo pip3 install pathlib
 sudo pip3 install pyhmy
 ```
@@ -22,13 +21,13 @@ sudo pip3 install pyhmy
 ## Development
 
 Clone the repository and then run the following:
-```
+```bash
 make install
 ```
 
 ## Running tests
 Before you can run tests, you need the python dependencies (`make install`), `docker` and `go` installed to quickly run a local blockchain with staking enabled (detailed instructions [here](https://github.com/harmony-one/harmony/blob/main/README.md)):
-```
+```bash
 mkdir -p $(go env GOPATH)/src/github.com/harmony-one
 cd $(go env GOPATH)/src/github.com/harmony-one
 git clone https://github.com/harmony-one/mcl.git
@@ -39,26 +38,22 @@ make test-rpc
 ```
 
 Once the terminal displays `=== FINISHED RPC TESTS ===`, use another shell to run the following tests
-
-```
+```bash
 make test
 ```
-
 Or directly with `pytest` (reference [here](https://docs.pytest.org/en/latest/index.html) for more info):
-
-```
+```bash
 py.test tests
 ```
 
 ## Releasing
 
 You can release this library with the following command (assuming you have the credentials to upload):
-
-```
+```bash
 make release
 ```
 ## Usage
-```
+```py
 test_net = 'https://api.s0.b.hmny.io'				# this is shard 0
 test_net_shard_1 = 'https://api.s1.b.hmny.io'
 test_address = 'one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7'
@@ -67,11 +62,11 @@ main_net = 'https://rpc.s0.t.hmny.io'
 main_net_shard_1 = 'https://rpc.s1.t.hmny.io'
 ```
 #### accounts
-```
+```py
 from pyhmy import account
 ```
 ##### Balance / account related information
-````
+````py
 balance = account.get_balance(test_address, endpoint=test_net)				# on shard 0, in ATTO
 total_balance = account.get_total_balance(test_address, endpoint=test_net)	# on all shards, in ATTO
 balance_by_shard = account.get_balance_on_all_shards(test_address, endpoint=test_net)	# list of dictionaries with shard and balance as keys
@@ -80,7 +75,7 @@ latest_balance = account.get_balance_by_block(test_address, block_num='latest', 
 account_nonce = account.get_account_nonce(test_address, block_num='latest', endpoint=test_net)
 ````
 ##### Transaction counts
-````
+````py
 tx_count = account.get_transactions_count(test_address, tx_type='ALL', endpoint=test_net)
 sent_tx_count = account.get_transactions_count(test_address, tx_type='SENT', endpoint=test_net)
 received_tx_count = account.get_transactions_count(test_address, tx_type='RECEIVED', endpoint=test_net)
@@ -88,60 +83,60 @@ legacy_tx_count = account.get_transaction_count(test_address, block_num='latest'
 legacy_tx_count_pending = account.get_transaction_count(test_address, block_num='pending', endpoint=test_net)
 ````
 ##### Staking transaction counts
-````
+````py
 stx_count = account.get_staking_transactions_count(test_address, tx_type='ALL', endpoint=test_net)
 sent_stx_count = account.get_staking_transactions_count(test_address, tx_type='SENT', endpoint=test_net)
 received_stx_count = account.get_staking_transactions_count(test_address, tx_type='RECEIVED', endpoint=test_net)
 ````
 ##### Transaction history
 To get a list of hashes, use `include_full_tx=False`
-````
+````py
 first_100_tx_hashes = account.get_transaction_history(test_address, page=0, page_size=100, include_full_tx=False, endpoint=test_net)
 ````
 To get the next 100 transactions, change the `page`
-```
+```py
 next_100_tx_hashes = account.get_transaction_history(test_address, page=1, page_size=100, include_full_tx=False, endpoint=test_net)
 ```
 To get a list of full transaction details, use `include_full_tx=True` (see `get_transaction_by_hash` for the reply structure
-````
+````py
 first_3_full_tx = account.get_transaction_history(test_address, page=0, page_size=3, include_full_tx=True, endpoint=test_net)
 ````
 To get newest transactions, use `order='DESC'`
-````
+````py
 last_3_full_tx = account.get_transaction_history(test_address, page=0, page_size=3, include_full_tx=True, order='DESC', endpoint=test_net)
 ````
 To change the transaction type (SENT / RECEIVED / ALL), pass the `tx_type` parameter
-```
+```py
 first_100_received_tx_hashes = account.get_transaction_history(test_address, page=0, page_size=100, include_full_tx=False, tx_type='RECEIVED', endpoint=test_net)
 ```
 ##### Staking transaction history
 To get a list of staking hashes, use `include_full_tx=False`
-````
+````py
 first_100_stx_hashes = account.get_staking_transaction_history(test_address, page=0, page_size=100, include_full_tx=False, endpoint=test_net)
 ````
 To get the next 100 staking transactions, change the `page`
-```
+```py
 next_100_stx_hashes = account.get_staking_transaction_history(test_address, page=1, page_size=100, include_full_tx=False, endpoint=test_net)
 ```
 To get a list of full staking transaction details, use `include_full_tx=True` (see `get_transaction_by_hash` for the reply structure
-````
+````py
 first_3_full_stx = account.get_staking_transaction_history(test_address, page=0, page_size=3, include_full_tx=True, endpoint=test_net)
 ````
 To get newest staking transactions, use `order='DESC'`
-````
+````py
 last_3_full_stx = account.get_staking_transaction_history(test_address, page=0, page_size=3, include_full_tx=True, order='DESC', endpoint=test_net)
 ````
 To change the staking transaction type (SENT / RECEIVED / ALL), pass the `tx_type` parameter
-```
+```py
 first_100_received_stx_hashes = account.get_staking_transaction_history(test_address, page=0, page_size=100, include_full_tx=False, tx_type='RECEIVED', endpoint=test_net)
 ```
 #### Blockchain
-```
+```py
 from pyhmy import blockchain
 from decimal import Decimal
 ```
 ##### Node / network information
-```
+```py
 chain_id = blockchain.chain_id(test_net)					# chain type, for example, mainnet or testnet
 node_metadata = blockchain.get_node_metadata(test_net)		# metadata about the endpoint
 peer_info = blockchain.get_peer_info(test_net)				# peers of the endpoint
@@ -154,13 +149,13 @@ prestaking_epoch_number = blockchain.get_prestaking_epoch(test_net)
 staking_epoch_number = blockchain.get_staking_epoch(test_net)
 ```
 ##### Sharding information
-```
+```py
 shard_id = blockchain.get_shard(test_net)							# get shard id of the endpoint
 sharding_structure = blockchain.get_sharding_structure(test_net)	# list of dictionaries, each representing a shard
 last_cross_links = blockchain.get_last_cross_links(test_net)		# list of dictionaries for each shard except test_net
 ```
 ##### Current network status
-```
+```py
 leader_address = blockchain.get_leader_address(test_net)
 is_last_block = blockchain.is_last_block(block_num=0, test_net)
 last_block_of_epoch5 = blockchain.epoch_last_block(block_num=5, test_net)
@@ -171,7 +166,7 @@ current_epoch = blockchain.get_current_epoch(test_net)
 gas_price = blockchain.get_gas_price(test_net)						# this returns 1 always
 ```
 ##### Block headers
-```
+```py
 latest_header = blockchain.get_latest_header(test_net)						# header contains hash, number, cross links, signature, time, etc (see get_latest_header for a full list)
 latest_hash = latest_header['blockHash']
 latest_number = latest_header['blockNumber']
@@ -181,57 +176,57 @@ chain_headers = blockchain.get_latest_chain_headers(test_net_shard_1)		# chain h
 ##### Blocks
 ###### By block number
 Fetch the barebones information about the block as a dictionary
-```
+```py
 latest_block = blockchain.get_block_by_number(block_num='latest', endpoint=test_net)
 ```
 Fetch a block with full information (`full_tx=True`) for each transaction in the block
-```
+```py
 block = blockchain.get_block_by_number(block_num=9017724, full_tx=True, include_tx=True, include_staking_tx=True, endpoint=test_net)
 ```
 Fetch a block and only staking transactions (`include_tx=False, include_staking_tx=True`) for the block
-```
+```py
 block = blockchain.get_block_by_number(block_num='latest', include_tx=False, include_staking_tx=True, endpoint=test_net)
 ```
 Fetch block signer addresses (`include_signers=True`) as a list
-```
+```py
 signers = blockchain.get_block_by_number(block_num=9017724, include_signers=True, endpoint=test_net)['signers']
 ```
 Or, alternatively, use the direct `get_block_signers` method:
-```
+```py
 signers = blockchain.get_block_signers(block_num=9017724, endpoint=test_net)
 ```
 Fetch the public keys for signers
-```
+```py
 signers_keys = blockchain.get_block_signers_keys(block_num=9017724, endpoint=test_net)
 ```
 Check if an address is a signer for a block
-```
+```py
 is_block_signer = blockchain.is_block_signer(block_num=9017724, address='one1yc06ghr2p8xnl2380kpfayweguuhxdtupkhqzw', endpoint=test_net)
 ```
 Fetch the number of blocks signed by a particular validator for the last epoch
-```
+```py
 number_signed_blocks = blockchain.get_signed_blocks(address='one1yc06ghr2p8xnl2380kpfayweguuhxdtupkhqzw', endpoint=test_net)
 ```
 Fetch a list of validators and their public keys for specific epoch number
-```
+```py
 validators = blockchain.get_validators(epoch=12, endpoint=test_net)
 validator_keys = blockchain.get_validator_keys(epoch=12, endpoint=test_net)
 ```
 Fetch number of transactions
-```
+```py
 tx_count = blockchain.get_block_transaction_count_by_number(block_num='latest', endpoint=test_net)
 ```
 Fetch number of staking transactactions
-```
+```py
 stx_count = blockchain.get_block_staking_transaction_count_by_number(block_num='latest', endpoint=test_net)
 ```
 Fetch a list of blocks using the block numbers
-```
+```py
 blocks = blockchain.get_blocks(start_block=0, end_block=2, full_tx=False, include_tx=False, include_staking_tx=False, include_signers=False, endpoint=test_net)
 ```
 ###### By block hash
 Most of the functions described above can be applied for fetching information about a block whose hash is known, for example:
-```
+```py
 block_hash = '0x44fa170c25f262697e5802098cd9eca72889a637ea52feb40c521f2681a6d720'
 block = blockchain.get_block_by_hash(block_hash=block_hash, endpoint=test_net)
 block_with_full_tx = blockchain.get_block_by_hash(block_hash=block_hash, full_tx=True, include_tx=True, include_staking_tx=True, endpoint=test_net)
@@ -241,13 +236,13 @@ tx_count = blockchain.get_block_transaction_count_by_hash(block_hash=block_hash,
 stx_count = blockchain.get_block_staking_transaction_count_by_hash(block_hash=block_hash, endpoint=test_net)
 ```
 #### Staking
-```
+```py
 from pyhmy import staking
 validator_addr = 'one1xjanr7lgulc0fqyc8dmfp6jfwuje2d94xfnzyd'
 delegator_addr = 'one1y2624lg0mpkxkcttaj0c85pp8pfmh2tt5zhdte'
 ```
 ##### Validation
-```
+```py
 all_validators = staking.get_all_validator_addresses(endpoint=test_net)							# list of addresses
 validator_information = staking.get_validator_information(validator_addr, endpoint=test_net)	# dict with all info
 validator_information_100 = staking.get_all_validator_information(page=0, endpoint=test_net)	# for all use page=-1
@@ -260,7 +255,7 @@ self_delegation = staking.get_validator_self_delegation(validator_addr, endpoint
 total_delegation = staking.get_validator_total_delegation(validator_addr, endpoint=test_net)
 ```
 ##### Delegation
-```
+```py
 delegation_information = staking.get_all_delegation_information(page=-1, endpoint=test_net)
 delegations_by_delegator = staking.get_delegations_by_delegator(delegator_addr, test_net)
 delegations_by_delegator_at_block = staking.get_delegations_by_delegator_by_block_number(delegator_addr, block_num=9017724, endpoint=test_net)
@@ -269,7 +264,7 @@ avail_redelegation_balance = staking.get_available_redelegation_balance(delegato
 delegations_by_validator = staking.get_delegations_by_validator(validator_addr, test_net)		# list of delegations made to this validator, each a dictionary
 ```
 ##### Network
-```
+```py
 utility_metrics = staking.get_current_utility_metrics(test_net)
 network_info = staking.get_staking_network_info(test_net)
 super_committees = staking.get_super_committees(test_net)
@@ -280,13 +275,13 @@ median_stake_snapshot = staking.get_raw_median_stake_snapshot(test_net)
 ```
 ##### Validator class
 Instantiate a validator object and load it from the chain
-```
+```py
 from pyhmy.validator import Validator
 validator = Validator(validator_addr)
 validator.load_from_blockchain(test_net)
 ```
 Create a new validator object and load from dictionary
-```
+```py
 from pyhmy.numbers import convert_one_to_atto
 validator = Validator('one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9')
 info = {
@@ -306,7 +301,7 @@ info = {
 validator.load(info)
 ```
 Sign a validator creation transaction
-```
+```py
 signed_create_tx_hash = validator.sign_create_validator_transaction(
             nonce = 2,
             gas_price = 1,
@@ -315,7 +310,7 @@ signed_create_tx_hash = validator.sign_create_validator_transaction(
             chain_id = None).rawTransaction.hex()
 ```
 To edit validator, change its parameters using the `setter` functions, for example, `validator.set_details`, except the  `rate`, `bls_keys_to_add` and `bls_keys_to_remove` which can be passed to the below function:
-```
+```py
 signed_edit_tx_hash = validator.sign_edit_validator_transaction(
             nonce = 2,
             gas_price = 1,
@@ -328,11 +323,11 @@ signed_edit_tx_hash = validator.sign_edit_validator_transaction(
 ```
 
 ### Transactions
-```
+```py
 from pyhmy import transaction
 ```
 ##### Pool
-```
+```py
 pending_tx = transaction.get_pending_transactions(test_net)
 pending_stx = transaction.get_pending_staking_transactions(test_net)
 tx_error_sink = transaction.get_transaction_error_sink(test_net)
@@ -341,7 +336,7 @@ pool_stats = transaction.get_pool_stats(test_net)
 pending_cx_receipts = transaction.get_pending_cx_receipts(test_net)
 ```
 ##### Fetching transactions
-```
+```py
 tx_hash = '0x500f7f0ee70f866ba7e80592c06b409fabd7ace018a9b755a7f1f29e725e4423'
 block_hash = '0xb94bf6e8a8a970d4d42dfe42f7f231af0ff7fd54e7f410395e3b306f2d4000d4'
 tx = transaction.get_transaction_by_hash(tx_hash, test_net)			# dict with tx-level info like from / to / gas
@@ -350,7 +345,7 @@ tx_from_block_number = transaction.get_transaction_by_block_number_and_index(901
 tx_receipt = transaction.get_transaction_receipt(tx_hash, test_net)
 ```
 ##### Fetching staking transactions
-```
+```py
 stx_hash = '0x3f616a8ef34f111f11813630cdcccb8fb6643b2affbfa91d3d8dbd1607e9bc33'
 block_hash = '0x294dc88c7b6f3125f229a3cfd8d9b788a0bcfe9409ef431836adcd83839ba9f0'	# block number 9018043
 stx = transaction.get_staking_transaction_by_hash(stx_hash, test_net)
@@ -358,30 +353,30 @@ stx_from_block_hash = transaction.get_staking_transaction_by_block_hash_and_inde
 stx_from_block_number = transaction.get_staking_transaction_by_block_number_and_index(9018043, tx_index=0, endpoint=test_net)
 ```
 ##### Cross shard transactions
-```
+```py
 cx_hash = '0xd324cc57280411dfac5a7ec2987d0b83e25e27a3d5bb5d3531262387331d692b'
 cx_receipt = transaction.get_cx_receipt_by_hash(cx_hash, main_net_shard_1)	# the shard which receives the tx
 tx_resent = transaction.resend_cx_receipt(cx_hash, main_net)				# beacon chain
 ```
 ##### Sending transactions
 Sign it with your private key and use `send_raw_transaction`
-```
+```py
 from pyhmy import signing
 tx = {
- 'chainId': 2,
- 'from': 'one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7',
- 'gas': 6721900,
- 'gasPrice': 1000000000,
- 'nonce': 6055,
- 'shardID': 0,
- 'to': 'one1ngt7wj57ruz7kg4ejp7nw8z7z6640288ryckh9,
- 'toShardID': 0,
- 'value': 500000000000000000000
+'chainId': 2,
+'from': 'one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7',
+'gas': 6721900,
+'gasPrice': 1000000000,
+'nonce': 6055,
+'shardID': 0,
+'to': 'one1ngt7wj57ruz7kg4ejp7nw8z7z6640288ryckh9',
+'toShardID': 0,
+'value': 500000000000000000000
 }
 transaction.send_raw_transaction(signing.sign_transaction(tx, '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
 ```
 A similar approach can be followed for staking transactions
-```
+```py
 from pyhmy import staking_structures, staking_signinge
 tx = {
   'chainId': 2,
@@ -394,31 +389,31 @@ tx = {
 transaction.send_raw_staking_transaction(staking_signing.sign_staking_transaction(tx, private_key = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
 ```
 ### Contracts
-```
+```py
 from pyhmy import contract
 from pyhmy.util import convert_one_to_hex
 contract_addr = 'one1rcs4yy4kln53ux60qdeuhhvpygn2sutn500dhw'
 ```
 Call a contract without saving state
-```
+```py
 from pyhmy import numbers
 result = contract.call(convert_one_to_hex(contract_addr), 'latest', value=hex(int(numbers.convert_one_to_atto(5)))
 , gas_price=hex(1), gas=hex(100000), endpoint=test_net)
 ```
 Estimate gas required for a smart contract call
-```
+```py
 estimated_gas = contract.estimate_gas(convert_one_to_hex(contract_addr), endpoint=test_net)
 ```
 Fetch the byte code of the contract
-```
+```py
 byte_code = contract.get_code(convert_one_to_hex(contract_addr), 'latest', endpoint=test_net)
 ```
 Get storage in the contract at `key`
-```
+```py
 storage = contract.get_storage_at(convert_one_to_hex(contract_addr), key='0x0', block_num='latest', endpoint=test_net)
 ```
 Calling a function on a contract needs the contract ABI. The ABI can be obtained by compiling the contract.
-```
+```py
 from web3 import Web3
 from web3 import providers
 from pyhmy.util import convert_one_to_hex
@@ -428,7 +423,7 @@ lottery = w3.eth.contract(abi=contract_abi, address=convert_one_to_hex('one1rcs4
 lottery.functions.getPlayers().call()
 ```
 To actually participate in a contract, you can sign a transaction from your account to it.
-```
+```py
 from pyhmy import signing
 contract_addr = 'one1rcs4yy4kln53ux60qdeuhhvpygn2sutn500dhw'
 tx = {
@@ -445,7 +440,7 @@ tx = {
 tx_hash = transaction.send_raw_transaction(signing.sign_transaction(tx, '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
 ```
 To deploy a contract, sign a transaction from your account without a `to` field and with the byte code as `data` and send it.
-```
+```py
 from pyhmy import signing
 from pyhmy import transaction
 contract_tx = {
@@ -463,11 +458,11 @@ ctx_hash = transaction.send_raw_transaction(signing.sign_transaction(contract_tx
 contract_address = transaction.get_transaction_receipt(ctx_hash, test_net)['contractAddress']
 ```
 ### Signing transactions
-```
+```py
 from pyhmy import signing
 ```
 Create a `transaction_dict` with the parameters, and supply your private key to sign (but not submit) a transaction. A signed transaction can be submitted using `transaction.sendRawTransaction`.
-```
+```py
 transaction_dict = {
         'nonce': 2,
         'gasPrice': 1,
@@ -482,7 +477,7 @@ signed_tx = signing.sign_transaction(transaction_dict, private_key = '4edef2c249
 signed_hash = signed_tx.rawTransaction.hex()
 ```
 For a transaction with is Ethereum-like, the `shardID` and `toShardID` are optional, which implies that the transaction is not cross-shard.
-```
+```py
 transaction_dict = {
         'nonce': 2,
         'gasPrice': 1,
@@ -494,7 +489,7 @@ signed_tx = signing.sign_transaction(transaction_dict, private_key = '4edef2c249
 signed_hash = signed_tx.rawTransaction.hex()
 ```
 The `chainId` parameter is also optional, and [according to Ethereum](https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L122), it should not be passed if "you want a transaction that can be replayed across networks." A full list of the possible values of `chainId` is provided below. You can pass either the `str` or the `int`. The RPC API may, however, reject the transaction, which is why it is recommended to pass either `1` or `2` for `mainnet` and `testnet` respectively.
-```
+```py
 Default = 0,
 EthMainnet = 1,
 Morden = 2,
@@ -513,11 +508,11 @@ HmyLocal = 2,
 HmyPangaea = 3,
 ```
 ### Signing staking transactions
-```
+```py
 from pyhmy import staking_structures, staking_signing
 ```
 To sign a transaction to collect rewards, supply the dictionary containing the `delegatorAddress` and the private key.
-```
+```py
 transaction_dict = {
     'directive': staking_structures.Directive.CollectRewards,
     'delegatorAddress': 'one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9',
@@ -528,7 +523,7 @@ transaction_dict = {
 signed_tx = staking_signing.sign_staking_transaction(transaction_dict, private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
 ```
 To sign a transaction to delegate or undelegate, supply the dictionary containing the `delegatorAddress`, the `validatorAddress`, the `amount` to delegate or undelegate, and the private key.
-```
+```py
 transaction_dict = {
         'directive': staking_structures.Directive.Delegate,
         'delegatorAddress': 'one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9',
@@ -553,11 +548,11 @@ signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c2
 For validator-related transactions, see the [section on the Validator class](#validator-class).
 ## Keeping your private key safe
 You need `eth-keyfile` installed
-```
+```bash
 pip install eth-keyfile
 ```
 In a `Python` shell, you can save or load the key into / from a key file.
-```
+```py
 import eth_keyfile
 from eth_utils import to_bytes, to_hex
 import json
