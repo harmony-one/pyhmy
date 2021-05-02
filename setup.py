@@ -20,6 +20,11 @@ setup(
         'pexpect',
         'requests',
         'incremental',
+        'eth-rlp',
+        'eth-account',
+        'eth-utils',
+        'hexbytes',
+        'cytoolz'
     ],
     setup_requires=[
         'incremental',
@@ -27,11 +32,6 @@ setup(
         'pytest-ordering',
         'click',
         'twisted',
-        'eth-rlp',
-        'eth-account',
-        'eth-utils',
-        'hexbytes',
-        'cytoolz'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
