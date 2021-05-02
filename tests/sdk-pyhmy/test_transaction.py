@@ -107,9 +107,10 @@ def test_send_and_confirm_raw_transaction(setup_blockchain):
     #     ]
     # }'
     # {"jsonrpc":"2.0","id":1,"result":null}
-    # which is why it is wrapped in an AssertionError
     test_tx = _test_transaction_rpc(transaction.send_and_confirm_raw_transaction,
-                raw_tx)
+                raw_tx)         # mining stops by the time this transaction is submitted
+                                # so it never confirms, which is why TxConfirmationTimedoutError
+                                # is in the set up call
     assert isinstance(test_tx, dict)
     assert test_tx[ 'hash' ] == raw_tx_hash
 
