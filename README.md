@@ -552,4 +552,4 @@ transaction_dict = {
     }
 signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
 ```
-For validator-related transactions, see the section on the `Validator` class.
+For validator-related transactions, see the [section on the `Validator` class][#validator-class]
