@@ -87,7 +87,7 @@ class Validator:
         str
             Original or empty str
         """
-        if not data:
+        if not isinstance(data, str):
             return ''
         return str(data)
 
