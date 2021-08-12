@@ -16,6 +16,7 @@ local_test_address = 'one1zksj3evekayy90xt4psrz8h6j2v3hla4qwz4ur'
 test_validator_address = 'one18tvf56zqjkjnak686lwutcp5mqfnvee35xjnhc'
 genesis_block_number = 0
 test_block_number = 1
+fake_shard = 'http://example.com'
 
 def _test_account_rpc(fn, *args, **kwargs):
     if not callable(fn):
@@ -43,36 +44,29 @@ def test_get_balance_by_block(setup_blockchain):
     assert balance > 0
 
 @pytest.mark.run(order=3)
-def test_get_true_nonce(setup_blockchain):
-    true_nonce = _test_account_rpc(account.get_account_nonce, local_test_address, true_nonce=True, endpoint=endpoint_shard_one)
+def test_get_account_nonce(setup_blockchain):
+    true_nonce = _test_account_rpc(account.get_account_nonce, local_test_address, test_block_number, endpoint=endpoint_shard_one)
     assert isinstance(true_nonce, int)
-    assert true_nonce > 0
 
 @pytest.mark.run(order=4)
-def test_get_pending_nonce(setup_blockchain):
-    pending_nonce = _test_account_rpc(account.get_account_nonce, local_test_address, endpoint=endpoint_shard_one)
-    assert isinstance(pending_nonce, int)
-    assert pending_nonce > 0
-
-@pytest.mark.run(order=5)
 def test_get_transaction_history(setup_blockchain):
     tx_history = _test_account_rpc(account.get_transaction_history, local_test_address, endpoint=explorer_endpoint)
     assert isinstance(tx_history, list)
     assert len(tx_history) >= 0
 
-@pytest.mark.run(order=6)
+@pytest.mark.run(order=5)
 def test_get_staking_transaction_history(setup_blockchain):
     staking_tx_history = _test_account_rpc(account.get_staking_transaction_history, test_validator_address, endpoint=explorer_endpoint)
     assert isinstance(staking_tx_history, list)
     assert len(staking_tx_history) > 0
 
-@pytest.mark.run(order=7)
+@pytest.mark.run(order=6)
 def test_get_balance_on_all_shards(setup_blockchain):
     balances = _test_account_rpc(account.get_balance_on_all_shards, local_test_address)
     assert isinstance(balances, list)
     assert len(balances) == 2
 
-@pytest.mark.run(order=8)
+@pytest.mark.run(order=7)
 def test_get_total_balance(setup_blockchain):
     total_balance = _test_account_rpc(account.get_total_balance, local_test_address)
     assert isinstance(total_balance, int)
@@ -82,3 +76,41 @@ def test_get_total_balance(setup_blockchain):
 def test_is_valid_address():
     assert account.is_valid_address('one1zksj3evekayy90xt4psrz8h6j2v3hla4qwz4ur')
     assert not account.is_valid_address('one1wje75aedczmj4dwjs0812xcg7vx0dy231cajk0')
+
+@pytest.mark.run(order=8)
+def test_get_transaction_count(setup_blockchain):
+    tx_count = _test_account_rpc(account.get_transaction_count, local_test_address, 'latest')
+    assert isinstance(tx_count, int)
+    assert tx_count > 0
+
+@pytest.mark.run(order=9)
+def test_get_transactions_count(setup_blockchain):
+    tx_count = _test_account_rpc(account.get_transactions_count, local_test_address, 'ALL')
+
+@pytest.mark.run(order=10)
+def test_get_staking_transactions_count(setup_blockchain):
+    tx_count = _test_account_rpc(account.get_staking_transactions_count, local_test_address, 'ALL')
+    assert isinstance(tx_count, int)
+
+@pytest.mark.run(order=10)
+def test_errors():
+    with pytest.raises(exceptions.RPCError):
+        account.get_balance('', fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_balance_by_block('', 1, fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_account_nonce('', 1, fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_transaction_count('', 1, fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_transactions_count('', 1, fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_transactions_count('', 'ALL', fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_transaction_history('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_staking_transaction_history('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_balance_on_all_shards('', endpoint=fake_shard)
+    with pytest.raises(exceptions.RPCError):
+        account.get_total_balance('', endpoint=fake_shard)

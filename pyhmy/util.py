@@ -16,8 +16,18 @@ from .rpc.exceptions import (
     RequestsTimeoutError,
 )
 
-datetime_format = "%Y-%m-%d %H:%M:%S.%f"
+from .account import (
+    is_valid_address
+)
 
+from .bech32.bech32 import (
+    bech32_decode,
+    convertbits
+)
+
+from eth_utils import to_checksum_address
+
+datetime_format = "%Y-%m-%d %H:%M:%S.%f"
 
 class Typgpy(str):
     """
@@ -34,6 +44,33 @@ class Typgpy(str):
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def chain_id_to_int(chainId):
+    chainIds = dict(
+        Default = 0,
+        EthMainnet = 1,
+        Morden = 2,
+        Ropsten = 3,
+        Rinkeby = 4,
+        RootstockMainnet = 30,
+        RootstockTestnet = 31,
+        Kovan = 42,
+        EtcMainnet = 61,
+        EtcTestnet = 62,
+        Geth = 1337,
+        Ganache = 0,
+        HmyMainnet = 1,
+        HmyTestnet = 2,
+        HmyLocal = 2,
+        HmyPangaea = 3,
+    )
+    if isinstance(chainId, str):
+        assert chainId in chainIds, f'ChainId {chainId} is not valid'
+        return chainIds.get(chainId)
+    elif isinstance(chainId, int):
+        assert chainId in chainIds.values(), f'Unknown chain id {chainId}'
+        return chainId
+    else:
+        raise TypeError( 'chainId must be str or int' )
 
 def get_gopath():
     """
@@ -47,6 +84,17 @@ def get_goversion():
     :returns The go-version, assuming that go is installed.
     """
     return subprocess.check_output(["go", "version"]).decode().strip()
+
+def convert_one_to_hex(addr):
+    """
+    Given a one address, convert it to hex checksum address
+    """
+    if not is_valid_address(addr):
+        return to_checksum_address(addr)
+    hrp, data = bech32_decode(addr)
+    buf = convertbits(data, 5, 8, False)
+    address = '0x' + ''.join('{:02x}'.format(x) for x in buf)
+    return to_checksum_address(address)
 
 
 def is_active_shard(endpoint, delay_tolerance=60):

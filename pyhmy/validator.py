@@ -739,4 +739,6 @@ class Validator:
         info['bls-key-to-add'] = bls_key_to_add
         if chain_id:
             info['chainId'] = chain_id
+
         return sign_staking_transaction(info, private_key)
+

@@ -14,7 +14,7 @@ from pyhmy.rpc import (
 def setup():
     endpoint = 'http://localhost:9500'
     timeout = 30
-    method = 'hmy_getNodeMetadata'
+    method = 'hmyv2_getNodeMetadata'
     params = []
     payload = {
         "id": "1",
@@ -46,7 +46,7 @@ def test_request_connection_error():
     bad_endpoint = f'http://localhost:{port}'
     bad_request = None
     try:
-        bad_request = request.rpc_request('hmy_getNodeMetadata', endpoint=bad_endpoint)
+        bad_request = request.rpc_request('hmyv2_getNodeMetadata', endpoint=bad_endpoint)
     except Exception as e:
         assert isinstance(e, exceptions.RequestsError)
     assert bad_request is None
@@ -56,7 +56,7 @@ def test_request_connection_error():
 def test_request_rpc_error():
     error_request = None
     try:
-        error_request = request.rpc_request('hmy_getBalance')
+        error_request = request.rpc_request('hmyv2_getBalance')
     except (exceptions.RequestsTimeoutError, exceptions.RequestsError) as err:
         pytest.skip("can not connect to local blockchain", allow_module_level=True)
     except Exception as e:
@@ -68,7 +68,7 @@ def test_request_rpc_error():
 def test_rpc_request():
     endpoint = 'http://localhost:9500'
     timeout = 30
-    method = 'hmy_getNodeMetadata'
+    method = 'hmyv2_getNodeMetadata'
     params = []
     payload = {
         "id": "1",
