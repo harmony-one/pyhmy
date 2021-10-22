@@ -433,7 +433,7 @@ def send_and_confirm_raw_transaction(signed_tx, endpoint=_default_endpoint, time
     tx_hash = send_raw_transaction(signed_tx, endpoint=endpoint)
     start_time = time.time()
     while((time.time() - start_time) <= timeout):
-        tx_response = get_transaction_by_hash(tx_hash)
+        tx_response = get_transaction_by_hash(tx_hash, endpoint=endpoint)
         if tx_response is not None:
             if tx_response[ 'blockHash' ] != '0x0000000000000000000000000000000000000000000000000000000000000000':
                 return tx_response
