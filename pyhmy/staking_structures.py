@@ -134,6 +134,7 @@ class CreateValidator:
                             big_endian_int,                                                 # min self delegation
                             big_endian_int,                                                 # max total delegation
                             CountableList(Binary.fixed_length(48, allow_empty=True)),       # bls-public-keys array of unspecified length, each key of 48
+                            CountableList(Binary.fixed_length(96, allow_empty=True)),       # bls-key-sigs array of unspecified length, each sig of 96
                             big_endian_int,                                                 # amount
                          ], True)),                                                         # strictly these number of elements
                 ('nonce', big_endian_int),

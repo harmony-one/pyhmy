@@ -271,6 +271,9 @@ def _sign_create_validator(transaction_dict, private_key):
     bls_keys = apply_formatter_to_array( hexstr_if_str(to_bytes),       # formatter
         sanitized_transaction.pop('bls-public-keys')
     )
+    bls_key_sigs = apply_formatter_to_array( hexstr_if_str(to_bytes),       # formatter
+        sanitized_transaction.pop('bls-key-sigs')
+    )
     sanitized_transaction['stakeMsg'] = \
         apply_formatters_to_sequence( [
             hexstr_if_str(to_bytes),        # address
@@ -279,6 +282,7 @@ def _sign_create_validator(transaction_dict, private_key):
             hexstr_if_str(to_int),          # min self delegation (in ONE), decimals are silently dropped
             hexstr_if_str(to_int),          # max total delegation (in ONE), decimals are silently dropped
             identity,                       # bls public keys
+            identity,                       # bls key sigs
             hexstr_if_str(to_int),          # amount (the Hexlify in the SDK drops the decimals, which is what we will do too)
         ], [
             convert_one_to_hex(sanitized_transaction.pop('validatorAddress')),
@@ -287,6 +291,7 @@ def _sign_create_validator(transaction_dict, private_key):
             math.floor(sanitized_transaction.pop('min-self-delegation')),       # Decimal floors it correctly
             math.floor(sanitized_transaction.pop('max-total-delegation')),
             bls_keys,
+            bls_key_sigs,
             math.floor(sanitized_transaction.pop('amount')),
             ]
         )

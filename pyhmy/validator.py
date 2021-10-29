@@ -58,6 +58,7 @@ class Validator:
             raise InvalidValidatorError(1, f'{address} is not valid ONE address')
         self._address = address
         self._bls_keys = []
+        self._bls_key_sigs = []
 
         self._name = None
         self._identity = None
@@ -150,6 +151,47 @@ class Validator:
             List of validator BLS keys (strings)
         """
         return self._bls_keys
+
+    def add_bls_key_sig(self, key) -> bool:
+        """
+        Add BLS public key to validator BLS keys if not already in list
+
+        Returns
+        -------
+        bool
+            If adding BLS key succeeded
+        """
+        key = self._sanitize_input(key)
+        if key not in self._bls_key_sigs:
+            self._bls_key_sigs.append(key)
+            return True
+        return False
+
+    def remove_bls_key_sig(self, key) -> bool:
+        """
+        Remove BLS public key from validator BLS keys if exists
+
+        Returns
+        -------
+        bool
+            If removing BLS key succeeded
+        """
+        key = self._sanitize_input(key)
+        if key in self._bls_key_sigs:
+            self._bls_key_sigs.remove(key)
+            return True
+        return False
+
+    def get_bls_key_sigs(self) -> list:
+        """
+        Get list of validator BLS keys
+
+        Returns
+        -------
+        list
+            List of validator BLS keys (strings)
+        """
+        return self._bls_key_sigs
 
     def set_name(self, name):
         """
@@ -578,6 +620,7 @@ class Validator:
                 "max-rate": '0',
                 "max-change-rate": '0',
                 "bls-public-keys": [ "" ]
+                "bls-key-sigs": [ "" ]
             }
 
         Raises
@@ -603,12 +646,18 @@ class Validator:
             self._bls_keys = []
             for key in info['bls-public-keys']:
                 self.add_bls_key(key)
+
+            self._bls_key_sigs = []
+            for key in info['bls-key-sigs']:
+                self.add_bls_key_sig(key)
         except KeyError as e:
             raise InvalidValidatorError(3, 'Info has missing key') from e
 
     def load_from_blockchain(self, endpoint=_default_endpoint, timeout=_default_timeout):
         """
         Import validator information from blockchain with given address
+        At the moment, this is unable to fetch the BLS Signature, which is not implemented
+            in the Node API
 
         Parameters
         ----------
@@ -674,7 +723,8 @@ class Validator:
             "rate": self._rate,
             "max-rate": self._max_rate,
             "max-change-rate": self._max_change_rate,
-            "bls-public-keys": self._bls_keys
+            "bls-public-keys": self._bls_keys,
+            "bls-key-sigs": self._bls_key_sigs
         }
         return info
 
@@ -705,7 +755,7 @@ class Validator:
             info['chainId'] = chain_id
         return sign_staking_transaction(info, private_key)
 
-    def sign_edit_validator_transaction(self, nonce, gas_price, gas_limit, rate, bls_key_to_add, bls_key_to_remove, private_key, chain_id=None) -> SignedTransaction:
+    def sign_edit_validator_transaction(self, nonce, gas_price, gas_limit, rate, bls_key_to_remove, bls_key_to_add, bls_key_to_add_sig, private_key, chain_id=None) -> SignedTransaction:
         """
         Create but not post a transaction to Edit the Validator using private_key
 
@@ -737,6 +787,7 @@ class Validator:
         _ = info.pop('amount')              # also unused
         info['bls-key-to-remove'] = bls_key_to_remove
         info['bls-key-to-add'] = bls_key_to_add
+        info['bls-key-to-add-sig'] = bls_key_to_add_sig
         if chain_id:
             info['chainId'] = chain_id
         return sign_staking_transaction(info, private_key)
