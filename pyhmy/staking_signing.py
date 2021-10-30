@@ -26,7 +26,7 @@ from eth_account._utils.signing import (
     sign_transaction_hash
 )
 
-from eth_account._utils.transactions import (
+from eth_account._utils.legacy_transactions import (
     chain_id_to_v
 )
 

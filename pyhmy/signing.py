@@ -29,10 +29,10 @@ from eth_account._utils.signing import (
     sign_transaction_hash
 )
 
-from eth_account._utils.transactions import (
+from eth_account._utils.legacy_transactions import (
     Transaction as SignedEthereumTxData,
     UnsignedTransaction as UnsignedEthereumTxData,
-    TRANSACTION_FORMATTERS as ETHEREUM_FORMATTERS,
+    LEGACY_TRANSACTION_FORMATTERS as ETHEREUM_FORMATTERS,
     TRANSACTION_DEFAULTS,
     chain_id_to_v,
     UNSIGNED_TRANSACTION_FIELDS
