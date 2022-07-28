@@ -29,7 +29,7 @@ dev:
 	python3 -m pip install pytest-ordering
 
 test:
-	python3 -m py.test -r s -s tests
+	python3 -m pytest -r s -s tests
 
 install:
 	python3 -m pip install -e .
