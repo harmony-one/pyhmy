@@ -22,6 +22,7 @@ from .account import (
 
 from .bech32.bech32 import (
     bech32_decode,
+    bech32_encode,
     convertbits
 )
 
@@ -96,6 +97,16 @@ def convert_one_to_hex(addr):
     address = '0x' + ''.join('{:02x}'.format(x) for x in buf)
     return to_checksum_address(address)
 
+def convert_hex_to_one(addr):
+    """
+    Given a hex address, convert it to a one address
+    """
+    if is_valid_address(addr):
+        return addr
+    checksum_addr = to_checksum_address(addr)
+    data = bytearray.fromhex(checksum_addr[2:] if checksum_addr.startswith("0x") else checksum_addr)
+    buf = convertbits(data, 8, 5)
+    return bech32_encode("one", buf)
 
 def is_active_shard(endpoint, delay_tolerance=60):
     """

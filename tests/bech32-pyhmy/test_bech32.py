@@ -7,3 +7,4 @@ def test_encode():
 
 def test_decode():
     bech32.decode('one', 'one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9')
+
