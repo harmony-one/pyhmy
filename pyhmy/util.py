@@ -64,12 +64,11 @@ def chain_id_to_int(chainId):
         HmyLocal = 2,
         HmyPangaea = 3,
     )
+
+    # do not validate integer chainids, only known strings
     if isinstance(chainId, str):
-        assert chainId in chainIds, f'ChainId {chainId} is not valid'
+        assert chainId in chainIds, f'Chain {chainId} unknown, specify an integer chainId'
         return chainIds.get(chainId)
-    elif isinstance(chainId, int):
-        assert chainId in chainIds.values(), f'Unknown chain id {chainId}'
-        return chainId
     else:
         raise TypeError( 'chainId must be str or int' )
 
