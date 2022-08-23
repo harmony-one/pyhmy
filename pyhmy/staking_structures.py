@@ -10,16 +10,12 @@ from rlp.sedes import big_endian_int, Binary, CountableList, List, Text
 
 from eth_rlp import HashableRLP
 
-from eth_utils.curried import (
-    to_int,
-    hexstr_if_str,
-)
+from eth_utils.curried import ( to_int, hexstr_if_str, )
+
 
 # https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L120
-class Directive(
-    Enum
-):
-    def _generate_next_value_(name, start, count, last_values): # pylint: disable=no-self-argument
+class Directive( Enum ):
+    def _generate_next_value_( name, start, count, last_values ):  # pylint: disable=no-self-argument
         return count
 
     CreateValidator = auto()
@@ -39,24 +35,36 @@ FORMATTERS = {
     "chainId": hexstr_if_str(to_int),
 }
 
+
 class CollectRewards:
     @staticmethod
     def UnsignedChainId():
-        class UnsignedChainId(HashableRLP):
+        class UnsignedChainId( HashableRLP ):
             fields = (
-                ("directive", big_endian_int),
-                ("stakeMsg", CountableList(Binary.fixed_length(20, allow_empty=True))),
-                ("nonce", big_endian_int),
-                ("gasPrice", big_endian_int),
-                ("gasLimit", big_endian_int),
-                ("chainId", big_endian_int),
+                ( "directive",
+                  big_endian_int ),
+                (
+                    "stakeMsg",
+                    CountableList(
+                        Binary.fixed_length( 20,
+                                             allow_empty = True )
+                    )
+                ),
+                ( "nonce",
+                  big_endian_int ),
+                ( "gasPrice",
+                  big_endian_int ),
+                ( "gasLimit",
+                  big_endian_int ),
+                ( "chainId",
+                  big_endian_int ),
             )
 
         return UnsignedChainId
 
     @staticmethod
     def SignedChainId():
-        class SignedChainId(HashableRLP):
+        class SignedChainId( HashableRLP ):
             fields = CollectRewards.UnsignedChainId()._meta.fields[
                 :-1
             ] + (  # drop chainId
@@ -69,14 +77,15 @@ class CollectRewards:
 
     @staticmethod
     def Unsigned():
-        class Unsigned(HashableRLP):
-            fields = CollectRewards.UnsignedChainId()._meta.fields[:-1]  # drop chainId
+        class Unsigned( HashableRLP ):
+            fields = CollectRewards.UnsignedChainId(
+            )._meta.fields[ :-1 ]  # drop chainId
 
         return Unsigned
 
     @staticmethod
     def Signed():
-        class Signed(HashableRLP):
+        class Signed( HashableRLP ):
             fields = CollectRewards.Unsigned()._meta.fields[
                 :-3
             ] + (  # drop last 3 for raw.pop()
@@ -91,31 +100,38 @@ class CollectRewards:
 class DelegateOrUndelegate:
     @staticmethod
     def UnsignedChainId():
-        class UnsignedChainId(HashableRLP):
+        class UnsignedChainId( HashableRLP ):
             fields = (
-                ("directive", big_endian_int),
+                ( "directive",
+                  big_endian_int ),
                 (
                     "stakeMsg",
                     List(
                         [
-                            Binary.fixed_length(20, allow_empty=True),
-                            Binary.fixed_length(20, allow_empty=True),
+                            Binary.fixed_length( 20,
+                                                 allow_empty = True ),
+                            Binary.fixed_length( 20,
+                                                 allow_empty = True ),
                             big_endian_int,
                         ],
                         True,
                     ),
                 ),
-                ("nonce", big_endian_int),
-                ("gasPrice", big_endian_int),
-                ("gasLimit", big_endian_int),
-                ("chainId", big_endian_int),
+                ( "nonce",
+                  big_endian_int ),
+                ( "gasPrice",
+                  big_endian_int ),
+                ( "gasLimit",
+                  big_endian_int ),
+                ( "chainId",
+                  big_endian_int ),
             )
 
         return UnsignedChainId
 
     @staticmethod
     def SignedChainId():
-        class SignedChainId(HashableRLP):
+        class SignedChainId( HashableRLP ):
             fields = DelegateOrUndelegate.UnsignedChainId()._meta.fields[
                 :-1
             ] + (  # drop chainId
@@ -128,16 +144,15 @@ class DelegateOrUndelegate:
 
     @staticmethod
     def Unsigned():
-        class Unsigned(HashableRLP):
-            fields = DelegateOrUndelegate.UnsignedChainId()._meta.fields[
-                :-1
-            ]  # drop chainId
+        class Unsigned( HashableRLP ):
+            fields = DelegateOrUndelegate.UnsignedChainId(
+            )._meta.fields[ :-1 ]  # drop chainId
 
         return Unsigned
 
     @staticmethod
     def Signed():
-        class Signed(HashableRLP):
+        class Signed( HashableRLP ):
             fields = DelegateOrUndelegate.Unsigned()._meta.fields[
                 :-3
             ] + (  # drop last 3 for raw.pop()
@@ -152,7 +167,7 @@ class DelegateOrUndelegate:
 class CreateValidator:
     @staticmethod
     def UnsignedChainId():
-        class UnsignedChainId(HashableRLP):
+        class UnsignedChainId( HashableRLP ):
             fields = (
                 ("directive", big_endian_int),
                 (
@@ -196,7 +211,7 @@ class CreateValidator:
 
     @staticmethod
     def SignedChainId():
-        class SignedChainId(HashableRLP):
+        class SignedChainId( HashableRLP ):
             fields = CreateValidator.UnsignedChainId()._meta.fields[
                 :-1
             ] + (  # drop chainId
@@ -209,14 +224,15 @@ class CreateValidator:
 
     @staticmethod
     def Unsigned():
-        class Unsigned(HashableRLP):
-            fields = CreateValidator.UnsignedChainId()._meta.fields[:-1]  # drop chainId
+        class Unsigned( HashableRLP ):
+            fields = CreateValidator.UnsignedChainId(
+            )._meta.fields[ :-1 ]  # drop chainId
 
         return Unsigned
 
     @staticmethod
     def Signed():
-        class Signed(HashableRLP):
+        class Signed( HashableRLP ):
             fields = CreateValidator.Unsigned()._meta.fields[
                 :-3
             ] + (  # drop last 3 for raw.pop()
@@ -231,7 +247,7 @@ class CreateValidator:
 class EditValidator:
     @staticmethod
     def UnsignedChainId():
-        class UnsignedChainId(HashableRLP):
+        class UnsignedChainId( HashableRLP ):
             fields = (
                 ("directive", big_endian_int),
                 (
@@ -276,7 +292,7 @@ class EditValidator:
 
     @staticmethod
     def SignedChainId():
-        class SignedChainId(HashableRLP):
+        class SignedChainId( HashableRLP ):
             fields = EditValidator.UnsignedChainId()._meta.fields[
                 :-1
             ] + (  # drop chainId
@@ -289,14 +305,15 @@ class EditValidator:
 
     @staticmethod
     def Unsigned():
-        class Unsigned(HashableRLP):
-            fields = EditValidator.UnsignedChainId()._meta.fields[:-1]  # drop chainId
+        class Unsigned( HashableRLP ):
+            fields = EditValidator.UnsignedChainId(
+            )._meta.fields[ :-1 ]  # drop chainId
 
         return Unsigned
 
     @staticmethod
     def Signed():
-        class Signed(HashableRLP):
+        class Signed( HashableRLP ):
             fields = EditValidator.Unsigned()._meta.fields[
                 :-3
             ] + (  # drop last 3 for raw.pop()

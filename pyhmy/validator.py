@@ -22,11 +22,7 @@ from .constants import (
 
 from .exceptions import InvalidValidatorError
 
-from .rpc.exceptions import (
-    RPCError,
-    RequestsError,
-    RequestsTimeoutError,
-)
+from .rpc.exceptions import ( RPCError, RequestsError, RequestsTimeoutError, )
 
 from .staking import get_all_validator_addresses, get_validator_information
 
@@ -34,16 +30,22 @@ from .staking_structures import Directive
 
 from .staking_signing import sign_staking_transaction
 
-class Validator: # pylint: disable=too-many-instance-attributes, too-many-public-methods
+
+class Validator:  # pylint: disable=too-many-instance-attributes, too-many-public-methods
     """
     Harmony validator
     """
-
-    def __init__(self, address):
-        if not isinstance(address, str):
-            raise InvalidValidatorError(1, "given ONE address was not a string")
-        if not is_valid_address(address):
-            raise InvalidValidatorError(1, f"{address} is not valid ONE address")
+    def __init__( self, address ):
+        if not isinstance( address, str ):
+            raise InvalidValidatorError(
+                1,
+                "given ONE address was not a string"
+            )
+        if not is_valid_address( address ):
+            raise InvalidValidatorError(
+                1,
+                f"{address} is not valid ONE address"
+            )
         self._address = address
         self._bls_keys = []
         self._bls_key_sigs = []
@@ -62,7 +64,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         self._max_change_rate = None
         self._max_rate = None
 
-    def _sanitize_input(self, data, check_str=False) -> str:
+    def _sanitize_input( self, data, check_str = False ) -> str:
         """If data is None, return '' else return data.
 
         Raises
@@ -70,26 +72,26 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError if check_str is True and str is not passed
         """
         if check_str:
-            if not isinstance(data, str):
+            if not isinstance( data, str ):
                 raise InvalidValidatorError(
                     3,
                     "Expected data to be string "
                     f"to avoid floating point precision issues but got {data}",
                 )
-        return "" if not data else str(data)
+        return "" if not data else str( data )
 
-    def __str__(self) -> str:
+    def __str__( self ) -> str:
         """Returns JSON string representation of Validator fields."""
         info = self.export()
         for key, value in info.items():
-            if isinstance(value, Decimal):
-                info[key] = str(value)
-        return json.dumps(info)
+            if isinstance( value, Decimal ):
+                info[ key ] = str( value )
+        return json.dumps( info )
 
-    def __repr__(self) -> str:
+    def __repr__( self ) -> str:
         return f"<Validator: {hex(id(self))}>"
 
-    def get_address(self) -> str:
+    def get_address( self ) -> str:
         """Get validator address.
 
         Returns
@@ -99,7 +101,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._address
 
-    def add_bls_key(self, key) -> bool:
+    def add_bls_key( self, key ) -> bool:
         """Add BLS public key to validator BLS keys if not already in list.
 
         Returns
@@ -107,13 +109,13 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         bool
             If adding BLS key succeeded
         """
-        key = self._sanitize_input(key)
+        key = self._sanitize_input( key )
         if key not in self._bls_keys:
-            self._bls_keys.append(key)
+            self._bls_keys.append( key )
             return True
         return False
 
-    def remove_bls_key(self, key) -> bool:
+    def remove_bls_key( self, key ) -> bool:
         """Remove BLS public key from validator BLS keys if exists.
 
         Returns
@@ -121,13 +123,13 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         bool
             If removing BLS key succeeded
         """
-        key = self._sanitize_input(key)
+        key = self._sanitize_input( key )
         if key in self._bls_keys:
-            self._bls_keys.remove(key)
+            self._bls_keys.remove( key )
             return True
         return False
 
-    def get_bls_keys(self) -> list:
+    def get_bls_keys( self ) -> list:
         """Get list of validator BLS keys.
 
         Returns
@@ -137,7 +139,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._bls_keys
 
-    def add_bls_key_sig(self, key) -> bool:
+    def add_bls_key_sig( self, key ) -> bool:
         """Add BLS public key to validator BLS keys if not already in list.
 
         Returns
@@ -145,13 +147,13 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         bool
             If adding BLS key succeeded
         """
-        key = self._sanitize_input(key)
+        key = self._sanitize_input( key )
         if key not in self._bls_key_sigs:
-            self._bls_key_sigs.append(key)
+            self._bls_key_sigs.append( key )
             return True
         return False
 
-    def remove_bls_key_sig(self, key) -> bool:
+    def remove_bls_key_sig( self, key ) -> bool:
         """Remove BLS public key from validator BLS keys if exists.
 
         Returns
@@ -159,13 +161,13 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         bool
             If removing BLS key succeeded
         """
-        key = self._sanitize_input(key)
+        key = self._sanitize_input( key )
         if key in self._bls_key_sigs:
-            self._bls_key_sigs.remove(key)
+            self._bls_key_sigs.remove( key )
             return True
         return False
 
-    def get_bls_key_sigs(self) -> list:
+    def get_bls_key_sigs( self ) -> list:
         """Get list of validator BLS keys.
 
         Returns
@@ -175,7 +177,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._bls_key_sigs
 
-    def set_name(self, name):
+    def set_name( self, name ):
         """Set validator name.
 
         Parameters
@@ -188,14 +190,15 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        name = self._sanitize_input(name)
-        if len(name) > NAME_CHAR_LIMIT:
+        name = self._sanitize_input( name )
+        if len( name ) > NAME_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Name must be less than {NAME_CHAR_LIMIT} characters"
+                3,
+                f"Name must be less than {NAME_CHAR_LIMIT} characters"
             )
         self._name = name
 
-    def get_name(self) -> str:
+    def get_name( self ) -> str:
         """Get validator name.
 
         Returns
@@ -205,7 +208,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._name
 
-    def set_identity(self, identity):
+    def set_identity( self, identity ):
         """Set validator identity.
 
         Parameters
@@ -218,14 +221,15 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        identity = self._sanitize_input(identity)
-        if len(identity) > IDENTITY_CHAR_LIMIT:
+        identity = self._sanitize_input( identity )
+        if len( identity ) > IDENTITY_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Identity must be less than {IDENTITY_CHAR_LIMIT} characters"
+                3,
+                f"Identity must be less than {IDENTITY_CHAR_LIMIT} characters"
             )
         self._identity = identity
 
-    def get_identity(self) -> str:
+    def get_identity( self ) -> str:
         """Get validator identity.
 
         Returns
@@ -235,7 +239,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._identity
 
-    def set_website(self, website):
+    def set_website( self, website ):
         """Set validator website.
 
         Parameters
@@ -248,14 +252,15 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        website = self._sanitize_input(website)
-        if len(website) > WEBSITE_CHAR_LIMIT:
+        website = self._sanitize_input( website )
+        if len( website ) > WEBSITE_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Website must be less than {WEBSITE_CHAR_LIMIT} characters"
+                3,
+                f"Website must be less than {WEBSITE_CHAR_LIMIT} characters"
             )
         self._website = website
 
-    def get_website(self) -> str:
+    def get_website( self ) -> str:
         """Get validator website.
 
         Returns
@@ -265,7 +270,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._website
 
-    def set_security_contact(self, contact):
+    def set_security_contact( self, contact ):
         """Set validator security contact.
 
         Parameters
@@ -278,15 +283,15 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        contact = self._sanitize_input(contact)
-        if len(contact) > SECURITY_CONTACT_CHAR_LIMIT:
+        contact = self._sanitize_input( contact )
+        if len( contact ) > SECURITY_CONTACT_CHAR_LIMIT:
             raise InvalidValidatorError(
                 3,
                 f"Security contact must be less than {SECURITY_CONTACT_CHAR_LIMIT} characters",
             )
         self._security_contact = contact
 
-    def get_security_contact(self) -> str:
+    def get_security_contact( self ) -> str:
         """Get validator security contact.
 
         Returns
@@ -296,7 +301,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._security_contact
 
-    def set_details(self, details):
+    def set_details( self, details ):
         """Set validator details.
 
         Parameters
@@ -309,14 +314,15 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        details = self._sanitize_input(details)
-        if len(details) > DETAILS_CHAR_LIMIT:
+        details = self._sanitize_input( details )
+        if len( details ) > DETAILS_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Details must be less than {DETAILS_CHAR_LIMIT} characters"
+                3,
+                f"Details must be less than {DETAILS_CHAR_LIMIT} characters"
             )
         self._details = details
 
-    def get_details(self) -> str:
+    def get_details( self ) -> str:
         """Get validator details.
 
         Returns
@@ -326,7 +332,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._details
 
-    def set_min_self_delegation(self, delegation):
+    def set_min_self_delegation( self, delegation ):
         """Set validator min self delegation.
 
         Parameters
@@ -339,12 +345,13 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        delegation = self._sanitize_input(delegation)
+        delegation = self._sanitize_input( delegation )
         try:
-            delegation = Decimal(delegation)
-        except (TypeError, InvalidOperation) as exception:
+            delegation = Decimal( delegation )
+        except ( TypeError, InvalidOperation ) as exception:
             raise InvalidValidatorError(
-                3, "Min self delegation must be a number"
+                3,
+                "Min self delegation must be a number"
             ) from exception
         if delegation < MIN_REQUIRED_DELEGATION:
             raise InvalidValidatorError(
@@ -353,7 +360,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
             )
         self._min_self_delegation = delegation
 
-    def get_min_self_delegation(self) -> Decimal:
+    def get_min_self_delegation( self ) -> Decimal:
         """Get validator min self delegation.
 
         Returns
@@ -363,7 +370,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._min_self_delegation
 
-    def set_max_total_delegation(self, max_delegation):
+    def set_max_total_delegation( self, max_delegation ):
         """Set validator max total delegation.
 
         Parameters
@@ -376,12 +383,13 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        max_delegation = self._sanitize_input(max_delegation)
+        max_delegation = self._sanitize_input( max_delegation )
         try:
-            max_delegation = Decimal(max_delegation)
-        except (TypeError, InvalidOperation) as exception:
+            max_delegation = Decimal( max_delegation )
+        except ( TypeError, InvalidOperation ) as exception:
             raise InvalidValidatorError(
-                3, "Max total delegation must be a number"
+                3,
+                "Max total delegation must be a number"
             ) from exception
         if self._min_self_delegation:
             if max_delegation < self._min_self_delegation:
@@ -392,11 +400,12 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
                 )
         else:
             raise InvalidValidatorError(
-                4, "Min self delegation must be set before max total delegation"
+                4,
+                "Min self delegation must be set before max total delegation"
             )
         self._max_total_delegation = max_delegation
 
-    def get_max_total_delegation(self) -> Decimal:
+    def get_max_total_delegation( self ) -> Decimal:
         """Get validator max total delegation.
 
         Returns
@@ -406,7 +415,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._max_total_delegation
 
-    def set_amount(self, amount):
+    def set_amount( self, amount ):
         """Set validator initial delegation amount.
 
         Parameters
@@ -419,11 +428,14 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        amount = self._sanitize_input(amount)
+        amount = self._sanitize_input( amount )
         try:
-            amount = Decimal(amount)
-        except (TypeError, InvalidOperation) as exception:
-            raise InvalidValidatorError(3, "Amount must be a number") from exception
+            amount = Decimal( amount )
+        except ( TypeError, InvalidOperation ) as exception:
+            raise InvalidValidatorError(
+                3,
+                "Amount must be a number"
+            ) from exception
         if self._min_self_delegation:
             if amount < self._min_self_delegation:
                 raise InvalidValidatorError(
@@ -433,7 +445,8 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
                 )
         else:
             raise InvalidValidatorError(
-                4, "Min self delegation must be set before amount"
+                4,
+                "Min self delegation must be set before amount"
             )
         if self._max_total_delegation:
             if amount > self._max_total_delegation:
@@ -444,11 +457,12 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
                 )
         else:
             raise InvalidValidatorError(
-                4, "Max total delegation must be set before amount"
+                4,
+                "Max total delegation must be set before amount"
             )
         self._inital_delegation = amount
 
-    def get_amount(self) -> Decimal:
+    def get_amount( self ) -> Decimal:
         """Get validator initial delegation amount.
 
         Returns
@@ -458,7 +472,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._inital_delegation
 
-    def set_max_rate(self, rate):
+    def set_max_rate( self, rate ):
         """Set validator max commission rate.
 
         Parameters
@@ -471,16 +485,19 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        rate = self._sanitize_input(rate, True)
+        rate = self._sanitize_input( rate, True )
         try:
-            rate = Decimal(rate)
-        except (TypeError, InvalidOperation) as exception:
-            raise InvalidValidatorError(3, "Max rate must be a number") from exception
+            rate = Decimal( rate )
+        except ( TypeError, InvalidOperation ) as exception:
+            raise InvalidValidatorError(
+                3,
+                "Max rate must be a number"
+            ) from exception
         if rate < 0 or rate > 1:
-            raise InvalidValidatorError(3, "Max rate must be between 0 and 1")
+            raise InvalidValidatorError( 3, "Max rate must be between 0 and 1" )
         self._max_rate = rate
 
-    def get_max_rate(self) -> Decimal:
+    def get_max_rate( self ) -> Decimal:
         """Get validator max commission rate.
 
         Returns
@@ -490,7 +507,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._max_rate
 
-    def set_max_change_rate(self, rate):
+    def set_max_change_rate( self, rate ):
         """Set validator max commission change rate.
 
         Parameters
@@ -503,14 +520,18 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        rate = self._sanitize_input(rate, True)
+        rate = self._sanitize_input( rate, True )
         try:
-            rate = Decimal(rate)
-        except (TypeError, InvalidOperation) as exception:
-            raise InvalidValidatorError(3, "Max change rate must be a number") from exception
+            rate = Decimal( rate )
+        except ( TypeError, InvalidOperation ) as exception:
+            raise InvalidValidatorError(
+                3,
+                "Max change rate must be a number"
+            ) from exception
         if rate < 0:
             raise InvalidValidatorError(
-                3, "Max change rate must be greater than or equal to 0"
+                3,
+                "Max change rate must be greater than or equal to 0"
             )
         if self._max_rate:
             if rate > self._max_rate:
@@ -520,11 +541,12 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
                 )
         else:
             raise InvalidValidatorError(
-                4, "Max rate must be set before max change rate"
+                4,
+                "Max rate must be set before max change rate"
             )
         self._max_change_rate = rate
 
-    def get_max_change_rate(self) -> Decimal:
+    def get_max_change_rate( self ) -> Decimal:
         """Get validator max commission change rate.
 
         Returns
@@ -534,7 +556,7 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         """
         return self._max_change_rate
 
-    def set_rate(self, rate):
+    def set_rate( self, rate ):
         """Set validator commission rate.
 
         Parameters
@@ -547,23 +569,30 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         InvalidValidatorError
             If input is invalid
         """
-        rate = self._sanitize_input(rate, True)
+        rate = self._sanitize_input( rate, True )
         try:
-            rate = Decimal(rate)
-        except (TypeError, InvalidOperation) as exception:
-            raise InvalidValidatorError(3, "Rate must be a number") from exception
+            rate = Decimal( rate )
+        except ( TypeError, InvalidOperation ) as exception:
+            raise InvalidValidatorError(
+                3,
+                "Rate must be a number"
+            ) from exception
         if rate < 0:
-            raise InvalidValidatorError(3, "Rate must be greater than or equal to 0")
+            raise InvalidValidatorError(
+                3,
+                "Rate must be greater than or equal to 0"
+            )
         if self._max_rate:
             if rate > self._max_rate:
                 raise InvalidValidatorError(
-                    3, f"Rate must be less than or equal to max rate: {self._max_rate}"
+                    3,
+                    f"Rate must be less than or equal to max rate: {self._max_rate}"
                 )
         else:
-            raise InvalidValidatorError(4, "Max rate must be set before rate")
+            raise InvalidValidatorError( 4, "Max rate must be set before rate" )
         self._rate = rate
 
-    def get_rate(self) -> Decimal:
+    def get_rate( self ) -> Decimal:
         """Get validator commission rate.
 
         Returns
@@ -574,7 +603,9 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         return self._rate
 
     def does_validator_exist(
-        self, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+        self,
+        endpoint = DEFAULT_ENDPOINT,
+        timeout = DEFAULT_TIMEOUT
     ) -> bool:
         """Check if validator exists on blockchain.
 
@@ -595,12 +626,12 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         RPCError, RequestsError, RequestsTimeoutError
             If unable to get list of validators on chain
         """
-        all_validators = get_all_validator_addresses(endpoint, timeout)
+        all_validators = get_all_validator_addresses( endpoint, timeout )
         if self._address in all_validators:
             return True
         return False
 
-    def load(self, info):
+    def load( self, info ):
         """Import validator information.
 
         Parameters
@@ -631,32 +662,37 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
             If input value is invalid
         """
         try:
-            self.set_name(info["name"])
-            self.set_identity(info["identity"])
-            self.set_website(info["website"])
-            self.set_details(info["details"])
-            self.set_security_contact(info["security-contact"])
+            self.set_name( info[ "name" ] )
+            self.set_identity( info[ "identity" ] )
+            self.set_website( info[ "website" ] )
+            self.set_details( info[ "details" ] )
+            self.set_security_contact( info[ "security-contact" ] )
 
-            self.set_min_self_delegation(info["min-self-delegation"])
-            self.set_max_total_delegation(info["max-total-delegation"])
-            self.set_amount(info["amount"])
+            self.set_min_self_delegation( info[ "min-self-delegation" ] )
+            self.set_max_total_delegation( info[ "max-total-delegation" ] )
+            self.set_amount( info[ "amount" ] )
 
-            self.set_max_rate(info["max-rate"])
-            self.set_max_change_rate(info["max-change-rate"])
-            self.set_rate(info["rate"])
+            self.set_max_rate( info[ "max-rate" ] )
+            self.set_max_change_rate( info[ "max-change-rate" ] )
+            self.set_rate( info[ "rate" ] )
 
             self._bls_keys = []
-            for key in info["bls-public-keys"]:
-                self.add_bls_key(key)
+            for key in info[ "bls-public-keys" ]:
+                self.add_bls_key( key )
 
             self._bls_key_sigs = []
-            for key in info["bls-key-sigs"]:
-                self.add_bls_key_sig(key)
+            for key in info[ "bls-key-sigs" ]:
+                self.add_bls_key_sig( key )
         except KeyError as exception:
-            raise InvalidValidatorError(3, "Info has missing key") from exception
+            raise InvalidValidatorError(
+                3,
+                "Info has missing key"
+            ) from exception
 
     def load_from_blockchain(
-        self, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+        self,
+        endpoint = DEFAULT_ENDPOINT,
+        timeout = DEFAULT_TIMEOUT
     ):
         """Import validator information from blockchain with given address At
         the moment, this is unable to fetch the BLS Signature, which is not
@@ -675,46 +711,54 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
             If any error occur getting & importing validator information from the blockchain
         """
         try:
-            if not self.does_validator_exist(endpoint, timeout):
+            if not self.does_validator_exist( endpoint, timeout ):
                 raise InvalidValidatorError(
-                    5, f"Validator does not exist on chain according to {endpoint}"
+                    5,
+                    f"Validator does not exist on chain according to {endpoint}"
                 )
-        except (RPCError, RequestsError, RequestsTimeoutError) as exception:
+        except ( RPCError, RequestsError, RequestsTimeoutError ) as exception:
             raise InvalidValidatorError(
-                5, "Error requesting validator information"
+                5,
+                "Error requesting validator information"
             ) from exception
         try:
-            validator_info = get_validator_information(self._address, endpoint, timeout)
-        except (RPCError, RequestsError, RequestsTimeoutError) as exception:
+            validator_info = get_validator_information(
+                self._address,
+                endpoint,
+                timeout
+            )
+        except ( RPCError, RequestsError, RequestsTimeoutError ) as exception:
             raise InvalidValidatorError(
-                5, "Error requesting validator information"
+                5,
+                "Error requesting validator information"
             ) from exception
 
         # Skip additional sanity checks when importing from chain
         try:
-            info = validator_info["validator"]
-            self._name = info["name"]
-            self._identity = info["identity"]
-            self._website = info["website"]
-            self._details = info["details"]
-            self._security_contact = info["security-contact"]
+            info = validator_info[ "validator" ]
+            self._name = info[ "name" ]
+            self._identity = info[ "identity" ]
+            self._website = info[ "website" ]
+            self._details = info[ "details" ]
+            self._security_contact = info[ "security-contact" ]
 
-            self._min_self_delegation = info["min-self-delegation"]
-            self._max_total_delegation = info["max-total-delegation"]
+            self._min_self_delegation = info[ "min-self-delegation" ]
+            self._max_total_delegation = info[ "max-total-delegation" ]
             self._inital_delegation = (
                 self._min_self_delegation
             )  # Since validator exists, set initial delegation to 0
 
-            self._max_rate = Decimal(info["max-rate"])
-            self._max_change_rate = Decimal(info["max-change-rate"])
-            self._rate = Decimal(info["rate"])
-            self._bls_keys = info["bls-public-keys"]
+            self._max_rate = Decimal( info[ "max-rate" ] )
+            self._max_change_rate = Decimal( info[ "max-change-rate" ] )
+            self._rate = Decimal( info[ "rate" ] )
+            self._bls_keys = info[ "bls-public-keys" ]
         except KeyError as exception:
             raise InvalidValidatorError(
-                5, "Error importing validator information from RPC result"
+                5,
+                "Error importing validator information from RPC result"
             ) from exception
 
-    def export(self) -> dict:
+    def export( self ) -> dict:
         """Export validator information as dict.
 
         Returns
@@ -760,14 +804,16 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L413
         """
         info = self.export().copy()
-        info["directive"] = Directive.CreateValidator
-        info["validatorAddress"] = info.pop("validator-addr")  # change the key
-        info["nonce"] = nonce
-        info["gasPrice"] = gas_price
-        info["gasLimit"] = gas_limit
+        info[ "directive" ] = Directive.CreateValidator
+        info[ "validatorAddress" ] = info.pop(
+            "validator-addr"
+        )  # change the key
+        info[ "nonce" ] = nonce
+        info[ "gasPrice" ] = gas_price
+        info[ "gasLimit" ] = gas_limit
         if chain_id:
-            info["chainId"] = chain_id
-        return sign_staking_transaction(info, private_key)
+            info[ "chainId" ] = chain_id
+        return sign_staking_transaction( info, private_key )
 
     def sign_edit_validator_transaction( # pylint: disable=too-many-arguments
         self,
@@ -797,22 +843,24 @@ class Validator: # pylint: disable=too-many-instance-attributes, too-many-public
         -------------
         https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L460
         """
-        self.set_rate(rate)
-        self.add_bls_key(bls_key_to_add)
-        self.remove_bls_key(bls_key_to_remove)
+        self.set_rate( rate )
+        self.add_bls_key( bls_key_to_add )
+        self.remove_bls_key( bls_key_to_remove )
         info = self.export().copy()
-        info["directive"] = Directive.EditValidator
-        info["validatorAddress"] = info.pop("validator-addr")  # change the key
-        info["nonce"] = nonce
-        info["gasPrice"] = gas_price
-        info["gasLimit"] = gas_limit
-        _ = info.pop("max-rate")  # not needed
-        _ = info.pop("max-change-rate")  # not needed
-        _ = info.pop("bls-public-keys")  # remove this list
-        _ = info.pop("amount")  # also unused
-        info["bls-key-to-remove"] = bls_key_to_remove
-        info["bls-key-to-add"] = bls_key_to_add
-        info["bls-key-to-add-sig"] = bls_key_to_add_sig
+        info[ "directive" ] = Directive.EditValidator
+        info[ "validatorAddress" ] = info.pop(
+            "validator-addr"
+        )  # change the key
+        info[ "nonce" ] = nonce
+        info[ "gasPrice" ] = gas_price
+        info[ "gasLimit" ] = gas_limit
+        _ = info.pop( "max-rate" )  # not needed
+        _ = info.pop( "max-change-rate" )  # not needed
+        _ = info.pop( "bls-public-keys" )  # remove this list
+        _ = info.pop( "amount" )  # also unused
+        info[ "bls-key-to-remove" ] = bls_key_to_remove
+        info[ "bls-key-to-add" ] = bls_key_to_add
+        info[ "bls-key-to-add-sig" ] = bls_key_to_add_sig
         if chain_id:
-            info["chainId"] = chain_id
-        return sign_staking_transaction(info, private_key)
+            info[ "chainId" ] = chain_id
+        return sign_staking_transaction( info, private_key )

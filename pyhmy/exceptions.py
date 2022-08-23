@@ -2,16 +2,16 @@
 Exceptions used by pyhmy
 """
 
-class InvalidRPCReplyError(RuntimeError):
+
+class InvalidRPCReplyError( RuntimeError ):
     """Exception raised when RPC call returns unexpected result Generally
     indicates Harmony API has been updated & pyhmy library needs to be updated
     as well."""
+    def __init__( self, method, endpoint ):
+        super().__init__( f"Unexpected reply for {method} from {endpoint}" )
 
-    def __init__(self, method, endpoint):
-        super().__init__(f"Unexpected reply for {method} from {endpoint}")
 
-
-class InvalidValidatorError(ValueError):
+class InvalidValidatorError( ValueError ):
     """Exception raised Validator does not pass sanity checks."""
 
     errors = {
@@ -22,18 +22,17 @@ class InvalidValidatorError(ValueError):
         5: "Unable to import validator information from blockchain",
     }
 
-    def __init__(self, err_code, msg):
+    def __init__( self, err_code, msg ):
         self.code = err_code
         self.msg = msg
-        super().__init__(msg)
+        super().__init__( msg )
 
-    def __str__(self):
+    def __str__( self ):
         return f"[Errno {self.code}] {self.errors[self.code]}: {self.msg}"
 
 
-class TxConfirmationTimedoutError(AssertionError):
+class TxConfirmationTimedoutError( AssertionError ):
     """Exception raised when a transaction is sent to the chain But not
     confirmed during the timeout period specified."""
-
-    def __init__(self, msg):
-        super().__init__(f"{msg}")
+    def __init__( self, msg ):
+        super().__init__( f"{msg}" )

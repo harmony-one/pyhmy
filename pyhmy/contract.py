@@ -76,11 +76,14 @@ def call( # pylint: disable=too-many-arguments
     ]
     method = "hmyv2_call"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
-            "result"
-        ]
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
     except KeyError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def estimate_gas( # pylint: disable=too-many-arguments
@@ -141,17 +144,23 @@ def estimate_gas( # pylint: disable=too-many-arguments
     method = "hmyv2_estimateGas"
     try:
         return int(
-            rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
-                "result"
-            ],
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ],
             16,
         )
     except KeyError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_code(
-    address, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> str:
     """Get the code stored at the given address in the state for the given
     block number.
@@ -182,18 +191,25 @@ def get_code(
     https://api.hmny.io/?version=latest#e13e9d78-9322-4dc8-8917-f2e721a8e556
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/contract.go#L59
     """
-    params = [address, block_num]
+    params = [ address, block_num ]
     method = "hmyv2_getCode"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
-            "result"
-        ]
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
     except KeyError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_storage_at(
-    address, key, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    key,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> str:
     """Get the storage from the state at the given address, the key and the
     block number.
@@ -226,18 +242,23 @@ def get_storage_at(
     https://api.hmny.io/?version=latest#fa8ac8bd-952d-4149-968c-857ca76da43f
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/contract.go#L84
     """
-    params = [address, key, block_num]
+    params = [ address, key, block_num ]
     method = "hmyv2_getStorageAt"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
-            "result"
-        ]
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
     except KeyError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_contract_address_from_hash(
-    tx_hash, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    tx_hash,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> str:
     """Get address of the contract which was deployed in the transaction
     represented by tx_hash.
@@ -266,6 +287,11 @@ def get_contract_address_from_hash(
     https://github.com/harmony-one/harmony-test/blob/master/localnet/rpc_tests/test_contract.py#L36
     """
     try:
-        return get_transaction_receipt(tx_hash, endpoint, timeout)["contractAddress"]
+        return get_transaction_receipt( tx_hash,
+                                        endpoint,
+                                        timeout )[ "contractAddress" ]
     except KeyError as exception:
-        raise InvalidRPCReplyError("hmyv2_getTransactionReceipt", endpoint) from exception
+        raise InvalidRPCReplyError(
+            "hmyv2_getTransactionReceipt",
+            endpoint
+        ) from exception

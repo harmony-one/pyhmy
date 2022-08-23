@@ -13,7 +13,8 @@ from .bech32.bech32 import bech32_decode
 
 from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
 
-def is_valid_address(address) -> bool:
+
+def is_valid_address( address ) -> bool:
     """
     Check if given string is valid one address
     NOTE: This function is NOT thread safe due to the C function used by the bech32 library.
@@ -28,15 +29,19 @@ def is_valid_address(address) -> bool:
     bool
         Is valid address
     """
-    if not address.startswith("one1"):
+    if not address.startswith( "one1" ):
         return False
-    hrp, _ = bech32_decode(address)
+    hrp, _ = bech32_decode( address )
     if not hrp:
         return False
     return True
 
 
-def get_balance(address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT) -> int:
+def get_balance(
+    address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
     """Get current account balance.
 
     Parameters
@@ -63,18 +68,24 @@ def get_balance(address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT) -> 
     https://api.hmny.io/#da8901d2-d237-4c3b-9d7d-10af9def05c4
     """
     method = "hmyv2_getBalance"
-    params = [address]
+    params = [ address ]
     try:
         balance = rpc_request(
-            method, params=params, endpoint=endpoint, timeout=timeout
-        )["result"]
-        return int(balance)  # v2 returns the result as it is
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return int( balance )  # v2 returns the result as it is
     except TypeError as exception:  # check will work if rpc returns None
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_balance_by_block(
-    address, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get account balance for address at a given block number.
 
@@ -105,18 +116,24 @@ def get_balance_by_block(
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/blockchain.go#L92
     """
     method = "hmyv2_getBalanceByBlockNumber"
-    params = [address, block_num]
+    params = [ address, block_num ]
     try:
         balance = rpc_request(
-            method, params=params, endpoint=endpoint, timeout=timeout
-        )["result"]
-        return int(balance)
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return int( balance )
     except TypeError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_account_nonce(
-    address, block_num="latest", endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    block_num = "latest",
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get the account nonce.
 
@@ -146,25 +163,34 @@ def get_account_nonce(
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L51
     """
     method = "hmyv2_getAccountNonce"
-    params = [address, block_num]
+    params = [ address, block_num ]
     try:
-        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
-            "result"
-        ]
-        return int(nonce)
+        nonce = rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return int( nonce )
     except TypeError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_nonce(
-    address, block_num="latest", endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    block_num = "latest",
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """See get_account_nonce."""
-    return get_account_nonce(address, block_num, endpoint, timeout)
+    return get_account_nonce( address, block_num, endpoint, timeout )
 
 
 def get_transaction_count(
-    address, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get the number of transactions the given address has sent for the given
     block number Legacy for apiv1. For apiv2, please use
@@ -197,18 +223,24 @@ def get_transaction_count(
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L69
     """
     method = "hmyv2_getTransactionCount"
-    params = [address, block_num]
+    params = [ address, block_num ]
     try:
-        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
-            "result"
-        ]
-        return int(nonce)
+        nonce = rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return int( nonce )
     except TypeError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_transactions_count(
-    address, tx_type, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    tx_type,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get the number of regular transactions from genesis of input type.
 
@@ -240,18 +272,24 @@ def get_transactions_count(
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L114
     """
     method = "hmyv2_getTransactionsCount"
-    params = [address, tx_type]
+    params = [ address, tx_type ]
     try:
         tx_count = rpc_request(
-            method, params=params, endpoint=endpoint, timeout=timeout
-        )["result"]
-        return int(tx_count)
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return int( tx_count )
     except TypeError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_staking_transactions_count(
-    address, tx_type, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    tx_type,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get the number of staking transactions from genesis of input type
     ("SENT", "RECEIVED", "ALL")
@@ -284,14 +322,17 @@ def get_staking_transactions_count(
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L134
     """
     method = "hmyv2_getStakingTransactionsCount"
-    params = [address, tx_type]
+    params = [ address, tx_type ]
     try:
         tx_count = rpc_request(
-            method, params=params, endpoint=endpoint, timeout=timeout
-        )["result"]
-        return int(tx_count)
-    except (KeyError, TypeError) as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return int( tx_count )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_transaction_history( # pylint: disable=too-many-arguments
@@ -359,11 +400,14 @@ def get_transaction_history( # pylint: disable=too-many-arguments
     method = "hmyv2_getTransactionsHistory"
     try:
         tx_history = rpc_request(
-            method, params=params, endpoint=endpoint, timeout=timeout
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
         )
-        return tx_history["result"]["transactions"]
+        return tx_history[ "result" ][ "transactions" ]
     except KeyError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_staking_transaction_history( # pylint: disable=too-many-arguments
@@ -445,15 +489,21 @@ def get_staking_transaction_history( # pylint: disable=too-many-arguments
     method = "hmyv2_getStakingTransactionsHistory"
     try:
         stx_history = rpc_request(
-            method, params=params, endpoint=endpoint, timeout=timeout
-        )["result"]
-        return stx_history["staking_transactions"]
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+        return stx_history[ "staking_transactions" ]
     except KeyError as exception:
-        raise InvalidRPCReplyError(method, endpoint) from exception
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_balance_on_all_shards(
-    address, skip_error=True, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    skip_error = True,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> list:
     """Get current account balance in all shards & optionally report errors
     getting account balance for a shard.
@@ -483,25 +533,37 @@ def get_balance_on_all_shards(
         ]
     """
     balances = []
-    sharding_structure = get_sharding_structure(endpoint=endpoint, timeout=timeout)
+    sharding_structure = get_sharding_structure(
+        endpoint = endpoint,
+        timeout = timeout
+    )
     for shard in sharding_structure:
         try:
             balances.append(
                 {
-                    "shard": shard["shardID"],
+                    "shard": shard[ "shardID" ],
                     "balance": get_balance(
-                        address, endpoint=shard["http"], timeout=timeout
+                        address,
+                        endpoint = shard[ "http" ],
+                        timeout = timeout
                     ),
                 }
             )
-        except (KeyError, RPCError, RequestsError, RequestsTimeoutError):
+        except ( KeyError, RPCError, RequestsError, RequestsTimeoutError ):
             if not skip_error:
-                balances.append({"shard": shard["shardID"], "balance": None})
+                balances.append(
+                    {
+                        "shard": shard[ "shardID" ],
+                        "balance": None
+                    }
+                )
     return balances
 
 
 def get_total_balance(
-    address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
+    address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get total account balance on all shards.
 
@@ -530,8 +592,11 @@ def get_total_balance(
     """
     try:
         balances = get_balance_on_all_shards(
-            address, skip_error=False, endpoint=endpoint, timeout=timeout
+            address,
+            skip_error = False,
+            endpoint = endpoint,
+            timeout = timeout
         )
-        return sum(b["balance"] for b in balances)
+        return sum( b[ "balance" ] for b in balances )
     except TypeError as exception:
         raise RuntimeError from exception

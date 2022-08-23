@@ -53,7 +53,7 @@ import requests
 
 from .util import get_bls_build_variables, get_gopath
 
-if sys.platform.startswith("linux"):
+if sys.platform.startswith( "linux" ):
     _libs = {
         "libbls384_256.so",
         "libcrypto.so.10",
@@ -76,7 +76,6 @@ ARG_PREFIX = "__PYHMY_ARG_PREFIX__"
 # _keystore_cache_lock = Lock()
 
 environment = os.environ.copy()  # The environment for the CLI to execute in.
-
 
 # completely remove caching...
 # we need to improve getting address better internally to REDUCE single calls....
@@ -102,7 +101,8 @@ environment = os.environ.copy()  # The environment for the CLI to execute in.
 
 #     return wrap
 
-def account_keystore_path(value=None):
+
+def account_keystore_path( value = None ):
     """
     Gets or sets the ACCOUNT_KEYSTORE_PATH
     """
@@ -112,7 +112,8 @@ def account_keystore_path(value=None):
         account_keystore_path.value = value
     return account_keystore_path.value
 
-def binary_path(value=None):
+
+def binary_path( value = None ):
     """
     Gets or sets the BINARY_PATH
     """
@@ -122,6 +123,7 @@ def binary_path(value=None):
         binary_path.value = value
     return binary_path.value
 
+
 def _get_current_accounts_keystore():
     """Internal function that gets the current keystore from the CLI.
 
@@ -129,28 +131,32 @@ def _get_current_accounts_keystore():
              values are their 'one1...' addresses.
     """
     curr_addresses = {}
-    response = single_call("hmy keys list")
-    lines = response.split("\n")
-    if "NAME" not in lines[0] or "ADDRESS" not in lines[0]:
-        raise ValueError("Name or Address not found on first line of key list")
-    if lines[1] != "":
-        raise ValueError("Unknown format: No blank line between label and data")
-    for line in lines[2:]:
-        columns = line.split("\t")
-        if len(columns) != 2:
+    response = single_call( "hmy keys list" )
+    lines = response.split( "\n" )
+    if "NAME" not in lines[ 0 ] or "ADDRESS" not in lines[ 0 ]:
+        raise ValueError(
+            "Name or Address not found on first line of key list"
+        )
+    if lines[ 1 ] != "":
+        raise ValueError(
+            "Unknown format: No blank line between label and data"
+        )
+    for line in lines[ 2 : ]:
+        columns = line.split( "\t" )
+        if len( columns ) != 2:
             break  # Done iterating through all of the addresses.
         name, address = columns
-        curr_addresses[name.strip()] = address
+        curr_addresses[ name.strip() ] = address
     return curr_addresses
 
 
 def _set_account_keystore_path():
     """Internal function to set the account keystore path according to the
     binary."""
-    response = single_call("hmy keys location").strip()
-    if not os.path.exists(response):
-        os.mkdir(response)
-    account_keystore_path(response)
+    response = single_call( "hmy keys location" ).strip()
+    if not os.path.exists( response ):
+        os.mkdir( response )
+    account_keystore_path( response )
 
 
 def _sync_accounts():
@@ -159,19 +165,19 @@ def _sync_accounts():
     new_keystore = _get_current_accounts_keystore()
     for key, value in new_keystore.items():
         if key not in _accounts:
-            _accounts[key] = value
-    acc_keys_to_remove = [k for k in _accounts if k not in new_keystore]
+            _accounts[ key ] = value
+    acc_keys_to_remove = [ k for k in _accounts if k not in new_keystore ]
     for key in acc_keys_to_remove:
-        del _accounts[key]
+        del _accounts[ key ]
 
 
-def _make_call_command(command):
+def _make_call_command( command ):
     """Internal function that processes a command String or String Arg List for
     underlying pexpect or subprocess call.
 
     Note that single quote is not respected for strings.
     """
-    if isinstance(command, list):
+    if isinstance( command, list ):
         command_toks = command
     else:
         all_strings = sorted(
@@ -179,18 +185,23 @@ def _make_call_command(command):
             key=lambda e: len(e), # pylint: disable=unnecessary-lambda
             reverse=True
         )
-        for i, string in enumerate(all_strings):
-            command = command.replace(string, f"{ARG_PREFIX}_{i}")
-        command_toks_prefix = [el for el in command.split(" ") if el]
+        for i, string in enumerate( all_strings ):
+            command = command.replace( string, f"{ARG_PREFIX}_{i}" )
+        command_toks_prefix = [ el for el in command.split( " " ) if el ]
         command_toks = []
         for element in command_toks_prefix:
-            if element.startswith(f'"{ARG_PREFIX}_') and element.endswith('"'):
-                index = int(element.replace(f'"{ARG_PREFIX}_', "").replace('"', ""))
-                command_toks.append(all_strings[index])
+            if element.startswith( f'"{ARG_PREFIX}_'
+                                  ) and element.endswith( '"' ):
+                index = int(
+                    element.replace( f'"{ARG_PREFIX}_',
+                                     "" ).replace( '"',
+                                                   "" )
+                )
+                command_toks.append( all_strings[ index ] )
             else:
-                command_toks.append(element)
-    if re.match(".*hmy", command_toks[0]):
-        command_toks = command_toks[1:]
+                command_toks.append( element )
+    if re.match( ".*hmy", command_toks[ 0 ] ):
+        command_toks = command_toks[ 1 : ]
     return command_toks
 
 
@@ -204,41 +215,46 @@ def get_accounts_keystore():
     return _accounts
 
 
-def is_valid_binary(path):
+def is_valid_binary( path ):
     """
     :param path: Path to the Harmony CLI binary (absolute or relative).
     :return: If the file at the path is a CLI binary.
     """
-    path = os.path.realpath(path)
-    os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+    path = os.path.realpath( path )
+    os.chmod( path, os.stat( path ).st_mode | stat.S_IEXEC )
     try:
         with subprocess.Popen(
-            [path, "version"],
-            env=environment,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            [ path,
+              "version" ],
+            env = environment,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE,
         ) as proc:
             _, err = proc.communicate()
             if not err:
                 return False
             return "harmony" in err.decode().strip().lower()
-    except (OSError, subprocess.CalledProcessError, subprocess.SubprocessError):
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        subprocess.SubprocessError
+    ):
         return False
 
 
-def set_binary(path):
+def set_binary( path ):
     """
     :param path: The path of the CLI binary to use.
     :returns If the binary has been set.
 
     Note that the exposed keystore will be updated accordingly.
     """
-    path = os.path.realpath(path)
-    assert os.path.exists(path)
-    os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
-    if not is_valid_binary(path):
+    path = os.path.realpath( path )
+    assert os.path.exists( path )
+    os.chmod( path, os.stat( path ).st_mode | stat.S_IEXEC )
+    if not is_valid_binary( path ):
         return False
-    binary_path(path)
+    binary_path( path )
     _set_account_keystore_path()
     _sync_accounts()
     return True
@@ -248,7 +264,7 @@ def get_binary_path():
     """
     :return: The absolute path of the CLI binary.
     """
-    return os.path.abspath(binary_path())
+    return os.path.abspath( binary_path() )
 
 
 def get_version():
@@ -256,10 +272,11 @@ def get_version():
     :return: The version string of the CLI binary.
     """
     with subprocess.Popen(
-        [binary_path(), "version"],
-        env=environment,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        [ binary_path(),
+          "version" ],
+        env = environment,
+        stdout = subprocess.PIPE,
+        stderr = subprocess.PIPE,
     ) as proc:
         _, err = proc.communicate()
         if not err:
@@ -274,10 +291,10 @@ def get_account_keystore_path():
     """
     :return: The absolute path to the account keystore of the CLI binary.
     """
-    return os.path.abspath(account_keystore_path())
+    return os.path.abspath( account_keystore_path() )
 
 
-def check_address(address):
+def check_address( address ):
     """
     :param address: A 'one1...' address.
     :return: Boolean of if the address is in the CLI's keystore.
@@ -285,15 +302,15 @@ def check_address(address):
     return address in get_accounts_keystore().values()
 
 
-def get_address(name):
+def get_address( name ):
     """
     :param name: The alias of a key used in the CLI's keystore.
     :return: The associated 'one1...' address.
     """
-    return get_accounts_keystore().get(name, None)
+    return get_accounts_keystore().get( name, None )
 
 
-def get_accounts(address):
+def get_accounts( address ):
     """
     :param address: The 'one1...' address
     :return: A list of account names associated with the param
@@ -301,38 +318,42 @@ def get_accounts(address):
     Note that a list of account names is needed because 1 address can
     have multiple names within the CLI's keystore.
     """
-    return [acc for acc, addr in get_accounts_keystore().items() if address == addr]
+    return [
+        acc for acc,
+        addr in get_accounts_keystore().items() if address == addr
+    ]
 
 
-def remove_account(name):
+def remove_account( name ):
     """Note that this edits the keystore directly since there is currently no
     way to remove an address using the CLI.
 
     :param name: The alias of a key used in the CLI's keystore.
     :raises RuntimeError: If it failed to remove an account.
     """
-    if not get_address(name):
+    if not get_address( name ):
         return
     keystore_path = f"{get_account_keystore_path()}/{name}"
     try:
-        shutil.rmtree(keystore_path)
-    except (shutil.Error, FileNotFoundError) as err:
+        shutil.rmtree( keystore_path )
+    except ( shutil.Error, FileNotFoundError ) as err:
         raise RuntimeError(
-            f"Failed to delete dir: {keystore_path}\n" f"\tException: {err}"
+            f"Failed to delete dir: {keystore_path}\n"
+            f"\tException: {err}"
         ) from err
     _sync_accounts()
 
 
-def remove_address(address):
+def remove_address( address ):
     """
     :param address: The 'one1...' address to be removed.
     """
-    for name in get_accounts(address):
-        remove_account(name)
+    for name in get_accounts( address ):
+        remove_account( name )
     _sync_accounts()
 
 
-def single_call(command, timeout=60, error_ok=False):
+def single_call( command, timeout = 60, error_ok = False ):
     """
     :param command: String or String Arg List of command to execute on CLI.
     :param timeout: Optional timeout in seconds
@@ -340,40 +361,47 @@ def single_call(command, timeout=60, error_ok=False):
     :returns: Decoded string of response from hmy CLI call
     :raises: RuntimeError if bad command
     """
-    command_toks = [binary_path()] + _make_call_command(command)
+    command_toks = [ binary_path() ] + _make_call_command( command )
     try:
         return subprocess.check_output(
-            command_toks, env=environment, timeout=timeout
+            command_toks,
+            env = environment,
+            timeout = timeout
         ).decode()
     except subprocess.CalledProcessError as err:
         if not error_ok:
             raise RuntimeError(
-                f"Bad CLI args: `{command}`\n " f"\tException: {err}"
+                f"Bad CLI args: `{command}`\n "
+                f"\tException: {err}"
             ) from err
         return err.output.decode()
 
 
-def expect_call(command, timeout=60):
+def expect_call( command, timeout = 60 ):
     """
     :param command: String or String Arg List of command to execute on CLI.
     :param timeout: Optional timeout in seconds
     :returns: A pexpect child program
     :raises: RuntimeError if bad command
     """
-    command_toks = _make_call_command(command)
+    command_toks = _make_call_command( command )
     try:
         proc = pexpect.spawn(
-            f"{binary_path()}", command_toks, env=environment, timeout=timeout
+            f"{binary_path()}",
+            command_toks,
+            env = environment,
+            timeout = timeout
         )
         proc.delaybeforesend = None
     except pexpect.ExceptionPexpect as err:
         raise RuntimeError(
-            f"Bad CLI args: `{command}`\n " f"\tException: {err}"
+            f"Bad CLI args: `{command}`\n "
+            f"\tException: {err}"
         ) from err
     return proc
 
 
-def download(path="./bin/hmy", replace=True, verbose=True):
+def download( path = "./bin/hmy", replace = True, verbose = True ):
     """Download the CLI binary to the specified path. Related files will be
     saved in the same directory.
 
@@ -382,60 +410,74 @@ def download(path="./bin/hmy", replace=True, verbose=True):
     :param verbose: A flag to enable a report message once the binary is downloaded.
     :returns the environment to run the saved CLI binary.
     """
-    path = os.path.realpath(path)
-    parent_dir = Path(path).parent
+    path = os.path.realpath( path )
+    parent_dir = Path( path ).parent
     assert not os.path.isdir(
         path
     ), f"path `{path}` must specify a file, not a directory."
 
-    if not os.path.exists(path) or replace:
+    if not os.path.exists( path ) or replace:
         old_cwd = os.getcwd()
-        os.makedirs(parent_dir, exist_ok=True)
-        os.chdir(parent_dir)
-        hmy_script_path = os.path.join(parent_dir, "hmy.sh")
-        with open(hmy_script_path, "w", encoding='utf8') as script_file:
+        os.makedirs( parent_dir, exist_ok = True )
+        os.chdir( parent_dir )
+        hmy_script_path = os.path.join( parent_dir, "hmy.sh" )
+        with open( hmy_script_path, "w", encoding = 'utf8' ) as script_file:
             script_file.write(
                 requests.get(
                     "https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh"
                 ).content.decode()
             )
-        os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
+        os.chmod(
+            hmy_script_path,
+            os.stat( hmy_script_path ).st_mode | stat.S_IEXEC
+        )
         same_name_file = False
         if (
-            os.path.exists(os.path.join(parent_dir, "hmy")) and Path(path).name != "hmy"
+            os.path.exists( os.path.join( parent_dir,
+                                          "hmy" ) ) and
+            Path( path ).name != "hmy"
         ):  # Save same name file.
             same_name_file = True
             os.rename(
-                os.path.join(parent_dir, "hmy"), os.path.join(parent_dir, ".hmy_tmp")
+                os.path.join( parent_dir,
+                              "hmy" ),
+                os.path.join( parent_dir,
+                              ".hmy_tmp" )
             )
         if verbose:
-            subprocess.call([hmy_script_path, "-d"])
+            subprocess.call( [ hmy_script_path, "-d" ] )
         else:
-            with open(os.devnull, "w", encoding = "UTF-8") as devnull:
+            with open( os.devnull, "w", encoding = "UTF-8" ) as devnull:
                 subprocess.call(
-                    [hmy_script_path, "-d"],
-                    stdout=devnull,
-                    stderr=subprocess.STDOUT,
+                    [ hmy_script_path,
+                      "-d" ],
+                    stdout = devnull,
+                    stderr = subprocess.STDOUT,
                 )
-        os.rename(os.path.join(parent_dir, "hmy"), path)
+        os.rename( os.path.join( parent_dir, "hmy" ), path )
         if same_name_file:
             os.rename(
-                os.path.join(parent_dir, ".hmy_tmp"), os.path.join(parent_dir, "hmy")
+                os.path.join( parent_dir,
+                              ".hmy_tmp" ),
+                os.path.join( parent_dir,
+                              "hmy" )
             )
         if verbose:
-            print(f"Saved harmony binary to: `{path}`")
-        os.chdir(old_cwd)
+            print( f"Saved harmony binary to: `{path}`" )
+        os.chdir( old_cwd )
 
     env = os.environ.copy()
-    if sys.platform.startswith("darwin"):  # Dynamic linking for darwin
+    if sys.platform.startswith( "darwin" ):  # Dynamic linking for darwin
         try:
-            files_in_parent_dir = set(os.listdir(parent_dir))
-            if files_in_parent_dir.intersection(_libs) == _libs:
-                env["DYLD_FALLBACK_LIBRARY_PATH"] = parent_dir
+            files_in_parent_dir = set( os.listdir( parent_dir ) )
+            if files_in_parent_dir.intersection( _libs ) == _libs:
+                env[ "DYLD_FALLBACK_LIBRARY_PATH" ] = parent_dir
             elif os.path.exists(
                 f"{get_gopath()}/src/github.com/harmony-one/bls"
-            ) and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
-                env.update(get_bls_build_variables())
+            ) and os.path.exists(
+                f"{get_gopath()}/src/github.com/harmony-one/mcl"
+            ):
+                env.update( get_bls_build_variables() )
             else:
                 raise RuntimeWarning(
                     f"Could not get environment for downloaded hmy CLI at `{path}`"

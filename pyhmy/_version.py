@@ -5,5 +5,5 @@
 
 from incremental import Version
 
-__version__ = Version("pyhmy", 20, 5, 20)
-__all__ = ["__version__"]
+__version__ = Version( "pyhmy", 20, 5, 20 )
+__all__ = [ "__version__" ]
