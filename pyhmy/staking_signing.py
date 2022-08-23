@@ -6,29 +6,19 @@ from cytoolz import (
     identity,
 )
 
-from hexbytes import (
-    HexBytes
-)
+from hexbytes import HexBytes
 
 import rlp
 
 import math
 
-from decimal import (
-    Decimal
-)
+from decimal import Decimal
 
-from eth_account.datastructures import (
-    SignedTransaction
-)
+from eth_account.datastructures import SignedTransaction
 
-from eth_account._utils.signing import (
-    sign_transaction_hash
-)
+from eth_account._utils.signing import sign_transaction_hash
 
-from eth_account._utils.legacy_transactions import (
-    chain_id_to_v
-)
+from eth_account._utils.legacy_transactions import chain_id_to_v
 
 from eth_utils.curried import (
     hexstr_if_str,
@@ -37,12 +27,10 @@ from eth_utils.curried import (
     apply_formatters_to_dict,
     to_int,
     apply_formatters_to_sequence,
-    apply_formatter_to_array
+    apply_formatter_to_array,
 )
 
-from .signing import (
-    sanitize_transaction
-)
+from .signing import sanitize_transaction
 
 from .staking_structures import (
     FORMATTERS,
@@ -51,14 +39,15 @@ from .staking_structures import (
     CreateValidator,
     EditValidator,
     DelegateOrUndelegate,
-    CollectRewards
+    CollectRewards,
 )
 
-from .util import (
-    convert_one_to_hex
-)
+from .util import convert_one_to_hex
 
-def _convert_staking_percentage_to_number(value):        # https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L335
+
+def _convert_staking_percentage_to_number(
+    value,
+):  # https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L335
     """
     Convert from staking percentage to integer
     For example, 0.1 becomes 1000000000000000000
@@ -77,37 +66,42 @@ def _convert_staking_percentage_to_number(value):        # https://github.com/ha
     AssertionError, if data types are not as expected
     ValueError, if the input type is not supported
     """
-    assert isinstance(value, (str, Decimal)), 'Only strings or decimals are supported'
+    assert isinstance(value, (str, Decimal)), "Only strings or decimals are supported"
     if isinstance(value, Decimal):
         value = str(value)
-    value1 = value;
-    if value[0] == '-':
-        raise ValueError('Negative numbers are not accepted')
-    if value[0] == '+':
+    value1 = value
+    if value[0] == "-":
+        raise ValueError("Negative numbers are not accepted")
+    if value[0] == "+":
         value1 = value[1:]
     if len(value1) == 0:
-        raise ValueError('StakingDecimal string is empty')
-    spaced = value1.split(' ')
+        raise ValueError("StakingDecimal string is empty")
+    spaced = value1.split(" ")
     if len(spaced) > 1:
-        raise ValueError('Bad decimal string')
-    splitted = value1.split('.')
+        raise ValueError("Bad decimal string")
+    splitted = value1.split(".")
     combined_str = splitted[0]
     if len(splitted) == 2:
         length = len(splitted[1])
         if length == 0 or len(combined_str) == 0:
-            raise ValueError('Bad StakingDecimal length')
-        if splitted[1][0] == '-':
-            raise ValueError('Bad StakingDecimal string')
+            raise ValueError("Bad StakingDecimal length")
+        if splitted[1][0] == "-":
+            raise ValueError("Bad StakingDecimal string")
         combined_str += splitted[1]
     elif len(splitted) > 2:
-        raise ValueError('Too many periods to be a StakingDecimal string')
+        raise ValueError("Too many periods to be a StakingDecimal string")
     if length > StakingSettings.PRECISION:
-        raise ValueError('Too much precision, must be less than {StakingSettings.PRECISION}')
+        raise ValueError(
+            "Too much precision, must be less than {StakingSettings.PRECISION}"
+        )
     zeroes_to_add = StakingSettings.PRECISION - length
-    combined_str += '0' * zeroes_to_add             # This will not have any periods, so it is effectively a large integer
+    combined_str += (
+        "0" * zeroes_to_add
+    )  # This will not have any periods, so it is effectively a large integer
     val = int(combined_str)
-    assert val <= StakingSettings.MAX_DECIMAL, 'Staking percentage is too large'
+    assert val <= StakingSettings.MAX_DECIMAL, "Staking percentage is too large"
     return val
+
 
 def _get_account_and_transaction(transaction_dict, private_key):
     """
@@ -132,9 +126,14 @@ def _get_account_and_transaction(transaction_dict, private_key):
     AssertionError, if chainId is not present in util.chain_id_to_int
     TypeError, if the value of 'from' key is not the same as account address
     """
-    account, sanitized_transaction = sanitize_transaction(transaction_dict, private_key)    # remove from, convert chain id (if present) to integer
-    sanitized_transaction['directive'] = sanitized_transaction['directive'].value           # convert to value, like in TypeScript
+    account, sanitized_transaction = sanitize_transaction(
+        transaction_dict, private_key
+    )  # remove from, convert chain id (if present) to integer
+    sanitized_transaction["directive"] = sanitized_transaction[
+        "directive"
+    ].value  # convert to value, like in TypeScript
     return account, sanitized_transaction
+
 
 def _sign_transaction_generic(account, sanitized_transaction, parent_serializer):
     """
@@ -157,39 +156,54 @@ def _sign_transaction_generic(account, sanitized_transaction, parent_serializer)
     rlp.exceptions.ObjectSerializationError, if data types are not as expected
     """
     # obtain the serializers
-    if sanitized_transaction.get('chainId', 0) == 0:
-        unsigned_serializer, signed_serializer = parent_serializer.Unsigned(), parent_serializer.Signed()                 # unsigned, signed
+    if sanitized_transaction.get("chainId", 0) == 0:
+        unsigned_serializer, signed_serializer = (
+            parent_serializer.Unsigned(),
+            parent_serializer.Signed(),
+        )  # unsigned, signed
     else:
-        unsigned_serializer, signed_serializer = parent_serializer.SignedChainId(), parent_serializer.SignedChainId()     # since chain_id_to_v adds v/r/s, unsigned is not used here
+        unsigned_serializer, signed_serializer = (
+            parent_serializer.SignedChainId(),
+            parent_serializer.SignedChainId(),
+        )  # since chain_id_to_v adds v/r/s, unsigned is not used here
     # fill the transaction
-    filled_transaction = pipe(                                                                                            # https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L39
+    filled_transaction = pipe(  # https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L39
         sanitized_transaction,
         dict,
-        partial(merge, {'chainId': None}),
-        chain_id_to_v,                                                                                                    # will move chain id to v and add v/r/s
-        apply_formatters_to_dict(FORMATTERS)
+        partial(merge, {"chainId": None}),
+        chain_id_to_v,  # will move chain id to v and add v/r/s
+        apply_formatters_to_dict(FORMATTERS),
     )
     # get the unsigned transaction
     for f, _ in unsigned_serializer._meta.fields:
-        assert f in filled_transaction, f'Could not find {f} in transaction'
-    unsigned_transaction = unsigned_serializer.from_dict(\
-        {f: filled_transaction[f] for f, _ in unsigned_serializer._meta.fields})                                          # drop extras silently
+        assert f in filled_transaction, f"Could not find {f} in transaction"
+    unsigned_transaction = unsigned_serializer.from_dict(
+        {f: filled_transaction[f] for f, _ in unsigned_serializer._meta.fields}
+    )  # drop extras silently
     # sign the unsigned transaction
-    if 'v' in unsigned_transaction.as_dict():
+    if "v" in unsigned_transaction.as_dict():
         chain_id = unsigned_transaction.v
     else:
         chain_id = None
     transaction_hash = unsigned_transaction.hash()
-    (v, r, s) = sign_transaction_hash(
-        account._key_obj, transaction_hash, chain_id)
+    (v, r, s) = sign_transaction_hash(account._key_obj, transaction_hash, chain_id)
     chain_naive_transaction = dissoc(
-        unsigned_transaction.as_dict(), 'v', 'r', 's')                                                                    # remove extra v/r/s added by chain_id_to_v
+        unsigned_transaction.as_dict(), "v", "r", "s"
+    )  # remove extra v/r/s added by chain_id_to_v
     # serialize it
     signed_transaction = signed_serializer(
-        v=v + (8 if chain_id is None else 0),               # copied from https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L207
+        v=v
+        + (
+            8 if chain_id is None else 0
+        ),  # copied from https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L207
         r=r,
-        s=s,                                                # in the below statement, remove everything not expected by signed_serializer
-        **{f: chain_naive_transaction[f] for f, _ in signed_serializer._meta.fields if f not in 'vrs'})
+        s=s,  # in the below statement, remove everything not expected by signed_serializer
+        **{
+            f: chain_naive_transaction[f]
+            for f, _ in signed_serializer._meta.fields
+            if f not in "vrs"
+        },
+    )
     # encode it
     encoded_transaction = rlp.encode(signed_transaction)
     # hash it
@@ -203,29 +217,34 @@ def _sign_transaction_generic(account, sanitized_transaction, parent_serializer)
         v=v,
     )
 
+
 def _sign_delegate_or_undelegate(transaction_dict, private_key, delegate):
     """
     Sign a delegate or undelegate transaction
     See sign_staking_transaction for details
     """
     # preliminary steps
-    if transaction_dict['directive'] not in [ Directive.Delegate, Directive.Undelegate ]:
-        raise TypeError('Only Delegate or Undelegate are supported by _sign_delegate_or_undelegate')
-    # first common step
-    account, sanitized_transaction = _get_account_and_transaction(transaction_dict, private_key)
-    # encode the stakeMsg
-    sanitized_transaction['stakeMsg'] = \
-        apply_formatters_to_sequence( [
-            hexstr_if_str(to_bytes),
-            hexstr_if_str(to_bytes),
-            hexstr_if_str(to_int)
-        ], [
-            convert_one_to_hex(sanitized_transaction.pop('delegatorAddress')),
-            convert_one_to_hex(sanitized_transaction.pop('validatorAddress')),
-            sanitized_transaction.pop('amount'),
-            ]
+    if transaction_dict["directive"] not in [Directive.Delegate, Directive.Undelegate]:
+        raise TypeError(
+            "Only Delegate or Undelegate are supported by _sign_delegate_or_undelegate"
         )
-    return _sign_transaction_generic(account, sanitized_transaction, DelegateOrUndelegate)
+    # first common step
+    account, sanitized_transaction = _get_account_and_transaction(
+        transaction_dict, private_key
+    )
+    # encode the stakeMsg
+    sanitized_transaction["stakeMsg"] = apply_formatters_to_sequence(
+        [hexstr_if_str(to_bytes), hexstr_if_str(to_bytes), hexstr_if_str(to_int)],
+        [
+            convert_one_to_hex(sanitized_transaction.pop("delegatorAddress")),
+            convert_one_to_hex(sanitized_transaction.pop("validatorAddress")),
+            sanitized_transaction.pop("amount"),
+        ],
+    )
+    return _sign_transaction_generic(
+        account, sanitized_transaction, DelegateOrUndelegate
+    )
+
 
 def _sign_collect_rewards(transaction_dict, private_key):
     """
@@ -233,14 +252,20 @@ def _sign_collect_rewards(transaction_dict, private_key):
     See sign_staking_transaction for details
     """
     # preliminary steps
-    if transaction_dict['directive'] != Directive.CollectRewards:
-        raise TypeError('Only CollectRewards is supported by _sign_collect_rewards')
+    if transaction_dict["directive"] != Directive.CollectRewards:
+        raise TypeError("Only CollectRewards is supported by _sign_collect_rewards")
     # first common step
-    account, sanitized_transaction = _get_account_and_transaction(transaction_dict, private_key)
+    account, sanitized_transaction = _get_account_and_transaction(
+        transaction_dict, private_key
+    )
     # encode the stakeMsg
-    sanitized_transaction['stakeMsg'] = \
-        [hexstr_if_str(to_bytes)(convert_one_to_hex(sanitized_transaction.pop('delegatorAddress')))]
+    sanitized_transaction["stakeMsg"] = [
+        hexstr_if_str(to_bytes)(
+            convert_one_to_hex(sanitized_transaction.pop("delegatorAddress"))
+        )
+    ]
     return _sign_transaction_generic(account, sanitized_transaction, CollectRewards)
+
 
 def _sign_create_validator(transaction_dict, private_key):
     """
@@ -248,54 +273,74 @@ def _sign_create_validator(transaction_dict, private_key):
     See sign_staking_transaction for details
     """
     # preliminary steps
-    if transaction_dict['directive'] != Directive.CreateValidator:
-        raise TypeError('Only CreateValidator is supported by _sign_create_or_edit_validator')
+    if transaction_dict["directive"] != Directive.CreateValidator:
+        raise TypeError(
+            "Only CreateValidator is supported by _sign_create_or_edit_validator"
+        )
     # first common step
-    account, sanitized_transaction = _get_account_and_transaction(transaction_dict, private_key)
+    account, sanitized_transaction = _get_account_and_transaction(
+        transaction_dict, private_key
+    )
     # encode the stakeMsg
     description = [
-            sanitized_transaction.pop('name'),
-            sanitized_transaction.pop('identity'),
-            sanitized_transaction.pop('website'),
-            sanitized_transaction.pop('security-contact'),
-            sanitized_transaction.pop('details'),
-        ]
-    commission = apply_formatter_to_array( hexstr_if_str(to_int),       # formatter
+        sanitized_transaction.pop("name"),
+        sanitized_transaction.pop("identity"),
+        sanitized_transaction.pop("website"),
+        sanitized_transaction.pop("security-contact"),
+        sanitized_transaction.pop("details"),
+    ]
+    commission = apply_formatter_to_array(
+        hexstr_if_str(to_int),  # formatter
         [
-            _convert_staking_percentage_to_number(sanitized_transaction.pop('rate')),
-            _convert_staking_percentage_to_number(sanitized_transaction.pop('max-rate')),
-            _convert_staking_percentage_to_number(sanitized_transaction.pop('max-change-rate')),
-        ]
+            _convert_staking_percentage_to_number(sanitized_transaction.pop("rate")),
+            _convert_staking_percentage_to_number(
+                sanitized_transaction.pop("max-rate")
+            ),
+            _convert_staking_percentage_to_number(
+                sanitized_transaction.pop("max-change-rate")
+            ),
+        ],
     )
-    commission = [ [element] for element in commission ]
-    bls_keys = apply_formatter_to_array( hexstr_if_str(to_bytes),       # formatter
-        sanitized_transaction.pop('bls-public-keys')
+    commission = [[element] for element in commission]
+    bls_keys = apply_formatter_to_array(
+        hexstr_if_str(to_bytes),  # formatter
+        sanitized_transaction.pop("bls-public-keys"),
     )
-    bls_key_sigs = apply_formatter_to_array( hexstr_if_str(to_bytes),       # formatter
-        sanitized_transaction.pop('bls-key-sigs')
+    bls_key_sigs = apply_formatter_to_array(
+        hexstr_if_str(to_bytes), sanitized_transaction.pop("bls-key-sigs")  # formatter
     )
-    sanitized_transaction['stakeMsg'] = \
-        apply_formatters_to_sequence( [
-            hexstr_if_str(to_bytes),        # address
-            identity,                       # description
-            identity,                       # commission rates
-            hexstr_if_str(to_int),          # min self delegation (in ONE), decimals are silently dropped
-            hexstr_if_str(to_int),          # max total delegation (in ONE), decimals are silently dropped
-            identity,                       # bls public keys
-            identity,                       # bls key sigs
-            hexstr_if_str(to_int),          # amount (the Hexlify in the SDK drops the decimals, which is what we will do too)
-        ], [
-            convert_one_to_hex(sanitized_transaction.pop('validatorAddress')),
+    sanitized_transaction["stakeMsg"] = apply_formatters_to_sequence(
+        [
+            hexstr_if_str(to_bytes),  # address
+            identity,  # description
+            identity,  # commission rates
+            hexstr_if_str(
+                to_int
+            ),  # min self delegation (in ONE), decimals are silently dropped
+            hexstr_if_str(
+                to_int
+            ),  # max total delegation (in ONE), decimals are silently dropped
+            identity,  # bls public keys
+            identity,  # bls key sigs
+            hexstr_if_str(
+                to_int
+            ),  # amount (the Hexlify in the SDK drops the decimals, which is what we will do too)
+        ],
+        [
+            convert_one_to_hex(sanitized_transaction.pop("validatorAddress")),
             description,
             commission,
-            math.floor(sanitized_transaction.pop('min-self-delegation')),       # Decimal floors it correctly
-            math.floor(sanitized_transaction.pop('max-total-delegation')),
+            math.floor(
+                sanitized_transaction.pop("min-self-delegation")
+            ),  # Decimal floors it correctly
+            math.floor(sanitized_transaction.pop("max-total-delegation")),
             bls_keys,
             bls_key_sigs,
-            math.floor(sanitized_transaction.pop('amount')),
-            ]
-        )
+            math.floor(sanitized_transaction.pop("amount")),
+        ],
+    )
     return _sign_transaction_generic(account, sanitized_transaction, CreateValidator)
+
 
 def _sign_edit_validator(transaction_dict, private_key):
     """
@@ -303,38 +348,50 @@ def _sign_edit_validator(transaction_dict, private_key):
     See sign_staking_transaction for details
     """
     # preliminary steps
-    if transaction_dict['directive'] != Directive.EditValidator:
-        raise TypeError('Only EditValidator is supported by _sign_create_or_edit_validator')
+    if transaction_dict["directive"] != Directive.EditValidator:
+        raise TypeError(
+            "Only EditValidator is supported by _sign_create_or_edit_validator"
+        )
     # first common step
-    account, sanitized_transaction = _get_account_and_transaction(transaction_dict, private_key)
+    account, sanitized_transaction = _get_account_and_transaction(
+        transaction_dict, private_key
+    )
     # encode the stakeMsg
     description = [
-            sanitized_transaction.pop('name'),
-            sanitized_transaction.pop('identity'),
-            sanitized_transaction.pop('website'),
-            sanitized_transaction.pop('security-contact'),
-            sanitized_transaction.pop('details'),
-        ]
-    sanitized_transaction['stakeMsg'] = \
-        apply_formatters_to_sequence( [
-            hexstr_if_str(to_bytes),        # address
-            identity,                       # description
-            identity,                       # new rate (it's in a list so can't do hexstr_if_str)
-            hexstr_if_str(to_int),          # min self delegation (in ONE), decimals are silently dropped
-            hexstr_if_str(to_int),          # max total delegation (in ONE), decimals are silently dropped
-            hexstr_if_str(to_bytes),        # key to remove
-            hexstr_if_str(to_bytes),        # key to add
-        ], [
-            convert_one_to_hex(sanitized_transaction.pop('validatorAddress')),
+        sanitized_transaction.pop("name"),
+        sanitized_transaction.pop("identity"),
+        sanitized_transaction.pop("website"),
+        sanitized_transaction.pop("security-contact"),
+        sanitized_transaction.pop("details"),
+    ]
+    sanitized_transaction["stakeMsg"] = apply_formatters_to_sequence(
+        [
+            hexstr_if_str(to_bytes),  # address
+            identity,  # description
+            identity,  # new rate (it's in a list so can't do hexstr_if_str)
+            hexstr_if_str(
+                to_int
+            ),  # min self delegation (in ONE), decimals are silently dropped
+            hexstr_if_str(
+                to_int
+            ),  # max total delegation (in ONE), decimals are silently dropped
+            hexstr_if_str(to_bytes),  # key to remove
+            hexstr_if_str(to_bytes),  # key to add
+        ],
+        [
+            convert_one_to_hex(sanitized_transaction.pop("validatorAddress")),
             description,
-            [ _convert_staking_percentage_to_number(sanitized_transaction.pop('rate')) ],
-            math.floor(sanitized_transaction.pop('min-self-delegation')),       # Decimal floors it correctly
-            math.floor(sanitized_transaction.pop('max-total-delegation')),
-            sanitized_transaction.pop('bls-key-to-remove'),
-            sanitized_transaction.pop('bls-key-to-add')
-            ]
-        )
+            [_convert_staking_percentage_to_number(sanitized_transaction.pop("rate"))],
+            math.floor(
+                sanitized_transaction.pop("min-self-delegation")
+            ),  # Decimal floors it correctly
+            math.floor(sanitized_transaction.pop("max-total-delegation")),
+            sanitized_transaction.pop("bls-key-to-remove"),
+            sanitized_transaction.pop("bls-key-to-add"),
+        ],
+    )
     return _sign_transaction_generic(account, sanitized_transaction, EditValidator)
+
 
 def sign_staking_transaction(transaction_dict, private_key):
     """
@@ -404,18 +461,22 @@ def sign_staking_transaction(transaction_dict, private_key):
     -------------
     https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts
     """
-    assert isinstance(transaction_dict, dict), 'Only dictionaries are supported'        # OrderedDict is a subclass
+    assert isinstance(
+        transaction_dict, dict
+    ), "Only dictionaries are supported"  # OrderedDict is a subclass
     # chain_id missing => 'rlp: input string too long for uint64, decoding into (types.StakingTransaction)(types.txdata).GasLimit'
-    assert 'chainId' in transaction_dict, 'chainId missing'
-    assert 'directive' in transaction_dict, 'Staking transaction type not specified'
-    assert isinstance(transaction_dict['directive'], Directive), 'Unknown staking transaction type'
-    if transaction_dict['directive'] == Directive.CollectRewards:
+    assert "chainId" in transaction_dict, "chainId missing"
+    assert "directive" in transaction_dict, "Staking transaction type not specified"
+    assert isinstance(
+        transaction_dict["directive"], Directive
+    ), "Unknown staking transaction type"
+    if transaction_dict["directive"] == Directive.CollectRewards:
         return _sign_collect_rewards(transaction_dict, private_key)
-    elif transaction_dict['directive'] == Directive.Delegate:
+    elif transaction_dict["directive"] == Directive.Delegate:
         return _sign_delegate_or_undelegate(transaction_dict, private_key, True)
-    elif transaction_dict['directive'] == Directive.Undelegate:
+    elif transaction_dict["directive"] == Directive.Undelegate:
         return _sign_delegate_or_undelegate(transaction_dict, private_key, False)
-    elif transaction_dict['directive'] == Directive.CreateValidator:
+    elif transaction_dict["directive"] == Directive.CreateValidator:
         return _sign_create_validator(transaction_dict, private_key)
-    elif transaction_dict['directive'] == Directive.EditValidator:
+    elif transaction_dict["directive"] == Directive.EditValidator:
         return _sign_edit_validator(transaction_dict, private_key)

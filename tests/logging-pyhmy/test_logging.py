@@ -14,11 +14,11 @@ def test_basic_logger():
     logger.debug("test debug")
     logger.error("test error")
     logger.warning("test warning")
-    with open(f"{os.getcwd()}/logs/pytest.log", 'r') as f:
+    with open(f"{os.getcwd()}/logs/pytest.log", "r") as f:
         log_file_contents = f.readlines()
     assert not log_file_contents
     logger.write()
-    with open(f"{os.getcwd()}/logs/pytest.log", 'r') as f:
+    with open(f"{os.getcwd()}/logs/pytest.log", "r") as f:
         log_file_contents = f.readlines()
     for line in log_file_contents:
         if "INFO" in line:

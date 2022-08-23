@@ -1,26 +1,14 @@
-from .rpc.request import (
-    rpc_request
-)
+from .rpc.request import rpc_request
 
-from .rpc.exceptions import (
-    RPCError,
-    RequestsError,
-    RequestsTimeoutError
-)
+from .rpc.exceptions import RPCError, RequestsError, RequestsTimeoutError
 
-from .exceptions import (
-    InvalidRPCReplyError
-)
+from .exceptions import InvalidRPCReplyError
 
-from .blockchain import (
-    get_sharding_structure
-)
+from .blockchain import get_sharding_structure
 
-from .bech32.bech32 import (
-    bech32_decode
-)
+from .bech32.bech32 import bech32_decode
 
-_default_endpoint = 'http://localhost:9500'
+_default_endpoint = "http://localhost:9500"
 _default_timeout = 30
 _address_length = 42
 
@@ -40,12 +28,13 @@ def is_valid_address(address) -> bool:
     bool
         Is valid address
     """
-    if not address.startswith('one1'):
+    if not address.startswith("one1"):
         return False
     hrp, _ = bech32_decode(address)
     if not hrp:
         return False
     return True
+
 
 def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
@@ -74,17 +63,20 @@ def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -
     -------------
     https://api.hmny.io/#da8901d2-d237-4c3b-9d7d-10af9def05c4
     """
-    method = 'hmyv2_getBalance'
-    params = [
-        address
-    ]
+    method = "hmyv2_getBalance"
+    params = [address]
     try:
-        balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-        return int(balance)     # v2 returns the result as it is
-    except TypeError as e:      # check will work if rpc returns None
+        balance = rpc_request(
+            method, params=params, endpoint=endpoint, timeout=timeout
+        )["result"]
+        return int(balance)  # v2 returns the result as it is
+    except TypeError as e:  # check will work if rpc returns None
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_balance_by_block(
+    address, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     Get account balance for address at a given block number
 
@@ -114,18 +106,20 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
     https://api.hmny.io/#9aeae4b8-1a09-4ed2-956b-d7c96266dd33
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/blockchain.go#L92
     """
-    method = 'hmyv2_getBalanceByBlockNumber'
-    params = [
-        address,
-        block_num
-    ]
+    method = "hmyv2_getBalanceByBlockNumber"
+    params = [address, block_num]
     try:
-        balance = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        balance = rpc_request(
+            method, params=params, endpoint=endpoint, timeout=timeout
+        )["result"]
         return int(balance)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_account_nonce(address, block_num='latest', endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_account_nonce(
+    address, block_num="latest", endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     Get the account nonce
 
@@ -154,24 +148,29 @@ def get_account_nonce(address, block_num='latest', endpoint=_default_endpoint, t
     -------------
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L51
     """
-    method = 'hmyv2_getAccountNonce'
-    params = [
-        address,
-        block_num
-    ]
+    method = "hmyv2_getAccountNonce"
+    params = [address, block_num]
     try:
-        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
         return int(nonce)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_nonce(address, block_num='latest', endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_nonce(
+    address, block_num="latest", endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     See get_account_nonce
     """
     return get_account_nonce(address, block_num, endpoint, timeout)
 
-def get_transaction_count(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_transaction_count(
+    address, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     Get the number of transactions the given address has sent for the given block number
     Legacy for apiv1. For apiv2, please use get_account_nonce/get_transactions_count/get_staking_transactions_count apis for
@@ -202,18 +201,20 @@ def get_transaction_count(address, block_num, endpoint=_default_endpoint, timeou
     -------------
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L69
     """
-    method = 'hmyv2_getTransactionCount'
-    params = [
-        address,
-        block_num
-    ]
+    method = "hmyv2_getTransactionCount"
+    params = [address, block_num]
     try:
-        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        nonce = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
         return int(nonce)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_transactions_count(address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_transactions_count(
+    address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     Get the number of regular transactions from genesis of input type
 
@@ -244,18 +245,20 @@ def get_transactions_count(address, tx_type, endpoint=_default_endpoint, timeout
     https://api.hmny.io/#fc97aed2-e65e-4cf4-bc01-8dadb76732c0
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L114
     """
-    method = 'hmyv2_getTransactionsCount'
-    params = [
-        address,
-        tx_type
-    ]
+    method = "hmyv2_getTransactionsCount"
+    params = [address, tx_type]
     try:
-        tx_count = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        tx_count = rpc_request(
+            method, params=params, endpoint=endpoint, timeout=timeout
+        )["result"]
         return int(tx_count)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_staking_transactions_count(address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_staking_transactions_count(
+    address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     Get the number of staking transactions from genesis of input type ("SENT", "RECEIVED", "ALL")
 
@@ -286,20 +289,27 @@ def get_staking_transactions_count(address, tx_type, endpoint=_default_endpoint,
     https://api.hmny.io/#ddc1b029-f341-4c4d-ba19-74b528d6e5e5
     https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/rpc/transaction.go#L134
     """
-    method = 'hmyv2_getStakingTransactionsCount'
-    params = [
-        address,
-        tx_type
-    ]
+    method = "hmyv2_getStakingTransactionsCount"
+    params = [address, tx_type]
     try:
-        tx_count = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        tx_count = rpc_request(
+            method, params=params, endpoint=endpoint, timeout=timeout
+        )["result"]
         return int(tx_count)
     except (KeyError, TypeError) as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
-        order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> list:
+
+def get_transaction_history(
+    address,
+    page=0,
+    page_size=1000,
+    include_full_tx=False,
+    tx_type="ALL",
+    order="ASC",
+    endpoint=_default_endpoint,
+    timeout=_default_timeout,
+) -> list:
     """
     Get list of transactions sent and/or received by the account
 
@@ -345,24 +355,34 @@ def get_transaction_history(address, page=0, page_size=1000, include_full_tx=Fal
     """
     params = [
         {
-            'address': address,
-            'pageIndex': page,
-            'pageSize': page_size,
-            'fullTx': include_full_tx,
-            'txType': tx_type,
-            'order': order
+            "address": address,
+            "pageIndex": page,
+            "pageSize": page_size,
+            "fullTx": include_full_tx,
+            "txType": tx_type,
+            "order": order,
         }
     ]
-    method = 'hmyv2_getTransactionsHistory'
+    method = "hmyv2_getTransactionsHistory"
     try:
-        tx_history = rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)
-        return tx_history['result']['transactions']
+        tx_history = rpc_request(
+            method, params=params, endpoint=endpoint, timeout=timeout
+        )
+        return tx_history["result"]["transactions"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_staking_transaction_history(address, page=0, page_size=1000, include_full_tx=False, tx_type='ALL',
-        order='ASC', endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> list:
+
+def get_staking_transaction_history(
+    address,
+    page=0,
+    page_size=1000,
+    include_full_tx=False,
+    tx_type="ALL",
+    order="ASC",
+    endpoint=_default_endpoint,
+    timeout=_default_timeout,
+) -> list:
     """
     Get list of staking transactions sent by the account
 
@@ -419,23 +439,28 @@ def get_staking_transaction_history(address, page=0, page_size=1000, include_ful
     """
     params = [
         {
-            'address': address,
-            'pageIndex': page,
-            'pageSize': page_size,
-            'fullTx': include_full_tx,
-            'txType': tx_type,
-            'order': order
+            "address": address,
+            "pageIndex": page,
+            "pageSize": page_size,
+            "fullTx": include_full_tx,
+            "txType": tx_type,
+            "order": order,
         }
     ]
     # Using v2 API, because getStakingTransactionHistory not implemented in v1
-    method = 'hmyv2_getStakingTransactionsHistory'
+    method = "hmyv2_getStakingTransactionsHistory"
     try:
-        stx_history =  rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-        return stx_history['staking_transactions']
+        stx_history = rpc_request(
+            method, params=params, endpoint=endpoint, timeout=timeout
+        )["result"]
+        return stx_history["staking_transactions"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+
+def get_balance_on_all_shards(
+    address, skip_error=True, endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Get current account balance in all shards & optionally report errors getting account balance for a shard
 
@@ -467,19 +492,23 @@ def get_balance_on_all_shards(address, skip_error=True, endpoint=_default_endpoi
     sharding_structure = get_sharding_structure(endpoint=endpoint, timeout=timeout)
     for shard in sharding_structure:
         try:
-            balances.append({
-                'shard': shard['shardID'],
-                'balance': get_balance(address, endpoint=shard['http'], timeout=timeout)
-            })
+            balances.append(
+                {
+                    "shard": shard["shardID"],
+                    "balance": get_balance(
+                        address, endpoint=shard["http"], timeout=timeout
+                    ),
+                }
+            )
         except (KeyError, RPCError, RequestsError, RequestsTimeoutError):
             if not skip_error:
-                balances.append({
-                    'shard': shard['shardID'],
-                    'balance': None
-                })
+                balances.append({"shard": shard["shardID"], "balance": None})
     return balances
 
-def get_total_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+
+def get_total_balance(
+    address, endpoint=_default_endpoint, timeout=_default_timeout
+) -> int:
     """
     Get total account balance on all shards
 
@@ -507,7 +536,9 @@ def get_total_balance(address, endpoint=_default_endpoint, timeout=_default_time
     get_balance_on_all_shards
     """
     try:
-        balances = get_balance_on_all_shards(address, skip_error=False, endpoint=endpoint, timeout=timeout)
-        return sum(b['balance'] for b in balances)
+        balances = get_balance_on_all_shards(
+            address, skip_error=False, endpoint=endpoint, timeout=timeout
+        )
+        return sum(b["balance"] for b in balances)
     except TypeError as e:
         raise RuntimeError from e

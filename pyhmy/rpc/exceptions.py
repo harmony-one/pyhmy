@@ -8,7 +8,8 @@ class RPCError(RuntimeError):
 
     def __init__(self, method, endpoint, error):
         self.error = error
-        super().__init__(f'Error in reply from {endpoint}: {method} returned {error}')
+        super().__init__(f"Error in reply from {endpoint}: {method} returned {error}")
+
 
 class RequestsError(requests.exceptions.RequestException):
     """
@@ -16,7 +17,8 @@ class RequestsError(requests.exceptions.RequestException):
     """
 
     def __init__(self, endpoint):
-        super().__init__(f'Error connecting to {endpoint}')
+        super().__init__(f"Error connecting to {endpoint}")
+
 
 class RequestsTimeoutError(requests.exceptions.Timeout):
     """
@@ -24,4 +26,4 @@ class RequestsTimeoutError(requests.exceptions.Timeout):
     """
 
     def __init__(self, endpoint):
-        super().__init__(f'Error connecting to {endpoint}')
+        super().__init__(f"Error connecting to {endpoint}")

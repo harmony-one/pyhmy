@@ -2,18 +2,16 @@ import json
 
 import requests
 
-from .exceptions import (
-    RequestsError,
-    RequestsTimeoutError,
-    RPCError
-)
+from .exceptions import RequestsError, RequestsTimeoutError, RPCError
 
 
-_default_endpoint = 'http://localhost:9500'
+_default_endpoint = "http://localhost:9500"
 _default_timeout = 30
 
 
-def base_request(method, params=None, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
+def base_request(
+    method, params=None, endpoint=_default_endpoint, timeout=_default_timeout
+) -> str:
     """
     Basic RPC request
 
@@ -45,21 +43,20 @@ def base_request(method, params=None, endpoint=_default_endpoint, timeout=_defau
     if params is None:
         params = []
     elif not isinstance(params, list):
-        raise TypeError(f'invalid type {params.__class__}')
+        raise TypeError(f"invalid type {params.__class__}")
 
     try:
-        payload = {
-            "id": "1",
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": params
-        }
-        headers = {
-            'Content-Type': 'application/json'
-        }
+        payload = {"id": "1", "jsonrpc": "2.0", "method": method, "params": params}
+        headers = {"Content-Type": "application/json"}
 
-        resp = requests.request('POST', endpoint, headers=headers, data=json.dumps(payload),
-                                timeout=timeout, allow_redirects=True)
+        resp = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
         return resp.content
     except requests.exceptions.Timeout as err:
         raise RequestsTimeoutError(endpoint) from err
@@ -67,7 +64,9 @@ def base_request(method, params=None, endpoint=_default_endpoint, timeout=_defau
         raise RequestsError(endpoint) from err
 
 
-def rpc_request(method, params=None, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+def rpc_request(
+    method, params=None, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     RPC request
 
@@ -106,8 +105,8 @@ def rpc_request(method, params=None, endpoint=_default_endpoint, timeout=_defaul
 
     try:
         resp = json.loads(raw_resp)
-        if 'error' in resp:
-            raise RPCError(method, endpoint, str(resp['error']))
+        if "error" in resp:
+            raise RPCError(method, endpoint, str(resp["error"]))
         return resp
     except json.decoder.JSONDecodeError as err:
         raise RPCError(method, endpoint, raw_resp) from err

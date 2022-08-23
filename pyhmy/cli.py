@@ -54,9 +54,21 @@ import requests
 from .util import get_bls_build_variables, get_gopath
 
 if sys.platform.startswith("linux"):
-    _libs = {"libbls384_256.so", "libcrypto.so.10", "libgmp.so.10", "libgmpxx.so.4", "libmcl.so"}
+    _libs = {
+        "libbls384_256.so",
+        "libcrypto.so.10",
+        "libgmp.so.10",
+        "libgmpxx.so.4",
+        "libmcl.so",
+    }
 else:
-    _libs = {"libbls384_256.dylib", "libcrypto.1.0.0.dylib", "libgmp.10.dylib", "libgmpxx.4.dylib", "libmcl.dylib"}
+    _libs = {
+        "libbls384_256.dylib",
+        "libcrypto.1.0.0.dylib",
+        "libgmp.10.dylib",
+        "libgmpxx.4.dylib",
+        "libmcl.dylib",
+    }
 _accounts = {}  # Internal accounts keystore, make sure to sync when needed.
 _account_keystore_path = "~/.hmy/account-keys"  # Internal path to account keystore, will match the current binary.
 _binary_path = "hmy"  # Internal binary path.
@@ -149,14 +161,16 @@ def _make_call_command(command):
     if isinstance(command, list):
         command_toks = command
     else:
-        all_strings = sorted(re.findall(r'"(.*?)"', command), key=lambda e: len(e), reverse=True)
+        all_strings = sorted(
+            re.findall(r'"(.*?)"', command), key=lambda e: len(e), reverse=True
+        )
         for i, string in enumerate(all_strings):
             command = command.replace(string, f"{_arg_prefix}_{i}")
         command_toks_prefix = [el for el in command.split(" ") if el]
         command_toks = []
         for el in command_toks_prefix:
             if el.startswith(f'"{_arg_prefix}_') and el.endswith(f'"'):
-                index = int(el.replace(f'"{_arg_prefix}_', '').replace('"', ''))
+                index = int(el.replace(f'"{_arg_prefix}_', "").replace('"', ""))
                 command_toks.append(all_strings[index])
             else:
                 command_toks.append(el)
@@ -183,8 +197,12 @@ def is_valid_binary(path):
     path = os.path.realpath(path)
     os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
     try:
-        proc = subprocess.Popen([path, "version"], env=environment,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            [path, "version"],
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         out, err = proc.communicate()
         if not err:
             return False
@@ -223,12 +241,18 @@ def get_version():
     """
     :return: The version string of the CLI binary.
     """
-    proc = subprocess.Popen([_binary_path, "version"], env=environment,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        [_binary_path, "version"],
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     out, err = proc.communicate()
     if not err:
-        raise RuntimeError(f"Could not get version.\n"
-                           f"\tGot exit code {proc.returncode}. Expected non-empty error message.")
+        raise RuntimeError(
+            f"Could not get version.\n"
+            f"\tGot exit code {proc.returncode}. Expected non-empty error message."
+        )
     return err.decode().strip()
 
 
@@ -280,8 +304,9 @@ def remove_account(name):
     try:
         shutil.rmtree(keystore_path)
     except (shutil.Error, FileNotFoundError) as err:
-        raise RuntimeError(f"Failed to delete dir: {keystore_path}\n"
-                           f"\tException: {err}") from err
+        raise RuntimeError(
+            f"Failed to delete dir: {keystore_path}\n" f"\tException: {err}"
+        ) from err
     _sync_accounts()
 
 
@@ -304,11 +329,14 @@ def single_call(command, timeout=60, error_ok=False):
     """
     command_toks = [_binary_path] + _make_call_command(command)
     try:
-        return subprocess.check_output(command_toks, env=environment, timeout=timeout).decode()
+        return subprocess.check_output(
+            command_toks, env=environment, timeout=timeout
+        ).decode()
     except subprocess.CalledProcessError as err:
         if not error_ok:
-            raise RuntimeError(f"Bad CLI args: `{command}`\n "
-                               f"\tException: {err}") from err
+            raise RuntimeError(
+                f"Bad CLI args: `{command}`\n " f"\tException: {err}"
+            ) from err
         return err.output.decode()
 
 
@@ -321,11 +349,14 @@ def expect_call(command, timeout=60):
     """
     command_toks = _make_call_command(command)
     try:
-        proc = pexpect.spawn(f"{_binary_path}", command_toks, env=environment, timeout=timeout)
+        proc = pexpect.spawn(
+            f"{_binary_path}", command_toks, env=environment, timeout=timeout
+        )
         proc.delaybeforesend = None
     except pexpect.ExceptionPexpect as err:
-        raise RuntimeError(f"Bad CLI args: `{command}`\n "
-                           f"\tException: {err}") from err
+        raise RuntimeError(
+            f"Bad CLI args: `{command}`\n " f"\tException: {err}"
+        ) from err
     return proc
 
 
@@ -341,28 +372,43 @@ def download(path="./bin/hmy", replace=True, verbose=True):
     """
     path = os.path.realpath(path)
     parent_dir = Path(path).parent
-    assert not os.path.isdir(path), f"path `{path}` must specify a file, not a directory."
+    assert not os.path.isdir(
+        path
+    ), f"path `{path}` must specify a file, not a directory."
 
     if not os.path.exists(path) or replace:
         old_cwd = os.getcwd()
         os.makedirs(parent_dir, exist_ok=True)
         os.chdir(parent_dir)
         hmy_script_path = os.path.join(parent_dir, "hmy.sh")
-        with open(hmy_script_path, 'w') as f:
-            f.write(requests.get("https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh")
-                    .content.decode())
+        with open(hmy_script_path, "w") as f:
+            f.write(
+                requests.get(
+                    "https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh"
+                ).content.decode()
+            )
         os.chmod(hmy_script_path, os.stat(hmy_script_path).st_mode | stat.S_IEXEC)
         same_name_file = False
-        if os.path.exists(os.path.join(parent_dir, "hmy")) and Path(path).name != "hmy":  # Save same name file.
+        if (
+            os.path.exists(os.path.join(parent_dir, "hmy")) and Path(path).name != "hmy"
+        ):  # Save same name file.
             same_name_file = True
-            os.rename(os.path.join(parent_dir, "hmy"), os.path.join(parent_dir, ".hmy_tmp"))
+            os.rename(
+                os.path.join(parent_dir, "hmy"), os.path.join(parent_dir, ".hmy_tmp")
+            )
         if verbose:
-            subprocess.call([hmy_script_path, '-d'])
+            subprocess.call([hmy_script_path, "-d"])
         else:
-            subprocess.call([hmy_script_path, '-d'], stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
+            subprocess.call(
+                [hmy_script_path, "-d"],
+                stdout=open(os.devnull, "w"),
+                stderr=subprocess.STDOUT,
+            )
         os.rename(os.path.join(parent_dir, "hmy"), path)
         if same_name_file:
-            os.rename(os.path.join(parent_dir, ".hmy_tmp"), os.path.join(parent_dir, "hmy"))
+            os.rename(
+                os.path.join(parent_dir, ".hmy_tmp"), os.path.join(parent_dir, "hmy")
+            )
         if verbose:
             print(f"Saved harmony binary to: `{path}`")
         os.chdir(old_cwd)
@@ -373,11 +419,16 @@ def download(path="./bin/hmy", replace=True, verbose=True):
             files_in_parent_dir = set(os.listdir(parent_dir))
             if files_in_parent_dir.intersection(_libs) == _libs:
                 env["DYLD_FALLBACK_LIBRARY_PATH"] = parent_dir
-            elif os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/bls") \
-                    and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
+            elif os.path.exists(
+                f"{get_gopath()}/src/github.com/harmony-one/bls"
+            ) and os.path.exists(f"{get_gopath()}/src/github.com/harmony-one/mcl"):
                 env.update(get_bls_build_variables())
             else:
-                raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`")
+                raise RuntimeWarning(
+                    f"Could not get environment for downloaded hmy CLI at `{path}`"
+                )
         except Exception as e:
-            raise RuntimeWarning(f"Could not get environment for downloaded hmy CLI at `{path}`") from e
+            raise RuntimeWarning(
+                f"Could not get environment for downloaded hmy CLI at `{path}`"
+            ) from e
     return env

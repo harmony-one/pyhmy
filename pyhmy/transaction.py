@@ -1,21 +1,18 @@
-from .rpc.request import (
-    rpc_request
-)
-from .exceptions import (
-    TxConfirmationTimedoutError,
-    InvalidRPCReplyError
-)
+from .rpc.request import rpc_request
+from .exceptions import TxConfirmationTimedoutError, InvalidRPCReplyError
 import time
 import random
 
-_default_endpoint = 'http://localhost:9500'
+_default_endpoint = "http://localhost:9500"
 _default_timeout = 30
 
 
 #########################
 # Transaction Pool RPCs #
 #########################
-def get_pending_transactions(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_pending_transactions(
+    endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Get list of pending transactions
 
@@ -39,13 +36,16 @@ def get_pending_transactions(endpoint=_default_endpoint, timeout=_default_timeou
     -------------
     https://api.hmny.io/#de6c4a12-fa42-44e8-972f-801bfde1dd18
     """
-    method = 'hmyv2_pendingTransactions'
+    method = "hmyv2_pendingTransactions"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_transaction_error_sink(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+
+def get_transaction_error_sink(
+    endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Get current transactions error sink
 
@@ -72,13 +72,16 @@ def get_transaction_error_sink(endpoint=_default_endpoint, timeout=_default_time
     -------------
     https://api.hmny.io/#9aedbc22-6262-44b1-8276-cd8ae19fa600
     """
-    method = 'hmyv2_getCurrentTransactionErrorSink'
+    method = "hmyv2_getCurrentTransactionErrorSink"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_pending_staking_transactions(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+
+def get_pending_staking_transactions(
+    endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Get list of pending staking transactions
 
@@ -102,14 +105,16 @@ def get_pending_staking_transactions(endpoint=_default_endpoint, timeout=_defaul
     -------------
     https://api.hmny.io/#de0235e4-f4c9-4a69-b6d2-b77dc1ba7b12
     """
-    method = 'hmyv2_pendingStakingTransactions'
+    method = "hmyv2_pendingStakingTransactions"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
 
-def get_staking_transaction_error_sink(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_staking_transaction_error_sink(
+    endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Get current staking transactions error sink
 
@@ -137,11 +142,12 @@ def get_staking_transaction_error_sink(endpoint=_default_endpoint, timeout=_defa
     -------------
     https://api.hmny.io/#bdd00e0f-2ba0-480e-b996-2ef13f10d75a
     """
-    method = 'hmyv2_getCurrentStakingErrorSink'
+    method = "hmyv2_getCurrentStakingErrorSink"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
+
 
 def get_pool_stats(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     """
@@ -169,16 +175,19 @@ def get_pool_stats(endpoint=_default_endpoint, timeout=_default_timeout) -> dict
     -------------
     https://api.hmny.io/#7c2b9395-8f5e-4eb5-a687-2f1be683d83e
     """
-    method = 'hmyv2_getPoolStats'
+    method = "hmyv2_getPoolStats"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
+
 
 ####################
 # Transaction RPCs #
 ####################
-def get_transaction_by_hash(tx_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+def get_transaction_by_hash(
+    tx_hash, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get transaction by hash
 
@@ -224,18 +233,19 @@ def get_transaction_by_hash(tx_hash, endpoint=_default_endpoint, timeout=_defaul
     -------------
     https://api.hmny.io/#117e84f6-a0ec-444e-abe0-455701310389
     """
-    method = 'hmyv2_getTransactionByHash'
-    params = [
-        tx_hash
-    ]
+    method = "hmyv2_getTransactionByHash"
+    params = [tx_hash]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_transaction_by_block_hash_and_index(block_hash, tx_index,
-        endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> dict:
+
+def get_transaction_by_block_hash_and_index(
+    block_hash, tx_index, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get transaction based on index in list of transactions in a block by block hash
 
@@ -263,19 +273,19 @@ def get_transaction_by_block_hash_and_index(block_hash, tx_index,
     -------------
     https://api.hmny.io/#7c7e8d90-4984-4ebe-bb7e-d7adec167503
     """
-    method = 'hmyv2_getTransactionByBlockHashAndIndex'
-    params = [
-        block_hash,
-        tx_index
-    ]
+    method = "hmyv2_getTransactionByBlockHashAndIndex"
+    params = [block_hash, tx_index]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_transaction_by_block_number_and_index(block_num, tx_index,
-        endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> dict:
+
+def get_transaction_by_block_number_and_index(
+    block_num, tx_index, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get transaction based on index in list of transactions in a block by block number
 
@@ -303,17 +313,19 @@ def get_transaction_by_block_number_and_index(block_num, tx_index,
     -------------
     https://api.hmny.io/#bcde8b1c-6ab9-4950-9835-3c7564e49c3e
     """
-    method = 'hmyv2_getTransactionByBlockNumberAndIndex'
-    params = [
-        block_num,
-        tx_index
-    ]
+    method = "hmyv2_getTransactionByBlockNumberAndIndex"
+    params = [block_num, tx_index]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_transaction_receipt(tx_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+
+def get_transaction_receipt(
+    tx_hash, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get transaction receipt corresponding to tx_hash
 
@@ -353,16 +365,19 @@ def get_transaction_receipt(tx_hash, endpoint=_default_endpoint, timeout=_defaul
     -------------
     https://api.hmny.io/#0c2799f8-bcdc-41a4-b362-c3a6a763bb5e
     """
-    method = 'hmyv2_getTransactionReceipt'
-    params = [
-        tx_hash
-    ]
+    method = "hmyv2_getTransactionReceipt"
+    params = [tx_hash]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def send_raw_transaction(signed_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
+
+def send_raw_transaction(
+    signed_tx, endpoint=_default_endpoint, timeout=_default_timeout
+) -> str:
     """
     Send signed transaction
 
@@ -391,16 +406,19 @@ def send_raw_transaction(signed_tx, endpoint=_default_endpoint, timeout=_default
     -------------
     https://api.hmny.io/#f40d124a-b897-4b7c-baf3-e0dedf8f40a0
     """
-    params = [
-        signed_tx
-    ]
-    method = 'hmyv2_sendRawTransaction'
+    params = [signed_tx]
+    method = "hmyv2_sendRawTransaction"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def send_and_confirm_raw_transaction(signed_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+
+def send_and_confirm_raw_transaction(
+    signed_tx, endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Send signed transaction and wait for it to be confirmed
 
@@ -433,20 +451,23 @@ def send_and_confirm_raw_transaction(signed_tx, endpoint=_default_endpoint, time
     """
     tx_hash = send_raw_transaction(signed_tx, endpoint=endpoint)
     start_time = time.time()
-    while((time.time() - start_time) <= timeout):
+    while (time.time() - start_time) <= timeout:
         tx_response = get_transaction_by_hash(tx_hash, endpoint=endpoint)
         if tx_response is not None:
-            block_hash = tx_response.get( "blockHash", "0x00" )
-            unique_chars = "".join( set( list( block_hash[ 2 : ] ) ) )
+            block_hash = tx_response.get("blockHash", "0x00")
+            unique_chars = "".join(set(list(block_hash[2:])))
             if unique_chars != "0":
                 return tx_response
         time.sleep(random.uniform(0.2, 0.5))
     raise TxConfirmationTimedoutError("Could not confirm transaction on-chain.")
 
+
 ###############################
 # CrossShard Transaction RPCs #
 ###############################
-def get_pending_cx_receipts(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_pending_cx_receipts(
+    endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Get list of pending cross shard transactions
 
@@ -493,13 +514,16 @@ def get_pending_cx_receipts(endpoint=_default_endpoint, timeout=_default_timeout
     -------------
     https://api.hmny.io/#fe60070d-97b4-458d-9365-490b44c18851
     """
-    method = 'hmyv2_getPendingCXReceipts'
+    method = "hmyv2_getPendingCXReceipts"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_cx_receipt_by_hash(cx_hash, endpoint = _default_endpoint, timeout = _default_timeout) -> dict:
+
+def get_cx_receipt_by_hash(
+    cx_hash, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get cross shard receipt by hash on the receiving shard end point
 
@@ -534,16 +558,19 @@ def get_cx_receipt_by_hash(cx_hash, endpoint = _default_endpoint, timeout = _def
     -------------
     https://api.hmny.io/#3d6ad045-800d-4021-aeb5-30a0fbf724fe
     """
-    params = [
-        cx_hash
-    ]
-    method = 'hmyv2_getCXReceiptByHash'
+    params = [cx_hash]
+    method = "hmyv2_getCXReceiptByHash"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def resend_cx_receipt(cx_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
+
+def resend_cx_receipt(
+    cx_hash, endpoint=_default_endpoint, timeout=_default_timeout
+) -> bool:
     """
     Resend the cross shard receipt to the receiving shard to re-process if the transaction did not pay out
 
@@ -570,19 +597,22 @@ def resend_cx_receipt(cx_hash, endpoint=_default_endpoint, timeout=_default_time
     -------------
     https://api.hmny.io/#c658b56b-d20b-480d-b71a-b0bc505d2164
     """
-    method = 'hmyv2_resendCx'
-    params = [
-        cx_hash
-    ]
+    method = "hmyv2_resendCx"
+    params = [cx_hash]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
+
 
 ############################
 # Staking Transaction RPCs #
 ############################
-def get_staking_transaction_by_hash(tx_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
+def get_staking_transaction_by_hash(
+    tx_hash, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get staking transaction by hash
 
@@ -622,18 +652,19 @@ def get_staking_transaction_by_hash(tx_hash, endpoint=_default_endpoint, timeout
     -------------
     https://api.hmny.io/#296cb4d0-bce2-48e3-bab9-64c3734edd27
     """
-    method = 'hmyv2_getStakingTransactionByHash'
-    params = [
-        tx_hash
-    ]
+    method = "hmyv2_getStakingTransactionByHash"
+    params = [tx_hash]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_staking_transaction_by_block_hash_and_index(block_hash, tx_index,
-        endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> dict:
+
+def get_staking_transaction_by_block_hash_and_index(
+    block_hash, tx_index, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get staking transaction by block hash and transaction index
 
@@ -661,19 +692,19 @@ def get_staking_transaction_by_block_hash_and_index(block_hash, tx_index,
     -------------
     https://api.hmny.io/#ba96cf61-61fe-464a-aa06-2803bb4b358f
     """
-    method = 'hmyv2_getStakingTransactionByBlockHashAndIndex'
-    params = [
-        block_hash,
-        tx_index
-    ]
+    method = "hmyv2_getStakingTransactionByBlockHashAndIndex"
+    params = [block_hash, tx_index]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_staking_transaction_by_block_number_and_index(block_num, tx_index,
-        endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> dict:
+
+def get_staking_transaction_by_block_number_and_index(
+    block_num, tx_index, endpoint=_default_endpoint, timeout=_default_timeout
+) -> dict:
     """
     Get staking transaction by block number and transaction index
 
@@ -701,17 +732,19 @@ def get_staking_transaction_by_block_number_and_index(block_num, tx_index,
     -------------
     https://api.hmny.io/#fb41d717-1645-4d3e-8071-6ce8e1b65dd3
     """
-    method = 'hmyv2_getStakingTransactionByBlockNumberAndIndex'
-    params = [
-        block_num,
-        tx_index
-    ]
+    method = "hmyv2_getStakingTransactionByBlockNumberAndIndex"
+    params = [block_num, tx_index]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def send_raw_staking_transaction(raw_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
+
+def send_raw_staking_transaction(
+    raw_tx, endpoint=_default_endpoint, timeout=_default_timeout
+) -> str:
     """
     Send signed staking transaction
 
@@ -740,16 +773,19 @@ def send_raw_staking_transaction(raw_tx, endpoint=_default_endpoint, timeout=_de
     -------------
     https://api.hmny.io/#e8c17fe9-e730-4c38-95b3-6f1a5b1b9401
     """
-    method = 'hmyv2_sendRawStakingTransaction'
-    params = [
-        raw_tx
-    ]
+    method = "hmyv2_sendRawStakingTransaction"
+    params = [raw_tx]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
+        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
+            "result"
+        ]
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def send_and_confirm_raw_staking_transaction(signed_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+
+def send_and_confirm_raw_staking_transaction(
+    signed_tx, endpoint=_default_endpoint, timeout=_default_timeout
+) -> list:
     """
     Send signed staking transaction and wait for it to be confirmed
 
@@ -782,11 +818,11 @@ def send_and_confirm_raw_staking_transaction(signed_tx, endpoint=_default_endpoi
     """
     tx_hash = send_raw_staking_transaction(signed_tx, endpoint=endpoint)
     start_time = time.time()
-    while((time.time() - start_time) <= timeout):
+    while (time.time() - start_time) <= timeout:
         tx_response = get_staking_transaction_by_hash(tx_hash, endpoint=endpoint)
         if tx_response is not None:
-            block_hash = tx_response.get( "blockHash", "0x00" )
-            unique_chars = "".join( set( list( block_hash[ 2 : ] ) ) )
+            block_hash = tx_response.get("blockHash", "0x00")
+            unique_chars = "".join(set(list(block_hash[2:])))
             if unique_chars != "0":
                 return tx_response
         time.sleep(random.uniform(0.2, 0.5))

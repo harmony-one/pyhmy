@@ -9,8 +9,8 @@ import logging.handlers
 class _GZipRotator:
     def __call__(self, source, dest):
         os.rename(source, dest)
-        f_in = open(dest, 'rb')
-        f_out = gzip.open("%s.gz" % dest, 'wb')
+        f_in = open(dest, "rb")
+        f_out = gzip.open("%s.gz" % dest, "wb")
         f_out.writelines(f_in)
         f_out.close()
         f_in.close()
@@ -27,13 +27,14 @@ class ControlledLogger:
         :param logger_name: The name of the logger and logfile
         :param log_dir: The directory in which to save this log file (can be abs or relative).
         """
-        if log_dir.endswith('/'):
+        if log_dir.endswith("/"):
             log_dir = log_dir[:-1]
         log_dir = os.path.realpath(log_dir)
         os.makedirs(log_dir, exist_ok=True)
-        handler = logging.handlers.TimedRotatingFileHandler(f"{log_dir}/{logger_name}.log", 'midnight', 1,
-                                                            backupCount=backup_count)
-        handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+        handler = logging.handlers.TimedRotatingFileHandler(
+            f"{log_dir}/{logger_name}.log", "midnight", 1, backupCount=backup_count
+        )
+        handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
         handler.rotator = _GZipRotator()
 
         self.filename = handler.baseFilename
@@ -63,8 +64,9 @@ class ControlledLogger:
         :param msg: The info message to log
         """
         self._lock.acquire()
-        self.info_buffer.append(f"[{threading.get_ident()}] "
-                                f"{datetime.datetime.utcnow()} : {msg}")
+        self.info_buffer.append(
+            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+        )
         self._lock.release()
 
     def debug(self, msg):
@@ -72,8 +74,9 @@ class ControlledLogger:
         :param msg: The debug message to log
         """
         self._lock.acquire()
-        self.debug_buffer.append(f"[{threading.get_ident()}] "
-                                 f"{datetime.datetime.utcnow()} : {msg}")
+        self.debug_buffer.append(
+            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+        )
         self._lock.release()
 
     def warning(self, msg):
@@ -81,8 +84,9 @@ class ControlledLogger:
         :param msg: The warning message to log
         """
         self._lock.acquire()
-        self.warning_buffer.append(f"[{threading.get_ident()}] "
-                                   f"{datetime.datetime.utcnow()} : {msg}")
+        self.warning_buffer.append(
+            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+        )
         self._lock.release()
 
     def error(self, msg):
@@ -90,33 +94,34 @@ class ControlledLogger:
         :param msg: The error message to log
         """
         self._lock.acquire()
-        self.error_buffer.append(f"[{threading.get_ident()}] "
-                                 f"{datetime.datetime.utcnow()} : {msg}")
+        self.error_buffer.append(
+            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+        )
         self._lock.release()
 
     def print_info(self):
         """
         Prints the current info buffer but does not flush it to log file.
         """
-        print('\n'.join(self.info_buffer))
+        print("\n".join(self.info_buffer))
 
     def print_debug(self):
         """
         Prints the current debug buffer but does not flush it to log file.
         """
-        print('\n'.join(self.debug_buffer))
+        print("\n".join(self.debug_buffer))
 
     def print_warning(self):
         """
         Prints the current warning buffer but does not flush it to log file.
         """
-        print('\n'.join(self.warning_buffer))
+        print("\n".join(self.warning_buffer))
 
     def print_error(self):
         """
         Prints the current error buffer but does not flush it to log file.
         """
-        print('\n'.join(self.error_buffer))
+        print("\n".join(self.error_buffer))
 
     def write(self):
         """

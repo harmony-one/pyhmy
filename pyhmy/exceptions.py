@@ -1,8 +1,5 @@
-from .rpc.exceptions import (
-    RPCError,
-    RequestsError,
-    RequestsTimeoutError
-)
+from .rpc.exceptions import RPCError, RequestsError, RequestsTimeoutError
+
 
 class InvalidRPCReplyError(RuntimeError):
     """
@@ -11,7 +8,8 @@ class InvalidRPCReplyError(RuntimeError):
     """
 
     def __init__(self, method, endpoint):
-        super().__init__(f'Unexpected reply for {method} from {endpoint}')
+        super().__init__(f"Unexpected reply for {method} from {endpoint}")
+
 
 class InvalidValidatorError(ValueError):
     """
@@ -19,11 +17,11 @@ class InvalidValidatorError(ValueError):
     """
 
     errors = {
-        1: 'Invalid ONE address',
-        2: 'Field not initialized',
-        3: 'Invalid field input',
-        4: 'Error checking blockchain',
-        5: 'Unable to import validator information from blockchain'
+        1: "Invalid ONE address",
+        2: "Field not initialized",
+        3: "Invalid field input",
+        4: "Error checking blockchain",
+        5: "Unable to import validator information from blockchain",
     }
 
     def __init__(self, err_code, msg):
@@ -32,7 +30,8 @@ class InvalidValidatorError(ValueError):
         super().__init__(msg)
 
     def __str__(self):
-        return f'[Errno {self.code}] {self.errors[self.code]}: {self.msg}'
+        return f"[Errno {self.code}] {self.errors[self.code]}: {self.msg}"
+
 
 class TxConfirmationTimedoutError(AssertionError):
     """
@@ -41,4 +40,4 @@ class TxConfirmationTimedoutError(AssertionError):
     """
 
     def __init__(self, msg):
-        super().__init__(f'{msg}')
+        super().__init__(f"{msg}")

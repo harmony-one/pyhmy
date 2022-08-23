@@ -9,11 +9,9 @@ import requests
 # 1f84c95ac16e6a50f08d44c7bde7aff8742212fda6e4321fde48bf83bef266dc / one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3 (genesis)
 # 3c86ac59f6b038f584be1c08fced78d7c71bb55d5655f81714f3cddc82144c65 / one1ru3p8ff0wsyl7ncsx3vwd5szuze64qz60upg37 (transferred 503)
 
-endpoint = 'http://localhost:9500'
+endpoint = "http://localhost:9500"
 timeout = 30
-headers = {
-    'Content-Type': 'application/json'
-}
+headers = {"Content-Type": "application/json"}
 txs = [
     # same shard 503 ONE transfer from one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3 to one1ru3p8ff0wsyl7ncsx3vwd5szuze64qz60upg37 (0 nonce)
     "0xf86f8085174876e8008252088080941f2213a52f7409ff4f103458e6d202e0b3aa805a891b4486fafde57c00008027a0d7c0b20207dcc9dde376822dc3f5625eac6f59a7526111695cdba3e29553ca17a05d4ca9a421ae16f89cbf6848186eaea7a800da732446dff9952e7c1e91d414e3",
@@ -37,8 +35,9 @@ stx_hashes = [
     "0x400e9831d358f5daccd153cad5bf53650a0d413bd8682ec0ffad55367d162968",
     "0xc8177ace2049d9f4eb4a45fd6bd6b16f693573d036322c36774cc00d05a3e24f",
 ]
-assert len( txs ) == len( tx_hashes ), "Mismatch in tx and tx_hash count"
-assert len( stxs ) == len( stx_hashes ), "Mismatch in stx and stx_hash count"
+assert len(txs) == len(tx_hashes), "Mismatch in tx and tx_hash count"
+assert len(stxs) == len(stx_hashes), "Mismatch in stx and stx_hash count"
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_blockchain():
@@ -47,38 +46,61 @@ def setup_blockchain():
     metadata = _check_connection()
     _check_staking_epoch(metadata)
 
-    for i in range( len( txs ) ):
-        tx = txs[ i ]
-        tx_hash = tx_hashes[ i ]
-        _send_transaction( tx, endpoint )
-        if not _wait_for_transaction_confirmed( tx_hash, endpoint ):
-            pytest.skip("Could not confirm initial transaction #{} on chain".format( i ), allow_module_level = True)
-    
-    for i in range( len( stxs ) ):
-        stx = stxs[ i ]
-        stx_hash = stx_hashes[ i ]
-        _send_staking_transaction( stx, endpoint )
-        if not _wait_for_staking_transaction_confirmed( stx_hash, endpoint ):
-            pytest.skip("Could not confirm initial staking transaction #{} on chain".format( i ), allow_module_level = True)
+    for i in range(len(txs)):
+        tx = txs[i]
+        tx_hash = tx_hashes[i]
+        _send_transaction(tx, endpoint)
+        if not _wait_for_transaction_confirmed(tx_hash, endpoint):
+            pytest.skip(
+                "Could not confirm initial transaction #{} on chain".format(i),
+                allow_module_level=True,
+            )
+
+    for i in range(len(stxs)):
+        stx = stxs[i]
+        stx_hash = stx_hashes[i]
+        _send_staking_transaction(stx, endpoint)
+        if not _wait_for_staking_transaction_confirmed(stx_hash, endpoint):
+            pytest.skip(
+                "Could not confirm initial staking transaction #{} on chain".format(i),
+                allow_module_level=True,
+            )
+
 
 def _check_connection():
     try:
         payload = {
             "id": "1",
             "jsonrpc": "2.0",
-            "method": 'hmyv2_getNodeMetadata',
-            "params": []
+            "method": "hmyv2_getNodeMetadata",
+            "params": [],
         }
-        response = requests.request('POST', endpoint, headers=headers,
-                                    data=json.dumps(payload), timeout=timeout, allow_redirects=True)
+        response = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
         metadata = json.loads(response.content)
-        if 'error' in metadata:
-            pytest.skip(f"Error in hmyv2_getNodeMetadata reply: {metadata['error']}", allow_module_level=True)
-        if 'chain-config' not in metadata['result']:
-            pytest.skip("Chain config not found in hmyv2_getNodeMetadata reply", allow_module_level=True)
+        if "error" in metadata:
+            pytest.skip(
+                f"Error in hmyv2_getNodeMetadata reply: {metadata['error']}",
+                allow_module_level=True,
+            )
+        if "chain-config" not in metadata["result"]:
+            pytest.skip(
+                "Chain config not found in hmyv2_getNodeMetadata reply",
+                allow_module_level=True,
+            )
         return metadata
     except Exception as e:
-        pytest.skip('Can not connect to local blockchain or bad hmyv2_getNodeMetadata reply', allow_module_level=True)
+        pytest.skip(
+            "Can not connect to local blockchain or bad hmyv2_getNodeMetadata reply",
+            allow_module_level=True,
+        )
+
 
 def _check_staking_epoch(metadata):
     latest_header = None
@@ -86,105 +108,163 @@ def _check_staking_epoch(metadata):
         payload = {
             "id": "1",
             "jsonrpc": "2.0",
-            "method": 'hmyv2_latestHeader',
-            "params": []
+            "method": "hmyv2_latestHeader",
+            "params": [],
         }
-        response = requests.request('POST', endpoint, headers=headers,
-                                    data=json.dumps(payload), timeout=timeout, allow_redirects=True)
+        response = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
         latest_header = json.loads(response.content)
-        if 'error' in latest_header:
-            pytest.skip(f"Error in hmyv2_latestHeader reply: {latest_header['error']}", allow_module_level=True)
+        if "error" in latest_header:
+            pytest.skip(
+                f"Error in hmyv2_latestHeader reply: {latest_header['error']}",
+                allow_module_level=True,
+            )
     except Exception as e:
-        pytest.skip('Failed to get hmyv2_latestHeader reply', allow_module_level=True)
+        pytest.skip("Failed to get hmyv2_latestHeader reply", allow_module_level=True)
 
     if metadata and latest_header:
-        staking_epoch = metadata['result']['chain-config']['staking-epoch']
-        current_epoch = latest_header['result']['epoch']
+        staking_epoch = metadata["result"]["chain-config"]["staking-epoch"]
+        current_epoch = latest_header["result"]["epoch"]
         if staking_epoch > current_epoch:
-            pytest.skip(f'Not staking epoch: current {current_epoch}, staking {staking_epoch}', allow_module_level=True)
+            pytest.skip(
+                f"Not staking epoch: current {current_epoch}, staking {staking_epoch}",
+                allow_module_level=True,
+            )
+
 
 def _send_transaction(raw_tx, endpoint):
     try:
         payload = {
             "id": "1",
             "jsonrpc": "2.0",
-            "method": 'hmyv2_sendRawTransaction',
-            "params": [raw_tx]
+            "method": "hmyv2_sendRawTransaction",
+            "params": [raw_tx],
         }
-        response = requests.request('POST', endpoint, headers=headers,
-                                    data=json.dumps(payload), timeout=timeout, allow_redirects=True)
+        response = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
         tx = json.loads(response.content)
-        if 'error' in tx:
-            pytest.skip(f"Error in hmyv2_sendRawTransaction reply: {tx['error']}", allow_module_level=True)
+        if "error" in tx:
+            pytest.skip(
+                f"Error in hmyv2_sendRawTransaction reply: {tx['error']}",
+                allow_module_level=True,
+            )
     except Exception as e:
-        pytest.skip('Failed to get hmyv2_sendRawTransaction reply', allow_module_level=True)
+        pytest.skip(
+            "Failed to get hmyv2_sendRawTransaction reply", allow_module_level=True
+        )
+
 
 def _check_transaction(tx_hash, endpoint):
     try:
         payload = {
             "id": "1",
             "jsonrpc": "2.0",
-            "method": 'hmyv2_getTransactionByHash',
-            "params": [tx_hash]
+            "method": "hmyv2_getTransactionByHash",
+            "params": [tx_hash],
         }
-        response = requests.request('POST', endpoint, headers=headers,
-                                    data=json.dumps(payload), timeout=timeout, allow_redirects=True)
+        response = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
         tx_data = json.loads(response.content)
         return tx_data
     except Exception as e:
-        pytest.skip('Failed to get hmyv2_getTransactionByHash reply', allow_module_level=True)
+        pytest.skip(
+            "Failed to get hmyv2_getTransactionByHash reply", allow_module_level=True
+        )
 
-def _wait_for_transaction_confirmed(tx_hash, endpoint, timeout = 30):
+
+def _wait_for_transaction_confirmed(tx_hash, endpoint, timeout=30):
     start_time = time.time()
-    while((time.time() - start_time) <= timeout):
+    while (time.time() - start_time) <= timeout:
         tx_data = _check_transaction(tx_hash, endpoint)
         if tx_data is not None:
-            block_hash = tx_data[ "result" ].get( "blockHash", "0x00" )
-            unique_chars = "".join( set( list( block_hash[ 2 : ] ) ) )
+            block_hash = tx_data["result"].get("blockHash", "0x00")
+            unique_chars = "".join(set(list(block_hash[2:])))
             if unique_chars != "0":
                 return True
         time.sleep(random.uniform(0.2, 0.5))
     return False
 
-def _send_staking_transaction(raw_tx, endpoint = endpoint):
-    try:
-        payload = {
-            "id": "1",
-            "jsonrpc": "2.0",
-            "method": 'hmyv2_sendRawStakingTransaction',
-            "params": [raw_tx]
-        }
-        response = requests.request('POST', endpoint, headers=headers,
-                                    data=json.dumps(payload), timeout=timeout, allow_redirects=True)
-        staking_tx = json.loads(response.content)
-        if 'error' in staking_tx:
-            pytest.skip(f"Error in hmyv2_sendRawStakingTransaction reply: {staking_tx['error']}", allow_module_level=True)
-    except Exception as e:
-        pytest.skip('Failed to get hmyv2_sendRawStakingTransaction reply', allow_module_level=True)
 
-def _check_staking_transaction(stx_hash, endpoint = endpoint):
+def _send_staking_transaction(raw_tx, endpoint=endpoint):
     try:
         payload = {
             "id": "1",
             "jsonrpc": "2.0",
-            "method": 'hmyv2_getStakingTransactionByHash',
-            "params": [stx_hash]
+            "method": "hmyv2_sendRawStakingTransaction",
+            "params": [raw_tx],
         }
-        response = requests.request('POST', endpoint, headers=headers,
-                                    data=json.dumps(payload), timeout=timeout, allow_redirects=True)
+        response = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
+        staking_tx = json.loads(response.content)
+        if "error" in staking_tx:
+            pytest.skip(
+                f"Error in hmyv2_sendRawStakingTransaction reply: {staking_tx['error']}",
+                allow_module_level=True,
+            )
+    except Exception as e:
+        pytest.skip(
+            "Failed to get hmyv2_sendRawStakingTransaction reply",
+            allow_module_level=True,
+        )
+
+
+def _check_staking_transaction(stx_hash, endpoint=endpoint):
+    try:
+        payload = {
+            "id": "1",
+            "jsonrpc": "2.0",
+            "method": "hmyv2_getStakingTransactionByHash",
+            "params": [stx_hash],
+        }
+        response = requests.request(
+            "POST",
+            endpoint,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            allow_redirects=True,
+        )
         stx_data = json.loads(response.content)
         return stx_data
     except Exception as e:
-        pytest.skip('Failed to get hmyv2_getStakingTransactionByHash reply', allow_module_level=True)
+        pytest.skip(
+            "Failed to get hmyv2_getStakingTransactionByHash reply",
+            allow_module_level=True,
+        )
 
-def _wait_for_staking_transaction_confirmed(tx_hash, endpoint, timeout = 30):
+
+def _wait_for_staking_transaction_confirmed(tx_hash, endpoint, timeout=30):
     answer = False
     start_time = time.time()
-    while((time.time() - start_time) <= timeout):
+    while (time.time() - start_time) <= timeout:
         tx_data = _check_staking_transaction(tx_hash, endpoint)
         if tx_data is not None:
-            block_hash = tx_data[ "result" ].get( "blockHash", "0x00" )
-            unique_chars = "".join( set( list( block_hash[ 2 : ] ) ) )
+            block_hash = tx_data["result"].get("blockHash", "0x00")
+            unique_chars = "".join(set(list(block_hash[2:])))
             if unique_chars != "0":
                 answer = True
         time.sleep(random.uniform(0.2, 0.5))

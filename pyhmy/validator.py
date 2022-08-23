@@ -1,44 +1,27 @@
 import json
 
-from eth_account.datastructures import (
-    SignedTransaction
-)
+from eth_account.datastructures import SignedTransaction
 
-from decimal import (
-    Decimal,
-    InvalidOperation
-)
+from decimal import Decimal, InvalidOperation
 
-from .account import (
-    get_balance,
-    is_valid_address
-)
+from .account import get_balance, is_valid_address
 
-from .numbers import (
-    convert_one_to_atto
-)
+from .numbers import convert_one_to_atto
 
 from .exceptions import (
     InvalidValidatorError,
     RPCError,
     RequestsError,
-    RequestsTimeoutError
+    RequestsTimeoutError,
 )
 
-from .staking import (
-    get_all_validator_addresses,
-    get_validator_information
-)
+from .staking import get_all_validator_addresses, get_validator_information
 
-from .staking_structures import (
-    Directive
-)
+from .staking_structures import Directive
 
-from .staking_signing import (
-    sign_staking_transaction
-)
+from .staking_signing import sign_staking_transaction
 
-_default_endpoint = 'http://localhost:9500'
+_default_endpoint = "http://localhost:9500"
 _default_timeout = 30
 
 # TODO: Add unit testing
@@ -49,13 +32,13 @@ class Validator:
     website_char_limit = 140
     security_contact_char_limit = 140
     details_char_limit = 280
-    min_required_delegation = convert_one_to_atto(10000)        # in ATTO
+    min_required_delegation = convert_one_to_atto(10000)  # in ATTO
 
     def __init__(self, address):
         if not isinstance(address, str):
-            raise InvalidValidatorError(1, 'given ONE address was not a string')
+            raise InvalidValidatorError(1, "given ONE address was not a string")
         if not is_valid_address(address):
-            raise InvalidValidatorError(1, f'{address} is not valid ONE address')
+            raise InvalidValidatorError(1, f"{address} is not valid ONE address")
         self._address = address
         self._bls_keys = []
         self._bls_key_sigs = []
@@ -84,8 +67,11 @@ class Validator:
         """
         if check_str:
             if not isinstance(data, str):
-                raise InvalidValidatorError(3, f'Expected data to be string to avoid floating point precision issues but got {data}')
-        return '' if not data else str(data)
+                raise InvalidValidatorError(
+                    3,
+                    f"Expected data to be string to avoid floating point precision issues but got {data}",
+                )
+        return "" if not data else str(data)
 
     def __str__(self) -> str:
         """
@@ -98,7 +84,7 @@ class Validator:
         return json.dumps(info)
 
     def __repr__(self) -> str:
-        return f'<Validator: {hex(id(self))}>'
+        return f"<Validator: {hex(id(self))}>"
 
     def get_address(self) -> str:
         """
@@ -209,7 +195,9 @@ class Validator:
         """
         name = self._sanitize_input(name)
         if len(name) > self.name_char_limit:
-            raise InvalidValidatorError(3, f'Name must be less than {self.name_char_limit} characters')
+            raise InvalidValidatorError(
+                3, f"Name must be less than {self.name_char_limit} characters"
+            )
         self._name = name
 
     def get_name(self) -> str:
@@ -239,7 +227,9 @@ class Validator:
         """
         identity = self._sanitize_input(identity)
         if len(identity) > self.identity_char_limit:
-            raise InvalidValidatorError(3, f'Identity must be less than {self.identity_char_limit} characters')
+            raise InvalidValidatorError(
+                3, f"Identity must be less than {self.identity_char_limit} characters"
+            )
         self._identity = identity
 
     def get_identity(self) -> str:
@@ -269,7 +259,9 @@ class Validator:
         """
         website = self._sanitize_input(website)
         if len(website) > self.website_char_limit:
-            raise InvalidValidatorError(3, f'Website must be less than {self.website_char_limit} characters')
+            raise InvalidValidatorError(
+                3, f"Website must be less than {self.website_char_limit} characters"
+            )
         self._website = website
 
     def get_website(self) -> str:
@@ -299,7 +291,10 @@ class Validator:
         """
         contact = self._sanitize_input(contact)
         if len(contact) > self.security_contact_char_limit:
-            raise InvalidValidatorError(3, f'Security contact must be less than {self.security_contact_char_limit} characters')
+            raise InvalidValidatorError(
+                3,
+                f"Security contact must be less than {self.security_contact_char_limit} characters",
+            )
         self._security_contact = contact
 
     def get_security_contact(self) -> str:
@@ -329,7 +324,9 @@ class Validator:
         """
         details = self._sanitize_input(details)
         if len(details) > self.details_char_limit:
-            raise InvalidValidatorError(3, f'Details must be less than {self.details_char_limit} characters')
+            raise InvalidValidatorError(
+                3, f"Details must be less than {self.details_char_limit} characters"
+            )
         self._details = details
 
     def get_details(self) -> str:
@@ -361,9 +358,14 @@ class Validator:
         try:
             delegation = Decimal(delegation)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, 'Min self delegation must be a number') from e
+            raise InvalidValidatorError(
+                3, "Min self delegation must be a number"
+            ) from e
         if delegation < self.min_required_delegation:
-            raise InvalidValidatorError(3, f'Min self delegation must be greater than {self.min_required_delegation} ATTO')
+            raise InvalidValidatorError(
+                3,
+                f"Min self delegation must be greater than {self.min_required_delegation} ATTO",
+            )
         self._min_self_delegation = delegation
 
     def get_min_self_delegation(self) -> Decimal:
@@ -395,13 +397,20 @@ class Validator:
         try:
             max_delegation = Decimal(max_delegation)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, 'Max total delegation must be a number') from e
+            raise InvalidValidatorError(
+                3, "Max total delegation must be a number"
+            ) from e
         if self._min_self_delegation:
             if max_delegation < self._min_self_delegation:
-                raise InvalidValidatorError(3, f'Max total delegation must be greater than min self delegation: '
-                                               '{self._min_self_delegation}')
+                raise InvalidValidatorError(
+                    3,
+                    f"Max total delegation must be greater than min self delegation: "
+                    "{self._min_self_delegation}",
+                )
         else:
-            raise InvalidValidatorError(4, 'Min self delegation must be set before max total delegation')
+            raise InvalidValidatorError(
+                4, "Min self delegation must be set before max total delegation"
+            )
         self._max_total_delegation = max_delegation
 
     def get_max_total_delegation(self) -> Decimal:
@@ -433,19 +442,29 @@ class Validator:
         try:
             amount = Decimal(amount)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, 'Amount must be a number') from e
+            raise InvalidValidatorError(3, "Amount must be a number") from e
         if self._min_self_delegation:
             if amount < self._min_self_delegation:
-                raise InvalidValidatorError(3, 'Amount must be greater than min self delegation: '
-                                               f'{self._min_self_delegation}')
+                raise InvalidValidatorError(
+                    3,
+                    "Amount must be greater than min self delegation: "
+                    f"{self._min_self_delegation}",
+                )
         else:
-            raise InvalidValidatorError(4, 'Min self delegation must be set before amount')
+            raise InvalidValidatorError(
+                4, "Min self delegation must be set before amount"
+            )
         if self._max_total_delegation:
             if amount > self._max_total_delegation:
-                raise InvalidValidatorError(3, 'Amount must be less than max total delegation: '
-                                               f'{self._max_total_delegation}')
+                raise InvalidValidatorError(
+                    3,
+                    "Amount must be less than max total delegation: "
+                    f"{self._max_total_delegation}",
+                )
         else:
-            raise InvalidValidatorError(4, 'Max total delegation must be set before amount')
+            raise InvalidValidatorError(
+                4, "Max total delegation must be set before amount"
+            )
         self._inital_delegation = amount
 
     def get_amount(self) -> Decimal:
@@ -477,9 +496,9 @@ class Validator:
         try:
             rate = Decimal(rate)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, 'Max rate must be a number') from e
+            raise InvalidValidatorError(3, "Max rate must be a number") from e
         if rate < 0 or rate > 1:
-            raise InvalidValidatorError(3, 'Max rate must be between 0 and 1')
+            raise InvalidValidatorError(3, "Max rate must be between 0 and 1")
         self._max_rate = rate
 
     def get_max_rate(self) -> Decimal:
@@ -511,14 +530,21 @@ class Validator:
         try:
             rate = Decimal(rate)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, 'Max change rate must be a number') from e
+            raise InvalidValidatorError(3, "Max change rate must be a number") from e
         if rate < 0:
-            raise InvalidValidatorError(3, 'Max change rate must be greater than or equal to 0')
+            raise InvalidValidatorError(
+                3, "Max change rate must be greater than or equal to 0"
+            )
         if self._max_rate:
             if rate > self._max_rate:
-                raise InvalidValidatorError(3, f'Max change rate must be less than or equal to max rate: {self._max_rate}')
+                raise InvalidValidatorError(
+                    3,
+                    f"Max change rate must be less than or equal to max rate: {self._max_rate}",
+                )
         else:
-            raise InvalidValidatorError(4, 'Max rate must be set before max change rate')
+            raise InvalidValidatorError(
+                4, "Max rate must be set before max change rate"
+            )
         self._max_change_rate = rate
 
     def get_max_change_rate(self) -> Decimal:
@@ -550,14 +576,16 @@ class Validator:
         try:
             rate = Decimal(rate)
         except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, 'Rate must be a number') from e
+            raise InvalidValidatorError(3, "Rate must be a number") from e
         if rate < 0:
-            raise InvalidValidatorError(3, 'Rate must be greater than or equal to 0')
+            raise InvalidValidatorError(3, "Rate must be greater than or equal to 0")
         if self._max_rate:
             if rate > self._max_rate:
-                raise InvalidValidatorError(3, f'Rate must be less than or equal to max rate: {self._max_rate}')
+                raise InvalidValidatorError(
+                    3, f"Rate must be less than or equal to max rate: {self._max_rate}"
+                )
         else:
-            raise InvalidValidatorError(4, 'Max rate must be set before rate')
+            raise InvalidValidatorError(4, "Max rate must be set before rate")
         self._rate = rate
 
     def get_rate(self) -> Decimal:
@@ -571,7 +599,9 @@ class Validator:
         """
         return self._rate
 
-    def does_validator_exist(self, endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
+    def does_validator_exist(
+        self, endpoint=_default_endpoint, timeout=_default_timeout
+    ) -> bool:
         """
         Check if validator exists on blockchain
 
@@ -629,31 +659,33 @@ class Validator:
             If input value is invalid
         """
         try:
-            self.set_name(info['name'])
-            self.set_identity(info['identity'])
-            self.set_website(info['website'])
-            self.set_details(info['details'])
-            self.set_security_contact(info['security-contact'])
+            self.set_name(info["name"])
+            self.set_identity(info["identity"])
+            self.set_website(info["website"])
+            self.set_details(info["details"])
+            self.set_security_contact(info["security-contact"])
 
-            self.set_min_self_delegation(info['min-self-delegation'])
-            self.set_max_total_delegation(info['max-total-delegation'])
-            self.set_amount(info['amount'])
+            self.set_min_self_delegation(info["min-self-delegation"])
+            self.set_max_total_delegation(info["max-total-delegation"])
+            self.set_amount(info["amount"])
 
-            self.set_max_rate(info['max-rate'])
-            self.set_max_change_rate(info['max-change-rate'])
-            self.set_rate(info['rate'])
+            self.set_max_rate(info["max-rate"])
+            self.set_max_change_rate(info["max-change-rate"])
+            self.set_rate(info["rate"])
 
             self._bls_keys = []
-            for key in info['bls-public-keys']:
+            for key in info["bls-public-keys"]:
                 self.add_bls_key(key)
 
             self._bls_key_sigs = []
-            for key in info['bls-key-sigs']:
+            for key in info["bls-key-sigs"]:
                 self.add_bls_key_sig(key)
         except KeyError as e:
-            raise InvalidValidatorError(3, 'Info has missing key') from e
+            raise InvalidValidatorError(3, "Info has missing key") from e
 
-    def load_from_blockchain(self, endpoint=_default_endpoint, timeout=_default_timeout):
+    def load_from_blockchain(
+        self, endpoint=_default_endpoint, timeout=_default_timeout
+    ):
         """
         Import validator information from blockchain with given address
         At the moment, this is unable to fetch the BLS Signature, which is not implemented
@@ -673,33 +705,43 @@ class Validator:
         """
         try:
             if not self.does_validator_exist(endpoint, timeout):
-                raise InvalidValidatorError(5, f'Validator does not exist on chain according to {endpoint}')
+                raise InvalidValidatorError(
+                    5, f"Validator does not exist on chain according to {endpoint}"
+                )
         except (RPCError, RequestsError, RequestsTimeoutError) as e:
-            raise InvalidValidatorError(5, 'Error requesting validator information') from e
+            raise InvalidValidatorError(
+                5, "Error requesting validator information"
+            ) from e
         try:
             validator_info = get_validator_information(self._address, endpoint, timeout)
         except (RPCError, RequestsError, RequestsTimeoutError) as e:
-            raise InvalidValidatorError(5, 'Error requesting validator information') from e
+            raise InvalidValidatorError(
+                5, "Error requesting validator information"
+            ) from e
 
         # Skip additional sanity checks when importing from chain
         try:
-            info = validator_info['validator']
-            self._name = info['name']
-            self._identity = info['identity']
-            self._website = info['website']
-            self._details = info['details']
-            self._security_contact = info['security-contact']
+            info = validator_info["validator"]
+            self._name = info["name"]
+            self._identity = info["identity"]
+            self._website = info["website"]
+            self._details = info["details"]
+            self._security_contact = info["security-contact"]
 
-            self._min_self_delegation = info['min-self-delegation']
-            self._max_total_delegation = info['max-total-delegation']
-            self._inital_delegation = self._min_self_delegation  # Since validator exists, set initial delegation to 0
+            self._min_self_delegation = info["min-self-delegation"]
+            self._max_total_delegation = info["max-total-delegation"]
+            self._inital_delegation = (
+                self._min_self_delegation
+            )  # Since validator exists, set initial delegation to 0
 
-            self._max_rate = Decimal(info['max-rate'])
-            self._max_change_rate = Decimal(info['max-change-rate'])
-            self._rate = Decimal(info['rate'])
-            self._bls_keys = info[ 'bls-public-keys' ]
+            self._max_rate = Decimal(info["max-rate"])
+            self._max_change_rate = Decimal(info["max-change-rate"])
+            self._rate = Decimal(info["rate"])
+            self._bls_keys = info["bls-public-keys"]
         except KeyError as e:
-            raise InvalidValidatorError(5, 'Error importing validator information from RPC result') from e
+            raise InvalidValidatorError(
+                5, "Error importing validator information from RPC result"
+            ) from e
 
     def export(self) -> dict:
         """
@@ -724,11 +766,13 @@ class Validator:
             "max-rate": self._max_rate,
             "max-change-rate": self._max_change_rate,
             "bls-public-keys": self._bls_keys,
-            "bls-key-sigs": self._bls_key_sigs
+            "bls-key-sigs": self._bls_key_sigs,
         }
         return info
 
-    def sign_create_validator_transaction(self, nonce, gas_price, gas_limit, private_key, chain_id=None) -> SignedTransaction:
+    def sign_create_validator_transaction(
+        self, nonce, gas_price, gas_limit, private_key, chain_id=None
+    ) -> SignedTransaction:
         """
         Create but not post a transaction to Create the Validator using private_key
 
@@ -746,16 +790,27 @@ class Validator:
         https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L413
         """
         info = self.export().copy()
-        info['directive'] = Directive.CreateValidator
-        info['validatorAddress'] = info.pop('validator-addr')   # change the key
-        info['nonce'] = nonce
-        info['gasPrice'] = gas_price
-        info['gasLimit'] = gas_limit
+        info["directive"] = Directive.CreateValidator
+        info["validatorAddress"] = info.pop("validator-addr")  # change the key
+        info["nonce"] = nonce
+        info["gasPrice"] = gas_price
+        info["gasLimit"] = gas_limit
         if chain_id:
-            info['chainId'] = chain_id
+            info["chainId"] = chain_id
         return sign_staking_transaction(info, private_key)
 
-    def sign_edit_validator_transaction(self, nonce, gas_price, gas_limit, rate, bls_key_to_remove, bls_key_to_add, bls_key_to_add_sig, private_key, chain_id=None) -> SignedTransaction:
+    def sign_edit_validator_transaction(
+        self,
+        nonce,
+        gas_price,
+        gas_limit,
+        rate,
+        bls_key_to_remove,
+        bls_key_to_add,
+        bls_key_to_add_sig,
+        private_key,
+        chain_id=None,
+    ) -> SignedTransaction:
         """
         Create but not post a transaction to Edit the Validator using private_key
 
@@ -776,18 +831,18 @@ class Validator:
         self.add_bls_key(bls_key_to_add)
         self.remove_bls_key(bls_key_to_remove)
         info = self.export().copy()
-        info['directive'] = Directive.EditValidator
-        info['validatorAddress'] = info.pop('validator-addr')   # change the key
-        info['nonce'] = nonce
-        info['gasPrice'] = gas_price
-        info['gasLimit'] = gas_limit
-        _ = info.pop('max-rate')            # not needed
-        _ = info.pop('max-change-rate')     # not needed
-        _ = info.pop('bls-public-keys')     # remove this list
-        _ = info.pop('amount')              # also unused
-        info['bls-key-to-remove'] = bls_key_to_remove
-        info['bls-key-to-add'] = bls_key_to_add
-        info['bls-key-to-add-sig'] = bls_key_to_add_sig
+        info["directive"] = Directive.EditValidator
+        info["validatorAddress"] = info.pop("validator-addr")  # change the key
+        info["nonce"] = nonce
+        info["gasPrice"] = gas_price
+        info["gasLimit"] = gas_limit
+        _ = info.pop("max-rate")  # not needed
+        _ = info.pop("max-change-rate")  # not needed
+        _ = info.pop("bls-public-keys")  # remove this list
+        _ = info.pop("amount")  # also unused
+        info["bls-key-to-remove"] = bls_key_to_remove
+        info["bls-key-to-add"] = bls_key_to_add
+        info["bls-key-to-add-sig"] = bls_key_to_add_sig
         if chain_id:
-            info['chainId'] = chain_id
+            info["chainId"] = chain_id
         return sign_staking_transaction(info, private_key)
