@@ -125,7 +125,7 @@ def get_balance_by_block(address, block_num, endpoint=_default_endpoint, timeout
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_account_nonce(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+def get_account_nonce(address, block_num='latest', endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
     Get the account nonce
 
@@ -164,6 +164,12 @@ def get_account_nonce(address, block_num, endpoint=_default_endpoint, timeout=_d
         return int(nonce)
     except TypeError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
+
+def get_nonce(address, block_num='latest', endpoint=_default_endpoint, timeout=_default_timeout) -> int:
+    """
+    See get_account_nonce
+    """
+    return get_account_nonce(address, block_num, endpoint, timeout)
 
 def get_transaction_count(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     """
