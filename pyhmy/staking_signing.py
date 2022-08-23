@@ -405,6 +405,8 @@ def sign_staking_transaction(transaction_dict, private_key):
     https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts
     """
     assert isinstance(transaction_dict, dict), 'Only dictionaries are supported'        # OrderedDict is a subclass
+    # chain_id missing => 'rlp: input string too long for uint64, decoding into (types.StakingTransaction)(types.txdata).GasLimit'
+    assert 'chainId' in transaction_dict, 'chainId missing'
     assert 'directive' in transaction_dict, 'Staking transaction type not specified'
     assert isinstance(transaction_dict['directive'], Directive), 'Unknown staking transaction type'
     if transaction_dict['directive'] == Directive.CollectRewards:
