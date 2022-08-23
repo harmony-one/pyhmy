@@ -2,6 +2,10 @@ from .rpc.request import (
     rpc_request
 )
 
+from .exceptions import (
+    InvalidRPCReplyError
+)
+
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
 
@@ -261,7 +265,7 @@ def get_validator_information_by_block_number(validator_addr, block_num, endpoin
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_all_validator_information(page=0, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get validator information for all validators on chain
 
@@ -366,7 +370,7 @@ def get_validator_total_delegation(address, endpoint=_default_endpoint, timeout=
     except (KeyError, TypeError) as e:
         raise InvalidRPCReplyError(method, endpoint) from e
 
-def get_all_validator_information_by_block_number(block_num, page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_all_validator_information_by_block_number(block_num, page=0, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get validator information at block number for all validators on chain
 
@@ -408,7 +412,7 @@ def get_all_validator_information_by_block_number(block_num, page=-1, endpoint=_
 ###################
 # Delegation RPCs #
 ###################
-def get_all_delegation_information(page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+def get_all_delegation_information(page=0, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
     """
     Get delegation information for all delegators on chain
 
