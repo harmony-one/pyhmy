@@ -441,7 +441,7 @@ def send_and_confirm_raw_transaction(signed_tx, endpoint=_default_endpoint, time
             if unique_chars != "0":
                 return tx_response
         time.sleep(random.uniform(0.2, 0.5))
-    raise TxConfirmationTimedoutError("Could not confirm transactions on-chain.")
+    raise TxConfirmationTimedoutError("Could not confirm transaction on-chain.")
 
 ###############################
 # CrossShard Transaction RPCs #
@@ -790,4 +790,4 @@ def send_and_confirm_raw_staking_transaction(signed_tx, endpoint=_default_endpoi
             if unique_chars != "0":
                 return tx_response
         time.sleep(random.uniform(0.2, 0.5))
-    raise TxConfirmationTimedoutError("Could not confirm transactions on-chain.")
+    raise TxConfirmationTimedoutError("Could not confirm transaction on-chain.")
