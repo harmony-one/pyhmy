@@ -27,7 +27,7 @@ from eth_utils.curried import (
     to_int,
     apply_formatters_to_sequence,
     apply_formatter_to_array,
- )
+)
 
 from .constants import PRECISION, MAX_DECIMAL
 
@@ -40,7 +40,7 @@ from .staking_structures import (
     EditValidator,
     DelegateOrUndelegate,
     CollectRewards,
- )
+)
 
 from .util import convert_one_to_hex
 
@@ -135,7 +135,7 @@ def _sign_transaction_generic(
     account,
     sanitized_transaction,
     parent_serializer
- ):
+):
     """Sign a generic staking transaction, given the serializer base class and
     account.
 
@@ -186,11 +186,11 @@ def _sign_transaction_generic(
         }
     )  # drop extras silently
     # sign the unsigned transaction
-    if "v" in unsigned_transaction.as_dict( ):
+    if "v" in unsigned_transaction.as_dict():
         chain_id = unsigned_transaction.v
     else:
         chain_id = None
-    transaction_hash = unsigned_transaction.hash( )
+    transaction_hash = unsigned_transaction.hash()
     ( v,
       r,
       s
@@ -198,7 +198,7 @@ def _sign_transaction_generic(
                                 transaction_hash,
                                 chain_id )
     chain_naive_transaction = dissoc(
-        unsigned_transaction.as_dict( ),
+        unsigned_transaction.as_dict(),
         "v",
         "r",
         "s"

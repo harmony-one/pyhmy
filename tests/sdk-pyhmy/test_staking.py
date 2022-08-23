@@ -209,7 +209,7 @@ def test_errors():
     with pytest.raises( exceptions.RPCError ):
         staking.get_validator_information_by_block_number( "", 1, fake_shard )
     with pytest.raises( exceptions.RPCError ):
-        staking.get_all_validator_information( -1, fake_shard )
+        staking.get_all_validator_information( 0, fake_shard )
     with pytest.raises( exceptions.RPCError ):
         staking.get_validator_self_delegation( "", fake_shard )
     with pytest.raises( exceptions.RPCError ):

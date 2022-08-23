@@ -258,7 +258,7 @@ delegator_addr = 'one1y2624lg0mpkxkcttaj0c85pp8pfmh2tt5zhdte'
 ```py
 all_validators = staking.get_all_validator_addresses(endpoint=test_net)							# list of addresses
 validator_information = staking.get_validator_information(validator_addr, endpoint=test_net)	# dict with all info
-validator_information_100 = staking.get_all_validator_information(page=0, endpoint=test_net)	# for all use page=-1
+validator_information_100 = staking.get_all_validator_information(page=0, endpoint=test_net)
 elected_validators = staking.get_elected_validator_addresses(endpoint=test_net)					# list of addresses
 validators_for_epoch = staking.get_validators(epoch=73772, endpoint=test_net)					# dict with list of validators and balance
 validators_information_100_for_block = staking.get_all_validator_information_by_block_number(block_num=9017724, page=0, endpoint=test_net)
@@ -269,7 +269,7 @@ total_delegation = staking.get_validator_total_delegation(validator_addr, endpoi
 ```
 ##### Delegation
 ```py
-delegation_information = staking.get_all_delegation_information(page=-1, endpoint=test_net)
+delegation_information = staking.get_all_delegation_information(page=0, endpoint=test_net)
 delegations_by_delegator = staking.get_delegations_by_delegator(delegator_addr, test_net)
 delegations_by_delegator_at_block = staking.get_delegations_by_delegator_by_block_number(delegator_addr, block_num=9017724, endpoint=test_net)
 delegation_by_delegator_and_validator = staking.get_delegation_by_delegator_and_validator(delegator_addr, validator_addr, test_net)

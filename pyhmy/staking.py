@@ -316,7 +316,7 @@ def get_all_validator_information(
     Parameters
     ----------
     page: :obj:`int`, optional
-        Page to request (-1 for all validators), page size is 100 otherwise
+        Page to request, page size is 100 otherwise
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -449,7 +449,7 @@ def get_all_validator_information_by_block_number(
     block_num: int
         Block number to get validator information for
     page: :obj:`int`, optional
-        Page to request (-1 for all validators), page size is 100
+        Page to request, page size is 100
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -495,7 +495,7 @@ def get_all_delegation_information(
     Parameters
     ----------
     page: :obj:`int`, optional
-        Page to request (-1 for all validators), page size is 100
+        Page to request, page size is 100
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
