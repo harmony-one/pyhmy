@@ -69,6 +69,8 @@ def chain_id_to_int(chainId):
     if isinstance(chainId, str):
         assert chainId in chainIds, f'Chain {chainId} unknown, specify an integer chainId'
         return chainIds.get(chainId)
+    elif isinstance(chainId, int):
+        return chainId
     else:
         raise TypeError( 'chainId must be str or int' )
 
