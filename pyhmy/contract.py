@@ -6,6 +6,10 @@ from .transaction import (
     get_transaction_receipt
 )
 
+from .exceptions import (
+    InvalidRPCReplyError
+)
+
 
 _default_endpoint = 'http://localhost:9500'
 _default_timeout = 30
@@ -237,4 +241,4 @@ def get_contract_address_from_hash(tx_hash, endpoint=_default_endpoint, timeout=
     try:
         return get_transaction_receipt(tx_hash, endpoint, timeout)["contractAddress"]
     except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        raise InvalidRPCReplyError("hmyv2_getTransactionReceipt", endpoint) from e
