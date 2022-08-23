@@ -34,16 +34,16 @@ git clone https://github.com/harmony-one/mcl.git
 git clone https://github.com/harmony-one/bls.git
 git clone https://github.com/harmony-one/harmony.git
 cd harmony
-make test-rpc
+make debug
 ```
 
-Once the terminal displays `=== FINISHED RPC TESTS ===`, use another shell to run the following tests
+Once the terminal displays a couple of `Started server` lines, use another shell to run the following tests
 ```bash
 make test
 ```
 Or directly with `pytest` (reference [here](https://docs.pytest.org/en/latest/index.html) for more info):
 ```bash
-py.test tests
+pytest tests
 ```
 
 ## Releasing
@@ -60,6 +60,19 @@ test_address = 'one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7'
 
 main_net = 'https://rpc.s0.t.hmny.io'
 main_net_shard_1 = 'https://rpc.s1.t.hmny.io'
+```
+#### utilities
+##### Address conversion
+```py
+from pyhmy import util
+hex_addr = util.convert_one_to_hex('one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3')
+one_addr = util.convert_hex_to_one('0xA5241513DA9F4463F1d4874b548dFBAC29D91f34')
+```
+##### Ether / Wei conversion
+```py
+from pyhmy import numbers
+one_ether_in_wei = numbers.convert_one_to_atto(1) # as a decimal.Decimal
+wei_to_ether = numbers.convert_atto_to_one(int(1e18))
 ```
 #### accounts
 ```py
@@ -295,7 +308,10 @@ info = {
         'max-rate': '0.9',
         'max-change-rate': '0.05',
         'rate': '0.01',
-        'bls-public-keys': ['0xb9486167ab9087ab818dc4ce026edb5bf216863364c32e42df2af03c5ced1ad181e7d12f0e6dd5307a73b62247608611'],
+        'bls-public-keys': ['0xa20e70089664a874b00251c5e85d35a73871531306f3af43e02138339d294e6bb9c4eb82162199c6a852afeaa8d68712'],
+        "bls-key-sigs": [
+            "0xef2c49a2f31fbbd23c21bc176eaf05cd0bebe6832033075d81fea7cff6f9bc1ab42f3b6895c5493fe645d8379d2eaa1413de55a9d3ce412a4f747cb57d52cc4da4754bfb2583ec9a41fe5dd48287f964f276336699959a5fcef3391dc24df00d",
+        ]
         'max-total-delegation': convert_one_to_atto(40000)
     }
 validator.load(info)
@@ -307,7 +323,7 @@ signed_create_tx_hash = validator.sign_create_validator_transaction(
             gas_price = 1,
             gas_limit = 100,
             private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48',
-            chain_id = None).rawTransaction.hex()
+            chain_id = 2).rawTransaction.hex()
 ```
 To edit validator, change its parameters using the `setter` functions, for example, `validator.set_details`, except the  `rate`, `bls_keys_to_add` and `bls_keys_to_remove` which can be passed to the below function:
 ```py
@@ -316,8 +332,9 @@ signed_edit_tx_hash = validator.sign_edit_validator_transaction(
             gas_price = 1,
             gas_limit = 100,
             rate = '0.06',
-            bls_keys_to_add = "0xb9486167ab9087ab818dc4ce026edb5bf216863364c32e42df2af03c5ced1ad181e7d12f0e6dd5307a73b62247608611",
-            bls_keys_to_remove = '0xb9486167ab9087ab818dc4ce026edb5bf216863364c32e42df2af03c5ced1ad181e7d12f0e6dd5307a73b62247608612',
+            bls_key_to_add = "0xb8c3b3a0f1966c169ca73c348f4b8aee333a407125ab5c67f1d6e1e18ab052ed5fff0f1f7d4a7f789528b5ccd9c47b04",
+            bls_key_to_add_sig = "0x3de4dff17451fb76a9690efce34bced97dd87eccd371fcd25335826cb879ca21281e82e5c2c76d4ef0ab0fc16e462312628834cbc1f29008b28e16a757367808be85180945b991be3103f98c14c7e3b3e54796d34aab4d8e812d440aa251c419",
+            bls_keys_to_remove = '0xa20e70089664a874b00251c5e85d35a73871531306f3af43e02138339d294e6bb9c4eb82162199c6a852afeaa8d68712',
             private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48',
             chain_id = 2).rawTransaction.hex()
 ```
