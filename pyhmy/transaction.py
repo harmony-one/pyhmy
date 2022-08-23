@@ -2,7 +2,8 @@ from .rpc.request import (
     rpc_request
 )
 from .exceptions import (
-    TxConfirmationTimedoutError
+    TxConfirmationTimedoutError,
+    InvalidRPCReplyError
 )
 import time
 import random
@@ -435,7 +436,9 @@ def send_and_confirm_raw_transaction(signed_tx, endpoint=_default_endpoint, time
     while((time.time() - start_time) <= timeout):
         tx_response = get_transaction_by_hash(tx_hash, endpoint=endpoint)
         if tx_response is not None:
-            if tx_response[ 'blockHash' ] != '0x0000000000000000000000000000000000000000000000000000000000000000':
+            block_hash = tx_response.get( "blockHash", "0x00" )
+            unique_chars = "".join( set( list( block_hash[ 2 : ] ) ) )
+            if unique_chars != "0":
                 return tx_response
         time.sleep(random.uniform(0.2, 0.5))
     raise TxConfirmationTimedoutError("Could not confirm transactions on-chain.")
@@ -745,3 +748,46 @@ def send_raw_staking_transaction(raw_tx, endpoint=_default_endpoint, timeout=_de
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
     except KeyError as e:
         raise InvalidRPCReplyError(method, endpoint) from e
+
+def send_and_confirm_raw_staking_transaction(signed_tx, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
+    """
+    Send signed staking transaction and wait for it to be confirmed
+
+    Parameters
+    ----------
+    signed_tx: str
+        Hex representation of signed staking transaction
+    endpoint: :obj:`str`, optional
+        Endpoint to send request to
+    timeout: :obj:`int`, optional
+        Timeout in seconds
+
+    Returns
+    -------
+    str
+        Transaction, see get_transaction_by_hash for structure
+
+    Raises
+    ------
+    InvalidRPCReplyError
+        If received unknown result from endpoint, or
+    RPCError
+        If transaction failed to be added to the pool
+    TxConfirmationTimedoutError
+        If transaction could not be confirmed within the timeout period
+
+    API Reference
+    -------------
+    https://api.hmny.io/#e8c17fe9-e730-4c38-95b3-6f1a5b1b9401
+    """
+    tx_hash = send_raw_staking_transaction(signed_tx, endpoint=endpoint)
+    start_time = time.time()
+    while((time.time() - start_time) <= timeout):
+        tx_response = get_staking_transaction_by_hash(tx_hash, endpoint=endpoint)
+        if tx_response is not None:
+            block_hash = tx_response.get( "blockHash", "0x00" )
+            unique_chars = "".join( set( list( block_hash[ 2 : ] ) ) )
+            if unique_chars != "0":
+                return tx_response
+        time.sleep(random.uniform(0.2, 0.5))
+    raise TxConfirmationTimedoutError("Could not confirm transactions on-chain.")
