@@ -9,6 +9,7 @@ from pyhmy.numbers import (
 
 # other transactions (create/edit validator) are in test_validator.py
 # test_delegate is the same as test_undelegate (except the directive) so it has been omitted
+# staking transactions without a chain id have been omitted as well, since the node does not accept them anyway
 
 """
 let stakingTx
@@ -27,16 +28,16 @@ const signed = stakingTx.rlpSign('4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd
 console.log( 'Signed transaction' )
 console.log(signed)
 """
-def test_collect_rewards_no_chain_id():
-    transaction_dict = {
-        'directive': staking_structures.Directive.CollectRewards,
-        'delegatorAddress': 'one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9',
-        'nonce': 2,
-        'gasPrice': int(convert_one_to_atto(1)),
-        'gasLimit': 100,
-    }
-    signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
-    assert signed_tx.rawTransaction.hex() == '0xf85a04d594ebcd16e8c1d8f493ba04e99a56474122d81a9c5823a0490e4ceb747563ba40da3e0db8a65133cf6f6ae4c48a24866cd6aa1f0d6c2414a06dbd51a67b35b5685e7b7420cba26e63b0e7d3c696fc6cb69d48e54fcad280e9'
+# def test_collect_rewards_no_chain_id():
+#     transaction_dict = {
+#         'directive': staking_structures.Directive.CollectRewards,
+#         'delegatorAddress': 'one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9',
+#         'nonce': 2,
+#         'gasPrice': int(convert_one_to_atto(1)),
+#         'gasLimit': 100,
+#     }
+#     signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
+#     assert signed_tx.rawTransaction.hex() == '0xf85a04d594ebcd16e8c1d8f493ba04e99a56474122d81a9c5823a0490e4ceb747563ba40da3e0db8a65133cf6f6ae4c48a24866cd6aa1f0d6c2414a06dbd51a67b35b5685e7b7420cba26e63b0e7d3c696fc6cb69d48e54fcad280e9'
 
 """
 let stakingTx
@@ -80,7 +81,7 @@ stakingTx = new StakingTransaction(
   2,    // nonce
   numberToHex(new Unit('1').asOne().toWei()),    // gasPrice
   100,  // gasLimit
-  null,    // chainId
+  2,    // chainId
 );
 const signed = stakingTx.rlpSign('4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
 console.log( 'Signed transaction' )
@@ -95,6 +96,7 @@ def test_delegate():
         'nonce': 2,
         'gasPrice': int(convert_one_to_atto(1)),
         'gasLimit': 100,
+        'chainId': 2,
     }
     signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
-    assert signed_tx.rawTransaction.hex() == '0xf87002eb94ebcd16e8c1d8f493ba04e99a56474122d81a9c5894ebcd16e8c1d8f493ba04e99a56474122d81a9c580523a0aceff4166ec0ecd0cc664fed865270fe77b35e408138950f802129f1f3d06a74a06f9aca402fb6b4842bff8d65f430d82eefa95645e9046b102195d1044993f9fe'
+    assert signed_tx.rawTransaction.hex() == '0xf87b02eb94ebcd16e8c1d8f493ba04e99a56474122d81a9c5894ebcd16e8c1d8f493ba04e99a56474122d81a9c580502880de0b6b3a76400006428a0c856fd483a989ca4db4b5257f6996729527828fb21ec13cc65f0bffe6c015ab1a05e9d3c92742e8cb7450bebdfb7ad277ccbfc9fa0719db0b12a715a0a173cadd6'

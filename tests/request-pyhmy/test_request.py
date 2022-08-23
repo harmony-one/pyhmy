@@ -33,7 +33,6 @@ def setup():
         pytest.skip("can not connect to local blockchain", allow_module_level=True)
 
 
-@pytest.mark.run(order=1)
 def test_request_connection_error():
     # Find available port
     s = socket.socket()
@@ -52,7 +51,6 @@ def test_request_connection_error():
     assert bad_request is None
 
 
-@pytest.mark.run(order=2)
 def test_request_rpc_error():
     error_request = None
     try:
@@ -64,7 +62,6 @@ def test_request_rpc_error():
     assert error_request is None
 
 
-@pytest.mark.run(order=3)
 def test_rpc_request():
     endpoint = 'http://localhost:9500'
     timeout = 30

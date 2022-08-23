@@ -1,13 +1,10 @@
 from decimal import Decimal
 
-import pytest
-
 from pyhmy import (
     numbers
 )
 
 
-@pytest.mark.run(order=1)
 def test_convert_atto_to_one():
     a = numbers.convert_atto_to_one(1e18)
     assert Decimal(1) == a
@@ -21,7 +18,6 @@ def test_convert_atto_to_one():
     d = numbers.convert_atto_to_one(Decimal(1e18))
     assert Decimal(1) == d
 
-@pytest.mark.run(order=2)
 def test_convert_one_to_atto():
     a = numbers.convert_one_to_atto(1e-18)
     assert Decimal(1) == a
