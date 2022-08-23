@@ -1,7 +1,15 @@
-from cytoolz import (
+"""
+Sign Harmony staking transactions
+"""
+
+import math
+
+from decimal import Decimal
+
+from functools import partial
+from toolz import (
     pipe,
     dissoc,
-    partial,
     merge,
     identity,
 )
@@ -9,10 +17,6 @@ from cytoolz import (
 from hexbytes import HexBytes
 
 import rlp
-
-import math
-
-from decimal import Decimal
 
 from eth_account.datastructures import SignedTransaction
 
@@ -30,11 +34,12 @@ from eth_utils.curried import (
     apply_formatter_to_array,
 )
 
+from .constants import PRECISION, MAX_DECIMAL
+
 from .signing import sanitize_transaction
 
 from .staking_structures import (
     FORMATTERS,
-    StakingSettings,
     Directive,
     CreateValidator,
     EditValidator,
@@ -45,12 +50,13 @@ from .staking_structures import (
 from .util import convert_one_to_hex
 
 
+# https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L335
 def _convert_staking_percentage_to_number(
     value,
-):  # https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L335
-    """
-    Convert from staking percentage to integer
-    For example, 0.1 becomes 1000000000000000000
+):
+    """Convert from staking percentage to integer For example, 0.1 becomes
+    1000000000000000000. Since Python floats are problematic with precision,
+    this function is used as a workaround.
 
     Parameters
     ---------
@@ -90,24 +96,23 @@ def _convert_staking_percentage_to_number(
         combined_str += splitted[1]
     elif len(splitted) > 2:
         raise ValueError("Too many periods to be a StakingDecimal string")
-    if length > StakingSettings.PRECISION:
+    if length > PRECISION:
         raise ValueError(
-            "Too much precision, must be less than {StakingSettings.PRECISION}"
+            "Too much precision, must be less than {PRECISION}"
         )
-    zeroes_to_add = StakingSettings.PRECISION - length
+    zeroes_to_add = PRECISION - length
     combined_str += (
         "0" * zeroes_to_add
     )  # This will not have any periods, so it is effectively a large integer
     val = int(combined_str)
-    assert val <= StakingSettings.MAX_DECIMAL, "Staking percentage is too large"
+    assert val <= MAX_DECIMAL, "Staking percentage is too large"
     return val
 
 
 def _get_account_and_transaction(transaction_dict, private_key):
-    """
-    Create account from private key and sanitize the transaction
-        Sanitization involves removal of 'from' key
-        And conversion of chainId key from str to int (if present)
+    """Create account from private key and sanitize the transaction
+    Sanitization involves removal of 'from' key And conversion of chainId key
+    from str to int (if present)
 
     Parameters
     ----------
@@ -134,10 +139,10 @@ def _get_account_and_transaction(transaction_dict, private_key):
     ].value  # convert to value, like in TypeScript
     return account, sanitized_transaction
 
-
+# pylint: disable=too-many-locals,protected-access,invalid-name
 def _sign_transaction_generic(account, sanitized_transaction, parent_serializer):
-    """
-    Sign a generic staking transaction, given the serializer base class and account
+    """Sign a generic staking transaction, given the serializer base class and
+    account.
 
     Paramters
     ---------
@@ -167,7 +172,8 @@ def _sign_transaction_generic(account, sanitized_transaction, parent_serializer)
             parent_serializer.SignedChainId(),
         )  # since chain_id_to_v adds v/r/s, unsigned is not used here
     # fill the transaction
-    filled_transaction = pipe(  # https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L39
+    # https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L39
+    filled_transaction = pipe(
         sanitized_transaction,
         dict,
         partial(merge, {"chainId": None}),
@@ -175,8 +181,8 @@ def _sign_transaction_generic(account, sanitized_transaction, parent_serializer)
         apply_formatters_to_dict(FORMATTERS),
     )
     # get the unsigned transaction
-    for f, _ in unsigned_serializer._meta.fields:
-        assert f in filled_transaction, f"Could not find {f} in transaction"
+    for field, _ in unsigned_serializer._meta.fields:
+        assert field in filled_transaction, f"Could not find {field} in transaction"
     unsigned_transaction = unsigned_serializer.from_dict(
         {f: filled_transaction[f] for f, _ in unsigned_serializer._meta.fields}
     )  # drop extras silently
@@ -191,11 +197,12 @@ def _sign_transaction_generic(account, sanitized_transaction, parent_serializer)
         unsigned_transaction.as_dict(), "v", "r", "s"
     )  # remove extra v/r/s added by chain_id_to_v
     # serialize it
+    # https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L207
     signed_transaction = signed_serializer(
         v=v
         + (
             8 if chain_id is None else 0
-        ),  # copied from https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L207
+        ),
         r=r,
         s=s,  # in the below statement, remove everything not expected by signed_serializer
         **{
@@ -218,11 +225,9 @@ def _sign_transaction_generic(account, sanitized_transaction, parent_serializer)
     )
 
 
-def _sign_delegate_or_undelegate(transaction_dict, private_key, delegate):
-    """
-    Sign a delegate or undelegate transaction
-    See sign_staking_transaction for details
-    """
+def _sign_delegate_or_undelegate(transaction_dict, private_key):
+    """Sign a delegate or undelegate transaction See sign_staking_transaction
+    for details."""
     # preliminary steps
     if transaction_dict["directive"] not in [Directive.Delegate, Directive.Undelegate]:
         raise TypeError(
@@ -247,10 +252,8 @@ def _sign_delegate_or_undelegate(transaction_dict, private_key, delegate):
 
 
 def _sign_collect_rewards(transaction_dict, private_key):
-    """
-    Sign a collect rewards transaction
-    See sign_staking_transaction for details
-    """
+    """Sign a collect rewards transaction See sign_staking_transaction for
+    details."""
     # preliminary steps
     if transaction_dict["directive"] != Directive.CollectRewards:
         raise TypeError("Only CollectRewards is supported by _sign_collect_rewards")
@@ -268,10 +271,8 @@ def _sign_collect_rewards(transaction_dict, private_key):
 
 
 def _sign_create_validator(transaction_dict, private_key):
-    """
-    Sign a create validator transaction
-    See sign_staking_transaction for details
-    """
+    """Sign a create validator transaction See sign_staking_transaction for
+    details."""
     # preliminary steps
     if transaction_dict["directive"] != Directive.CreateValidator:
         raise TypeError(
@@ -343,10 +344,8 @@ def _sign_create_validator(transaction_dict, private_key):
 
 
 def _sign_edit_validator(transaction_dict, private_key):
-    """
-    Sign an edit validator transaction
-    See sign_staking_transaction for details
-    """
+    """Sign an edit validator transaction See sign_staking_transaction for
+    details."""
     # preliminary steps
     if transaction_dict["directive"] != Directive.EditValidator:
         raise TypeError(
@@ -377,6 +376,7 @@ def _sign_edit_validator(transaction_dict, private_key):
             ),  # max total delegation (in ONE), decimals are silently dropped
             hexstr_if_str(to_bytes),  # key to remove
             hexstr_if_str(to_bytes),  # key to add
+            hexstr_if_str(to_bytes),  # key to add sig
         ],
         [
             convert_one_to_hex(sanitized_transaction.pop("validatorAddress")),
@@ -388,14 +388,14 @@ def _sign_edit_validator(transaction_dict, private_key):
             math.floor(sanitized_transaction.pop("max-total-delegation")),
             sanitized_transaction.pop("bls-key-to-remove"),
             sanitized_transaction.pop("bls-key-to-add"),
+            sanitized_transaction.pop("bls-key-to-add-sig"),
         ],
     )
     return _sign_transaction_generic(account, sanitized_transaction, EditValidator)
 
 
 def sign_staking_transaction(transaction_dict, private_key):
-    """
-    Sign a supplied transaction_dict with the private_key
+    """Sign a supplied transaction_dict with the private_key.
 
     Parameters
     ----------
@@ -464,7 +464,7 @@ def sign_staking_transaction(transaction_dict, private_key):
     assert isinstance(
         transaction_dict, dict
     ), "Only dictionaries are supported"  # OrderedDict is a subclass
-    # chain_id missing => 'rlp: input string too long for uint64, decoding into (types.StakingTransaction)(types.txdata).GasLimit'
+    # chain_id missing => results in rlp decoding error for GasLimit
     assert "chainId" in transaction_dict, "chainId missing"
     assert "directive" in transaction_dict, "Staking transaction type not specified"
     assert isinstance(
@@ -472,11 +472,12 @@ def sign_staking_transaction(transaction_dict, private_key):
     ), "Unknown staking transaction type"
     if transaction_dict["directive"] == Directive.CollectRewards:
         return _sign_collect_rewards(transaction_dict, private_key)
-    elif transaction_dict["directive"] == Directive.Delegate:
-        return _sign_delegate_or_undelegate(transaction_dict, private_key, True)
-    elif transaction_dict["directive"] == Directive.Undelegate:
-        return _sign_delegate_or_undelegate(transaction_dict, private_key, False)
-    elif transaction_dict["directive"] == Directive.CreateValidator:
+    if transaction_dict["directive"] == Directive.Delegate:
+        return _sign_delegate_or_undelegate(transaction_dict, private_key)
+    if transaction_dict["directive"] == Directive.Undelegate:
+        return _sign_delegate_or_undelegate(transaction_dict, private_key)
+    if transaction_dict["directive"] == Directive.CreateValidator:
         return _sign_create_validator(transaction_dict, private_key)
-    elif transaction_dict["directive"] == Directive.EditValidator:
+    if transaction_dict["directive"] == Directive.EditValidator:
         return _sign_edit_validator(transaction_dict, private_key)
+    raise ValueError('Unknown staking transaction type')

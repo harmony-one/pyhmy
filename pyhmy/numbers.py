@@ -1,3 +1,8 @@
+"""
+Handles conversion of ONE to ATTO and vice versa
+For more granular conversions, see Web3.toWei
+"""
+
 from decimal import Decimal
 
 
@@ -5,8 +10,7 @@ _conversion_unit = Decimal(1e18)
 
 
 def convert_atto_to_one(atto) -> Decimal:
-    """
-    Convert ATTO to ONE
+    """Convert ATTO to ONE.
 
     Parameters
     ----------
@@ -25,8 +29,7 @@ def convert_atto_to_one(atto) -> Decimal:
 
 
 def convert_one_to_atto(one) -> Decimal:
-    """
-    Convert ONE to ATTO
+    """Convert ONE to ATTO.
 
     Parameters
     ----------

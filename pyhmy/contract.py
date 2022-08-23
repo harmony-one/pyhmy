@@ -1,34 +1,36 @@
+"""
+Basic smart contract functions on Harmony
+For full ABI driven interaction, use something like web3py or brownie
+"""
+
 from .rpc.request import rpc_request
 
 from .transaction import get_transaction_receipt
 
 from .exceptions import InvalidRPCReplyError
 
-
-_default_endpoint = "http://localhost:9500"
-_default_timeout = 30
+from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
 
 
 #########################
 # Smart contract RPCs
 #########################
-def call(
-    to,
+def call( # pylint: disable=too-many-arguments
+    to_address,
     block_num,
     from_address=None,
     gas=None,
     gas_price=None,
     value=None,
     data=None,
-    endpoint=_default_endpoint,
-    timeout=_default_timeout,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
 ) -> str:
-    """
-    Execute a smart contract without saving state
+    """Execute a smart contract without saving state.
 
     Parameters
     ----------
-    to: :obj:`str`
+    to_address: :obj:`str`
         Address of the smart contract
     block_num: :obj:`int`
         Block number to execute the contract for
@@ -55,7 +57,7 @@ def call(
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
@@ -63,7 +65,7 @@ def call(
     """
     params = [
         {
-            "to": to,
+            "to": to_address,
             "from": from_address,
             "gas": gas,
             "gasPrice": gas_price,
@@ -77,26 +79,25 @@ def call(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
-def estimate_gas(
-    to,
+def estimate_gas( # pylint: disable=too-many-arguments
+    to_address,
     from_address=None,
     gas=None,
     gas_price=None,
     value=None,
     data=None,
-    endpoint=_default_endpoint,
-    timeout=_default_timeout,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
 ) -> int:
-    """
-    Estimate the gas price needed for a smart contract call
+    """Estimate the gas price needed for a smart contract call.
 
     Parameters
     ----------
-    to: :obj:`str`
+    to_address: :obj:`str`
         Address of the smart contract
     from_address: :obj:`str`, optional
         Wallet address
@@ -121,7 +122,7 @@ def estimate_gas(
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
@@ -129,7 +130,7 @@ def estimate_gas(
     """
     params = [
         {
-            "to": to,
+            "to": to_address,
             "from": from_address,
             "gas": gas,
             "gasPrice": gas_price,
@@ -145,15 +146,15 @@ def estimate_gas(
             ],
             16,
         )
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_code(
-    address, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+    address, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> str:
-    """
-    Get the code stored at the given address in the state for the given block number
+    """Get the code stored at the given address in the state for the given
+    block number.
 
     Parameters
     ----------
@@ -174,7 +175,7 @@ def get_code(
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
@@ -187,15 +188,15 @@ def get_code(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_storage_at(
-    address, key, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+    address, key, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> str:
-    """
-    Get the storage from the state at the given address, the key and the block number
+    """Get the storage from the state at the given address, the key and the
+    block number.
 
     Parameters
     ----------
@@ -218,7 +219,7 @@ def get_storage_at(
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
@@ -231,16 +232,15 @@ def get_storage_at(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_contract_address_from_hash(
-    tx_hash, endpoint=_default_endpoint, timeout=_default_timeout
+    tx_hash, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> str:
-    """
-    Get address of the contract which was deployed in the transaction
-        represented by tx_hash
+    """Get address of the contract which was deployed in the transaction
+    represented by tx_hash.
 
     Parameters
     ----------
@@ -259,7 +259,7 @@ def get_contract_address_from_hash(
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
@@ -267,5 +267,5 @@ def get_contract_address_from_hash(
     """
     try:
         return get_transaction_receipt(tx_hash, endpoint, timeout)["contractAddress"]
-    except KeyError as e:
-        raise InvalidRPCReplyError("hmyv2_getTransactionReceipt", endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError("hmyv2_getTransactionReceipt", endpoint) from exception

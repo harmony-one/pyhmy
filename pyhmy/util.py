@@ -1,10 +1,15 @@
+"""
+Basic pyhmy utils like is_shard_active
+ONE address format conversion
+Chain id (str) to int conversion
+"""
 import json
 import subprocess
 import os
 import sys
 import datetime
 
-import requests
+from eth_utils import to_checksum_address
 
 from .blockchain import get_latest_header
 
@@ -18,16 +23,11 @@ from .account import is_valid_address
 
 from .bech32.bech32 import bech32_decode, bech32_encode, convertbits
 
-from eth_utils import to_checksum_address
-
-datetime_format = "%Y-%m-%d %H:%M:%S.%f"
-
-
 class Typgpy(str):
-    """
-    Typography constants for pretty printing.
+    """Typography constants for pretty printing.
 
-    Note that an ENDC is needed to mark the end of a 'highlighted' text segment.
+    Note that an ENDC is needed to mark the end of a 'highlighted' text
+    segment.
     """
 
     HEADER = "\033[95m"
@@ -40,8 +40,14 @@ class Typgpy(str):
     UNDERLINE = "\033[4m"
 
 
-def chain_id_to_int(chainId):
-    chainIds = dict(
+def chain_id_to_int(chain_id):
+    """
+    If chain_id is a string, converts it to int.
+    If chain_id is an int, returns the int.
+
+    Else raises TypeError
+    """
+    chain_ids = dict(
         Default=0,
         EthMainnet=1,
         Morden=2,
@@ -61,15 +67,14 @@ def chain_id_to_int(chainId):
     )
 
     # do not validate integer chainids, only known strings
-    if isinstance(chainId, str):
+    if isinstance(chain_id, str):
         assert (
-            chainId in chainIds
-        ), f"Chain {chainId} unknown, specify an integer chainId"
-        return chainIds.get(chainId)
-    elif isinstance(chainId, int):
-        return chainId
-    else:
-        raise TypeError("chainId must be str or int")
+            chain_id in chain_ids
+        ), f"Chain {chain_id} unknown, specify an integer chainId"
+        return chain_ids.get(chain_id)
+    if isinstance(chain_id, int):
+        return chain_id
+    raise TypeError("chainId must be str or int")
 
 
 def get_gopath():
@@ -87,29 +92,25 @@ def get_goversion():
 
 
 def convert_one_to_hex(addr):
-    """
-    Given a one address, convert it to hex checksum address
-    """
+    """Given a one address, convert it to hex checksum address."""
     if not is_valid_address(addr):
         return to_checksum_address(addr)
-    hrp, data = bech32_decode(addr)
+    _, data = bech32_decode(addr)
     buf = convertbits(data, 5, 8, False)
-    address = "0x" + "".join("{:02x}".format(x) for x in buf)
-    return to_checksum_address(address)
+    address = "0x" + "".join(f"{x:02x}" for x in buf)
+    return str(to_checksum_address(address))
 
 
 def convert_hex_to_one(addr):
-    """
-    Given a hex address, convert it to a one address
-    """
+    """Given a hex address, convert it to a one address."""
     if is_valid_address(addr):
         return addr
-    checksum_addr = to_checksum_address(addr)
+    checksum_addr = str(to_checksum_address(addr))
     data = bytearray.fromhex(
         checksum_addr[2:] if checksum_addr.startswith("0x") else checksum_addr
     )
     buf = convertbits(data, 8, 5)
-    return bech32_encode("one", buf)
+    return str(bech32_encode("one", buf))
 
 
 def is_active_shard(endpoint, delay_tolerance=60):
@@ -146,10 +147,10 @@ def get_bls_build_variables():
             subprocess.check_output(["which", "openssl"])
             .decode()
             .strip()
-            .split("\n")[0]
+            .split("\n", maxsplit=1)[0]
         )
-    except (IndexError, subprocess.CalledProcessError) as e:
-        raise RuntimeError("`openssl` not found") from e
+    except (IndexError, subprocess.CalledProcessError) as exception:
+        raise RuntimeError("`openssl` not found") from exception
     hmy_path = f"{get_gopath()}/src/github.com/harmony-one"
     bls_dir = f"{hmy_path}/bls"
     mcl_dir = f"{hmy_path}/mcl"
@@ -179,6 +180,6 @@ def json_load(string, **kwargs):
     """
     try:
         return json.loads(string, **kwargs)
-    except Exception as e:
+    except Exception as exception:
         print(f"{Typgpy.FAIL}Could not parse input: '{string}'{Typgpy.ENDC}")
-        raise e from e
+        raise exception

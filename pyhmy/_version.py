@@ -1,6 +1,4 @@
-"""
-Provides pyhmy version information.
-"""
+"""Provides pyhmy version information."""
 
 # This file is auto-generated! Do not edit!
 # Use `python -m incremental.update pyhmy` to change this file.

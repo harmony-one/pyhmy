@@ -1,15 +1,28 @@
+"""
+Load validator information from Harmony blockchain
+Create and edit validators
+"""
 import json
+from decimal import Decimal, InvalidOperation
 
 from eth_account.datastructures import SignedTransaction
 
-from decimal import Decimal, InvalidOperation
+from .account import is_valid_address
 
-from .account import get_balance, is_valid_address
+from .constants import (
+    DEFAULT_ENDPOINT,
+    DEFAULT_TIMEOUT,
+    NAME_CHAR_LIMIT,
+    IDENTITY_CHAR_LIMIT,
+    WEBSITE_CHAR_LIMIT,
+    SECURITY_CONTACT_CHAR_LIMIT,
+    DETAILS_CHAR_LIMIT,
+    MIN_REQUIRED_DELEGATION,
+)
 
-from .numbers import convert_one_to_atto
+from .exceptions import InvalidValidatorError
 
-from .exceptions import (
-    InvalidValidatorError,
+from .rpc.exceptions import (
     RPCError,
     RequestsError,
     RequestsTimeoutError,
@@ -21,18 +34,10 @@ from .staking_structures import Directive
 
 from .staking_signing import sign_staking_transaction
 
-_default_endpoint = "http://localhost:9500"
-_default_timeout = 30
-
-# TODO: Add unit testing
-class Validator:
-
-    name_char_limit = 140
-    identity_char_limit = 140
-    website_char_limit = 140
-    security_contact_char_limit = 140
-    details_char_limit = 280
-    min_required_delegation = convert_one_to_atto(10000)  # in ATTO
+class Validator: # pylint: disable=too-many-instance-attributes, too-many-public-methods
+    """
+    Harmony validator
+    """
 
     def __init__(self, address):
         if not isinstance(address, str):
@@ -58,8 +63,7 @@ class Validator:
         self._max_rate = None
 
     def _sanitize_input(self, data, check_str=False) -> str:
-        """
-        If data is None, return '' else return data
+        """If data is None, return '' else return data.
 
         Raises
         ------
@@ -69,14 +73,13 @@ class Validator:
             if not isinstance(data, str):
                 raise InvalidValidatorError(
                     3,
-                    f"Expected data to be string to avoid floating point precision issues but got {data}",
+                    "Expected data to be string "
+                    f"to avoid floating point precision issues but got {data}",
                 )
         return "" if not data else str(data)
 
     def __str__(self) -> str:
-        """
-        Returns JSON string representation of Validator fields
-        """
+        """Returns JSON string representation of Validator fields."""
         info = self.export()
         for key, value in info.items():
             if isinstance(value, Decimal):
@@ -87,8 +90,7 @@ class Validator:
         return f"<Validator: {hex(id(self))}>"
 
     def get_address(self) -> str:
-        """
-        Get validator address
+        """Get validator address.
 
         Returns
         -------
@@ -98,8 +100,7 @@ class Validator:
         return self._address
 
     def add_bls_key(self, key) -> bool:
-        """
-        Add BLS public key to validator BLS keys if not already in list
+        """Add BLS public key to validator BLS keys if not already in list.
 
         Returns
         -------
@@ -113,8 +114,7 @@ class Validator:
         return False
 
     def remove_bls_key(self, key) -> bool:
-        """
-        Remove BLS public key from validator BLS keys if exists
+        """Remove BLS public key from validator BLS keys if exists.
 
         Returns
         -------
@@ -128,8 +128,7 @@ class Validator:
         return False
 
     def get_bls_keys(self) -> list:
-        """
-        Get list of validator BLS keys
+        """Get list of validator BLS keys.
 
         Returns
         -------
@@ -139,8 +138,7 @@ class Validator:
         return self._bls_keys
 
     def add_bls_key_sig(self, key) -> bool:
-        """
-        Add BLS public key to validator BLS keys if not already in list
+        """Add BLS public key to validator BLS keys if not already in list.
 
         Returns
         -------
@@ -154,8 +152,7 @@ class Validator:
         return False
 
     def remove_bls_key_sig(self, key) -> bool:
-        """
-        Remove BLS public key from validator BLS keys if exists
+        """Remove BLS public key from validator BLS keys if exists.
 
         Returns
         -------
@@ -169,8 +166,7 @@ class Validator:
         return False
 
     def get_bls_key_sigs(self) -> list:
-        """
-        Get list of validator BLS keys
+        """Get list of validator BLS keys.
 
         Returns
         -------
@@ -180,8 +176,7 @@ class Validator:
         return self._bls_key_sigs
 
     def set_name(self, name):
-        """
-        Set validator name
+        """Set validator name.
 
         Parameters
         ----------
@@ -194,15 +189,14 @@ class Validator:
             If input is invalid
         """
         name = self._sanitize_input(name)
-        if len(name) > self.name_char_limit:
+        if len(name) > NAME_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Name must be less than {self.name_char_limit} characters"
+                3, f"Name must be less than {NAME_CHAR_LIMIT} characters"
             )
         self._name = name
 
     def get_name(self) -> str:
-        """
-        Get validator name
+        """Get validator name.
 
         Returns
         -------
@@ -212,8 +206,7 @@ class Validator:
         return self._name
 
     def set_identity(self, identity):
-        """
-        Set validator identity
+        """Set validator identity.
 
         Parameters
         ----------
@@ -226,15 +219,14 @@ class Validator:
             If input is invalid
         """
         identity = self._sanitize_input(identity)
-        if len(identity) > self.identity_char_limit:
+        if len(identity) > IDENTITY_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Identity must be less than {self.identity_char_limit} characters"
+                3, f"Identity must be less than {IDENTITY_CHAR_LIMIT} characters"
             )
         self._identity = identity
 
     def get_identity(self) -> str:
-        """
-        Get validator identity
+        """Get validator identity.
 
         Returns
         -------
@@ -244,8 +236,7 @@ class Validator:
         return self._identity
 
     def set_website(self, website):
-        """
-        Set validator website
+        """Set validator website.
 
         Parameters
         ----------
@@ -258,15 +249,14 @@ class Validator:
             If input is invalid
         """
         website = self._sanitize_input(website)
-        if len(website) > self.website_char_limit:
+        if len(website) > WEBSITE_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Website must be less than {self.website_char_limit} characters"
+                3, f"Website must be less than {WEBSITE_CHAR_LIMIT} characters"
             )
         self._website = website
 
     def get_website(self) -> str:
-        """
-        Get validator website
+        """Get validator website.
 
         Returns
         -------
@@ -276,8 +266,7 @@ class Validator:
         return self._website
 
     def set_security_contact(self, contact):
-        """
-        Set validator security contact
+        """Set validator security contact.
 
         Parameters
         ----------
@@ -290,16 +279,15 @@ class Validator:
             If input is invalid
         """
         contact = self._sanitize_input(contact)
-        if len(contact) > self.security_contact_char_limit:
+        if len(contact) > SECURITY_CONTACT_CHAR_LIMIT:
             raise InvalidValidatorError(
                 3,
-                f"Security contact must be less than {self.security_contact_char_limit} characters",
+                f"Security contact must be less than {SECURITY_CONTACT_CHAR_LIMIT} characters",
             )
         self._security_contact = contact
 
     def get_security_contact(self) -> str:
-        """
-        Get validator security contact
+        """Get validator security contact.
 
         Returns
         -------
@@ -309,8 +297,7 @@ class Validator:
         return self._security_contact
 
     def set_details(self, details):
-        """
-        Set validator details
+        """Set validator details.
 
         Parameters
         ----------
@@ -323,15 +310,14 @@ class Validator:
             If input is invalid
         """
         details = self._sanitize_input(details)
-        if len(details) > self.details_char_limit:
+        if len(details) > DETAILS_CHAR_LIMIT:
             raise InvalidValidatorError(
-                3, f"Details must be less than {self.details_char_limit} characters"
+                3, f"Details must be less than {DETAILS_CHAR_LIMIT} characters"
             )
         self._details = details
 
     def get_details(self) -> str:
-        """
-        Get validator details
+        """Get validator details.
 
         Returns
         -------
@@ -341,8 +327,7 @@ class Validator:
         return self._details
 
     def set_min_self_delegation(self, delegation):
-        """
-        Set validator min self delegation
+        """Set validator min self delegation.
 
         Parameters
         ----------
@@ -357,20 +342,19 @@ class Validator:
         delegation = self._sanitize_input(delegation)
         try:
             delegation = Decimal(delegation)
-        except (TypeError, InvalidOperation) as e:
+        except (TypeError, InvalidOperation) as exception:
             raise InvalidValidatorError(
                 3, "Min self delegation must be a number"
-            ) from e
-        if delegation < self.min_required_delegation:
+            ) from exception
+        if delegation < MIN_REQUIRED_DELEGATION:
             raise InvalidValidatorError(
                 3,
-                f"Min self delegation must be greater than {self.min_required_delegation} ATTO",
+                f"Min self delegation must be greater than {MIN_REQUIRED_DELEGATION} ATTO",
             )
         self._min_self_delegation = delegation
 
     def get_min_self_delegation(self) -> Decimal:
-        """
-        Get validator min self delegation
+        """Get validator min self delegation.
 
         Returns
         -------
@@ -380,8 +364,7 @@ class Validator:
         return self._min_self_delegation
 
     def set_max_total_delegation(self, max_delegation):
-        """
-        Set validator max total delegation
+        """Set validator max total delegation.
 
         Parameters
         ----------
@@ -396,16 +379,16 @@ class Validator:
         max_delegation = self._sanitize_input(max_delegation)
         try:
             max_delegation = Decimal(max_delegation)
-        except (TypeError, InvalidOperation) as e:
+        except (TypeError, InvalidOperation) as exception:
             raise InvalidValidatorError(
                 3, "Max total delegation must be a number"
-            ) from e
+            ) from exception
         if self._min_self_delegation:
             if max_delegation < self._min_self_delegation:
                 raise InvalidValidatorError(
                     3,
-                    f"Max total delegation must be greater than min self delegation: "
-                    "{self._min_self_delegation}",
+                    "Max total delegation must be greater than min self delegation: "
+                    f"{self._min_self_delegation}",
                 )
         else:
             raise InvalidValidatorError(
@@ -414,8 +397,7 @@ class Validator:
         self._max_total_delegation = max_delegation
 
     def get_max_total_delegation(self) -> Decimal:
-        """
-        Get validator max total delegation
+        """Get validator max total delegation.
 
         Returns
         -------
@@ -425,8 +407,7 @@ class Validator:
         return self._max_total_delegation
 
     def set_amount(self, amount):
-        """
-        Set validator initial delegation amount
+        """Set validator initial delegation amount.
 
         Parameters
         ----------
@@ -441,8 +422,8 @@ class Validator:
         amount = self._sanitize_input(amount)
         try:
             amount = Decimal(amount)
-        except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, "Amount must be a number") from e
+        except (TypeError, InvalidOperation) as exception:
+            raise InvalidValidatorError(3, "Amount must be a number") from exception
         if self._min_self_delegation:
             if amount < self._min_self_delegation:
                 raise InvalidValidatorError(
@@ -468,8 +449,7 @@ class Validator:
         self._inital_delegation = amount
 
     def get_amount(self) -> Decimal:
-        """
-        Get validator initial delegation amount
+        """Get validator initial delegation amount.
 
         Returns
         -------
@@ -479,8 +459,7 @@ class Validator:
         return self._inital_delegation
 
     def set_max_rate(self, rate):
-        """
-        Set validator max commission rate
+        """Set validator max commission rate.
 
         Parameters
         ----------
@@ -495,15 +474,14 @@ class Validator:
         rate = self._sanitize_input(rate, True)
         try:
             rate = Decimal(rate)
-        except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, "Max rate must be a number") from e
+        except (TypeError, InvalidOperation) as exception:
+            raise InvalidValidatorError(3, "Max rate must be a number") from exception
         if rate < 0 or rate > 1:
             raise InvalidValidatorError(3, "Max rate must be between 0 and 1")
         self._max_rate = rate
 
     def get_max_rate(self) -> Decimal:
-        """
-        Get validator max commission rate
+        """Get validator max commission rate.
 
         Returns
         -------
@@ -513,8 +491,7 @@ class Validator:
         return self._max_rate
 
     def set_max_change_rate(self, rate):
-        """
-        Set validator max commission change rate
+        """Set validator max commission change rate.
 
         Parameters
         ----------
@@ -529,8 +506,8 @@ class Validator:
         rate = self._sanitize_input(rate, True)
         try:
             rate = Decimal(rate)
-        except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, "Max change rate must be a number") from e
+        except (TypeError, InvalidOperation) as exception:
+            raise InvalidValidatorError(3, "Max change rate must be a number") from exception
         if rate < 0:
             raise InvalidValidatorError(
                 3, "Max change rate must be greater than or equal to 0"
@@ -548,8 +525,7 @@ class Validator:
         self._max_change_rate = rate
 
     def get_max_change_rate(self) -> Decimal:
-        """
-        Get validator max commission change rate
+        """Get validator max commission change rate.
 
         Returns
         -------
@@ -559,8 +535,7 @@ class Validator:
         return self._max_change_rate
 
     def set_rate(self, rate):
-        """
-        Set validator commission rate
+        """Set validator commission rate.
 
         Parameters
         ----------
@@ -575,8 +550,8 @@ class Validator:
         rate = self._sanitize_input(rate, True)
         try:
             rate = Decimal(rate)
-        except (TypeError, InvalidOperation) as e:
-            raise InvalidValidatorError(3, "Rate must be a number") from e
+        except (TypeError, InvalidOperation) as exception:
+            raise InvalidValidatorError(3, "Rate must be a number") from exception
         if rate < 0:
             raise InvalidValidatorError(3, "Rate must be greater than or equal to 0")
         if self._max_rate:
@@ -589,8 +564,7 @@ class Validator:
         self._rate = rate
 
     def get_rate(self) -> Decimal:
-        """
-        Get validator commission rate
+        """Get validator commission rate.
 
         Returns
         -------
@@ -600,10 +574,9 @@ class Validator:
         return self._rate
 
     def does_validator_exist(
-        self, endpoint=_default_endpoint, timeout=_default_timeout
+        self, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
     ) -> bool:
-        """
-        Check if validator exists on blockchain
+        """Check if validator exists on blockchain.
 
         Parameters
         ----------
@@ -628,8 +601,7 @@ class Validator:
         return False
 
     def load(self, info):
-        """
-        Import validator information
+        """Import validator information.
 
         Parameters
         ----------
@@ -680,16 +652,15 @@ class Validator:
             self._bls_key_sigs = []
             for key in info["bls-key-sigs"]:
                 self.add_bls_key_sig(key)
-        except KeyError as e:
-            raise InvalidValidatorError(3, "Info has missing key") from e
+        except KeyError as exception:
+            raise InvalidValidatorError(3, "Info has missing key") from exception
 
     def load_from_blockchain(
-        self, endpoint=_default_endpoint, timeout=_default_timeout
+        self, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
     ):
-        """
-        Import validator information from blockchain with given address
-        At the moment, this is unable to fetch the BLS Signature, which is not implemented
-            in the Node API
+        """Import validator information from blockchain with given address At
+        the moment, this is unable to fetch the BLS Signature, which is not
+        implemented in the Node API.
 
         Parameters
         ----------
@@ -708,16 +679,16 @@ class Validator:
                 raise InvalidValidatorError(
                     5, f"Validator does not exist on chain according to {endpoint}"
                 )
-        except (RPCError, RequestsError, RequestsTimeoutError) as e:
+        except (RPCError, RequestsError, RequestsTimeoutError) as exception:
             raise InvalidValidatorError(
                 5, "Error requesting validator information"
-            ) from e
+            ) from exception
         try:
             validator_info = get_validator_information(self._address, endpoint, timeout)
-        except (RPCError, RequestsError, RequestsTimeoutError) as e:
+        except (RPCError, RequestsError, RequestsTimeoutError) as exception:
             raise InvalidValidatorError(
                 5, "Error requesting validator information"
-            ) from e
+            ) from exception
 
         # Skip additional sanity checks when importing from chain
         try:
@@ -738,14 +709,13 @@ class Validator:
             self._max_change_rate = Decimal(info["max-change-rate"])
             self._rate = Decimal(info["rate"])
             self._bls_keys = info["bls-public-keys"]
-        except KeyError as e:
+        except KeyError as exception:
             raise InvalidValidatorError(
                 5, "Error importing validator information from RPC result"
-            ) from e
+            ) from exception
 
     def export(self) -> dict:
-        """
-        Export validator information as dict
+        """Export validator information as dict.
 
         Returns
         -------
@@ -770,11 +740,11 @@ class Validator:
         }
         return info
 
-    def sign_create_validator_transaction(
+    def sign_create_validator_transaction( # pylint: disable=too-many-arguments
         self, nonce, gas_price, gas_limit, private_key, chain_id=None
     ) -> SignedTransaction:
-        """
-        Create but not post a transaction to Create the Validator using private_key
+        """Create but not post a transaction to Create the Validator using
+        private_key.
 
         Returns
         -------
@@ -799,7 +769,7 @@ class Validator:
             info["chainId"] = chain_id
         return sign_staking_transaction(info, private_key)
 
-    def sign_edit_validator_transaction(
+    def sign_edit_validator_transaction( # pylint: disable=too-many-arguments
         self,
         nonce,
         gas_price,
@@ -811,8 +781,8 @@ class Validator:
         private_key,
         chain_id=None,
     ) -> SignedTransaction:
-        """
-        Create but not post a transaction to Edit the Validator using private_key
+        """Create but not post a transaction to Edit the Validator using
+        private_key.
 
         Returns
         -------

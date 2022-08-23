@@ -1,9 +1,10 @@
+"""
+`pyhmy` for interacting with the Harmony blockchain
+"""
 import sys
 import warnings
 
 from ._version import __version__
-
-from .util import Typgpy, get_gopath, get_goversion, get_bls_build_variables, json_load
 
 if sys.version_info.major < 3:
     warnings.simplefilter("always", DeprecationWarning)

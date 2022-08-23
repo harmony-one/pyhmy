@@ -1,3 +1,9 @@
+"""
+Helper module for signing Harmony staking transactions
+"""
+# disable most of the Lint here
+# pylint: disable=protected-access,no-member,invalid-name,missing-class-docstring,missing-function-docstring
+
 from enum import Enum, auto
 
 from rlp.sedes import big_endian_int, Binary, CountableList, List, Text
@@ -9,16 +15,11 @@ from eth_utils.curried import (
     hexstr_if_str,
 )
 
-
-class StakingSettings:
-    PRECISION = 18
-    MAX_DECIMAL = 1000000000000000000
-
-
+# https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L120
 class Directive(
     Enum
-):  # https://github.com/harmony-one/sdk/blob/99a827782fabcd5f91f025af0d8de228956d42b4/packages/harmony-staking/src/stakingTransaction.ts#L120
-    def _generate_next_value_(name, start, count, last_values):
+):
+    def _generate_next_value_(name, start, count, last_values): # pylint: disable=no-self-argument
         return count
 
     CreateValidator = auto()
@@ -37,7 +38,6 @@ FORMATTERS = {
     "gasLimit": hexstr_if_str(to_int),
     "chainId": hexstr_if_str(to_int),
 }
-
 
 class CollectRewards:
     @staticmethod
@@ -159,23 +159,28 @@ class CreateValidator:
                     "stakeMsg",
                     List(
                         [  # list with the following members
+                            # validatorAddress
                             Binary.fixed_length(
                                 20, allow_empty=True
-                            ),  # validatorAddress
+                            ),
+                            # description is Text of 5 elements
                             List(
                                 [Text()] * 5, True
-                            ),  # description is Text of 5 elements
+                            ),
+                            # commission rate is made up of 3 integers in an array
                             List(
                                 [List([big_endian_int], True)] * 3, True
-                            ),  # commission rate is made up of 3 integers in an array [ [int1], [int2], [int3] ]
+                            ),
                             big_endian_int,  # min self delegation
                             big_endian_int,  # max total delegation
+                            # bls-public-keys array of unspecified length, each key of 48
                             CountableList(
                                 Binary.fixed_length(48, allow_empty=True)
-                            ),  # bls-public-keys array of unspecified length, each key of 48
+                            ),
+                            # bls-key-sigs array of unspecified length, each sig of 96
                             CountableList(
                                 Binary.fixed_length(96, allow_empty=True)
-                            ),  # bls-key-sigs array of unspecified length, each sig of 96
+                            ),
                             big_endian_int,  # amount
                         ],
                         True,
@@ -233,21 +238,30 @@ class EditValidator:
                     "stakeMsg",
                     List(
                         [  # list with the following members
+                            # validatorAddress
                             Binary.fixed_length(
                                 20, allow_empty=True
-                            ),  # validatorAddress
+                            ),
+                            # description is Text of 5 elements
                             List(
                                 [Text()] * 5, True
-                            ),  # description is Text of 5 elements
-                            List([big_endian_int], True),  # new rate is in a list
+                            ),
+                            # new rate is in a list
+                            List([big_endian_int], True),
                             big_endian_int,  # min self delegation
                             big_endian_int,  # max total delegation
+                            # slot key to remove
                             Binary.fixed_length(
                                 48, allow_empty=True
-                            ),  # slot key to remove
+                            ),
+                            # slot key to add
                             Binary.fixed_length(
                                 48, allow_empty=True
-                            ),  # slot key to add
+                            ),
+                            # slot key to add sig
+                            Binary.fixed_length(
+                                96, allow_empty=True
+                            ),
                         ],
                         True,
                     ),

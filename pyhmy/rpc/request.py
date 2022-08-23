@@ -1,19 +1,19 @@
+"""
+RPC wrapper around requests library
+"""
 import json
 
 import requests
 
 from .exceptions import RequestsError, RequestsTimeoutError, RPCError
 
-
-_default_endpoint = "http://localhost:9500"
-_default_timeout = 30
+from ..constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
 
 
 def base_request(
-    method, params=None, endpoint=_default_endpoint, timeout=_default_timeout
+    method, params=None, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> str:
-    """
-    Basic RPC request
+    """Basic RPC request.
 
     Parameters
     ---------
@@ -65,10 +65,9 @@ def base_request(
 
 
 def rpc_request(
-    method, params=None, endpoint=_default_endpoint, timeout=_default_timeout
+    method, params=None, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> dict:
-    """
-    RPC request
+    """RPC request.
 
     Parameters
     ---------
@@ -110,6 +109,3 @@ def rpc_request(
         return resp
     except json.decoder.JSONDecodeError as err:
         raise RPCError(method, endpoint, raw_resp) from err
-
-
-# TODO: Add GET requests

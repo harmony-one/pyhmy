@@ -1,3 +1,6 @@
+"""
+Interact with accounts on the Harmony blockchain
+"""
 from .rpc.request import rpc_request
 
 from .rpc.exceptions import RPCError, RequestsError, RequestsTimeoutError
@@ -8,10 +11,7 @@ from .blockchain import get_sharding_structure
 
 from .bech32.bech32 import bech32_decode
 
-_default_endpoint = "http://localhost:9500"
-_default_timeout = 30
-_address_length = 42
-
+from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
 
 def is_valid_address(address) -> bool:
     """
@@ -36,9 +36,8 @@ def is_valid_address(address) -> bool:
     return True
 
 
-def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get current account balance
+def get_balance(address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT) -> int:
+    """Get current account balance.
 
     Parameters
     ----------
@@ -70,15 +69,14 @@ def get_balance(address, endpoint=_default_endpoint, timeout=_default_timeout) -
             method, params=params, endpoint=endpoint, timeout=timeout
         )["result"]
         return int(balance)  # v2 returns the result as it is
-    except TypeError as e:  # check will work if rpc returns None
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except TypeError as exception:  # check will work if rpc returns None
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_balance_by_block(
-    address, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+    address, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get account balance for address at a given block number
+    """Get account balance for address at a given block number.
 
     Parameters
     ----------
@@ -113,15 +111,14 @@ def get_balance_by_block(
             method, params=params, endpoint=endpoint, timeout=timeout
         )["result"]
         return int(balance)
-    except TypeError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except TypeError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_account_nonce(
-    address, block_num="latest", endpoint=_default_endpoint, timeout=_default_timeout
+    address, block_num="latest", endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get the account nonce
+    """Get the account nonce.
 
     Parameters
     ----------
@@ -155,26 +152,24 @@ def get_account_nonce(
             "result"
         ]
         return int(nonce)
-    except TypeError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except TypeError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_nonce(
-    address, block_num="latest", endpoint=_default_endpoint, timeout=_default_timeout
+    address, block_num="latest", endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    See get_account_nonce
-    """
+    """See get_account_nonce."""
     return get_account_nonce(address, block_num, endpoint, timeout)
 
 
 def get_transaction_count(
-    address, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+    address, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get the number of transactions the given address has sent for the given block number
-    Legacy for apiv1. For apiv2, please use get_account_nonce/get_transactions_count/get_staking_transactions_count apis for
-    more granular transaction counts queries
+    """Get the number of transactions the given address has sent for the given
+    block number Legacy for apiv1. For apiv2, please use
+    get_account_nonce/get_transactions_count/get_staking_transactions_count
+    apis for more granular transaction counts queries.
 
     Parameters
     ----------
@@ -208,15 +203,14 @@ def get_transaction_count(
             "result"
         ]
         return int(nonce)
-    except TypeError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except TypeError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_transactions_count(
-    address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout
+    address, tx_type, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get the number of regular transactions from genesis of input type
+    """Get the number of regular transactions from genesis of input type.
 
     Parameters
     ----------
@@ -252,15 +246,15 @@ def get_transactions_count(
             method, params=params, endpoint=endpoint, timeout=timeout
         )["result"]
         return int(tx_count)
-    except TypeError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except TypeError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_staking_transactions_count(
-    address, tx_type, endpoint=_default_endpoint, timeout=_default_timeout
+    address, tx_type, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get the number of staking transactions from genesis of input type ("SENT", "RECEIVED", "ALL")
+    """Get the number of staking transactions from genesis of input type
+    ("SENT", "RECEIVED", "ALL")
 
     Parameters
     ----------
@@ -296,22 +290,21 @@ def get_staking_transactions_count(
             method, params=params, endpoint=endpoint, timeout=timeout
         )["result"]
         return int(tx_count)
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except (KeyError, TypeError) as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
-def get_transaction_history(
+def get_transaction_history( # pylint: disable=too-many-arguments
     address,
     page=0,
     page_size=1000,
     include_full_tx=False,
     tx_type="ALL",
     order="ASC",
-    endpoint=_default_endpoint,
-    timeout=_default_timeout,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
 ) -> list:
-    """
-    Get list of transactions sent and/or received by the account
+    """Get list of transactions sent and/or received by the account.
 
     Parameters
     ----------
@@ -369,22 +362,21 @@ def get_transaction_history(
             method, params=params, endpoint=endpoint, timeout=timeout
         )
         return tx_history["result"]["transactions"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
-def get_staking_transaction_history(
+def get_staking_transaction_history( # pylint: disable=too-many-arguments
     address,
     page=0,
     page_size=1000,
     include_full_tx=False,
     tx_type="ALL",
     order="ASC",
-    endpoint=_default_endpoint,
-    timeout=_default_timeout,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
 ) -> list:
-    """
-    Get list of staking transactions sent by the account
+    """Get list of staking transactions sent by the account.
 
     Parameters
     ----------
@@ -411,7 +403,8 @@ def get_staking_transaction_history(
     -------
     list of transactions
     if include_full_tx is True, each transaction is a dictionary with the following kets
-        blockHash: :obj:`str` Block hash that transaction was finalized; "0x0000000000000000000000000000000000000000000000000000000000000000" if tx is pending
+        blockHash: :obj:`str` Block hash that transaction was finalized or
+            "0x0000000000000000000000000000000000000000000000000000000000000000" if tx is pending
         blockNumber: :obj:`int` Block number that transaction was finalized; None if tx is pending
         from: :obj:`str` Wallet address
         timestamp: :obj:`int` Timestamp in Unix time when transaction was finalized
@@ -420,7 +413,8 @@ def get_staking_transaction_history(
         hash: :obj:`str` Transaction hash
         nonce: :obj:`int` Wallet nonce for the transaction
         transactionIndex: :obj:`int` Index of transaction in block; None if tx is pending
-        type: :obj:`str` Type of staking transaction, for example, "CollectRewards", "Delegate", "Undelegate"
+        type: :obj:`str` Type of staking transaction
+            for example, "CollectRewards", "Delegate", "Undelegate"
         msg: :obj:`dict` Message attached to the staking transaction
         r: :obj:`str` First 32 bytes of the transaction signature
         s: :obj:`str` Next  32 bytes of the transaction signature
@@ -454,15 +448,15 @@ def get_staking_transaction_history(
             method, params=params, endpoint=endpoint, timeout=timeout
         )["result"]
         return stx_history["staking_transactions"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_balance_on_all_shards(
-    address, skip_error=True, endpoint=_default_endpoint, timeout=_default_timeout
+    address, skip_error=True, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get current account balance in all shards & optionally report errors getting account balance for a shard
+    """Get current account balance in all shards & optionally report errors
+    getting account balance for a shard.
 
     Parameters
     ----------
@@ -507,10 +501,9 @@ def get_balance_on_all_shards(
 
 
 def get_total_balance(
-    address, endpoint=_default_endpoint, timeout=_default_timeout
+    address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get total account balance on all shards
+    """Get total account balance on all shards.
 
     Parameters
     ----------
@@ -540,5 +533,5 @@ def get_total_balance(
             address, skip_error=False, endpoint=endpoint, timeout=timeout
         )
         return sum(b["balance"] for b in balances)
-    except TypeError as e:
-        raise RuntimeError from e
+    except TypeError as exception:
+        raise RuntimeError from exception

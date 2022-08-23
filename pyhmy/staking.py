@@ -1,18 +1,20 @@
+"""
+Call Harmony's staking API
+"""
+
 from .rpc.request import rpc_request
 
 from .exceptions import InvalidRPCReplyError
 
-_default_endpoint = "http://localhost:9500"
-_default_timeout = 30
+from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
 
 ##################
 # Validator RPCs #
 ##################
 def get_all_validator_addresses(
-    endpoint=_default_endpoint, timeout=_default_timeout
+    endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get list of all created validator addresses on chain
+    """Get list of all created validator addresses on chain.
 
     Parameters
     ----------
@@ -38,15 +40,14 @@ def get_all_validator_addresses(
     method = "hmyv2_getAllValidatorAddresses"
     try:
         return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_validator_information(
-    validator_addr, endpoint=_default_endpoint, timeout=_default_timeout
+    validator_addr, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> dict:
-    """
-    Get validator information for validator address
+    """Get validator information for validator address.
 
     Parameters
     ----------
@@ -65,7 +66,8 @@ def get_validator_information(
             bls-public-keys: :obj:`list` List of associated public BLS keys
             last-epoch-in-committee: :obj:`int` Last epoch any key of the validator was elected
             min-self-delegation: :obj:`int` Amount that validator must delegate to self in ATTO
-            max-total-delegation: :obj:`int` Total amount that validator will aceept delegations until, in ATTO
+            max-total-delegation: :obj:`int`
+                Total amount that validator will aceept delegations until, in ATTO
             rate: :obj:`str` Current commission rate
             max-rate: :obj:`str` Max commission rate a validator can charge
             max-change-rate: :obj:`str` Maximum amount the commission rate can increase in one epoch
@@ -76,8 +78,9 @@ def get_validator_information(
             security-contact: :obj:`str` Method to contact the validators
             details: :obj:`str` Validator details, displayed on the Staking Dashboard
             creation-height: :obj:`int` Block number in which the validator was created
-            delegations: :obj:`list` List of delegations, see get_delegations_by_delegator for format
-        metrics: :obj:`dict` BLS key earning metrics for current epoch (or None if no earnings in the current epoch)
+            delegations: :obj:`list`
+                List of delegations, see get_delegations_by_delegator for format
+        metrics: :obj:`dict` BLS key earning metrics for current epoch (or None)
             by-bls-key: :obj:`list` List of dictionaries, each with the following keys
                 key: :obj:`dict` Dictionary with the following keys
                     bls-public-key: :obj:`str` BLS public key
@@ -90,7 +93,8 @@ def get_validator_information(
                 earned-reward: :obj:`int` Lifetime reward key has earned
         total-delegation: :obj:`int` Total amount delegated to validator
         currently-in-committee: :obj:`bool` if key is currently elected
-        epos-status: :obj:`str` Currently elected, eligible to be elected next epoch, or not eligible to be elected next epoch
+        epos-status: :obj:`str` Currently elected, eligible to be elected next epoch,
+            or not eligible to be elected next epoch
         epos-winning-stake: :obj:`str` Total effective stake of the validator
         booted-status: :obj:`str` Banned status
         active-status: :obj:`str` Active or inactive
@@ -119,15 +123,14 @@ def get_validator_information(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_elected_validator_addresses(
-    endpoint=_default_endpoint, timeout=_default_timeout
+    endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get list of elected validator addresses
+    """Get list of elected validator addresses.
 
     Parameters
     ----------
@@ -154,13 +157,12 @@ def get_elected_validator_addresses(
     method = "hmyv2_getElectedValidatorAddresses"
     try:
         return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
-def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get validators list for a particular epoch
+def get_validators(epoch, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT) -> list:
+    """Get validators list for a particular epoch.
 
     Parameters
     ----------
@@ -194,15 +196,14 @@ def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) 
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_validator_keys(
-    epoch, endpoint=_default_endpoint, timeout=_default_timeout
+    epoch, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get validator BLS keys in the committee for a particular epoch
+    """Get validator BLS keys in the committee for a particular epoch.
 
     Parameters
     ----------
@@ -232,15 +233,14 @@ def get_validator_keys(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_validator_information_by_block_number(
-    validator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+    validator_addr, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ):
-    """
-    Get validator information for validator address at a block
+    """Get validator information for validator address at a block.
 
     Parameters
     ----------
@@ -272,15 +272,14 @@ def get_validator_information_by_block_number(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_all_validator_information(
-    page=0, endpoint=_default_endpoint, timeout=_default_timeout
+    page=0, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get validator information for all validators on chain
+    """Get validator information for all validators on chain.
 
     Parameters
     ----------
@@ -310,15 +309,14 @@ def get_all_validator_information(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_validator_self_delegation(
-    address, endpoint=_default_endpoint, timeout=_default_timeout
+    address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get the amount self delegated by validator
+    """Get the amount self delegated by validator.
 
     Parameters
     ----------
@@ -350,15 +348,14 @@ def get_validator_self_delegation(
                 "result"
             ]
         )
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except (KeyError, TypeError) as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_validator_total_delegation(
-    address, endpoint=_default_endpoint, timeout=_default_timeout
+    address, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get the total amount delegated t ovalidator (including self delegated)
+    """Get the total amount delegated t ovalidator (including self delegated)
 
     Parameters
     ----------
@@ -390,15 +387,14 @@ def get_validator_total_delegation(
                 "result"
             ]
         )
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except (KeyError, TypeError) as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_all_validator_information_by_block_number(
-    block_num, page=0, endpoint=_default_endpoint, timeout=_default_timeout
+    block_num, page=0, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get validator information at block number for all validators on chain
+    """Get validator information at block number for all validators on chain.
 
     Parameters
     ----------
@@ -431,18 +427,17 @@ def get_all_validator_information_by_block_number(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 ###################
 # Delegation RPCs #
 ###################
 def get_all_delegation_information(
-    page=0, endpoint=_default_endpoint, timeout=_default_timeout
+    page=0, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get delegation information for all delegators on chain
+    """Get delegation information for all delegators on chain.
 
     Parameters
     ----------
@@ -476,15 +471,14 @@ def get_all_delegation_information(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_delegations_by_delegator(
-    delegator_addr, endpoint=_default_endpoint, timeout=_default_timeout
+    delegator_addr, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get list of delegations by a delegator
+    """Get list of delegations by a delegator.
 
     Parameters
     ----------
@@ -521,15 +515,14 @@ def get_delegations_by_delegator(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_delegations_by_delegator_by_block_number(
-    delegator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout
+    delegator_addr, block_num, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get list of delegations by a delegator at a specific block
+    """Get list of delegations by a delegator at a specific block.
 
     Parameters
     ----------
@@ -561,18 +554,17 @@ def get_delegations_by_delegator_by_block_number(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_delegation_by_delegator_and_validator(
     delegator_addr,
     validator_address,
-    endpoint=_default_endpoint,
-    timeout=_default_timeout,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
 ) -> dict:
-    """
-    Get list of delegations by a delegator at a specific block
+    """Get list of delegations by a delegator at a specific block.
 
     Parameters
     ----------
@@ -587,7 +579,8 @@ def get_delegation_by_delegator_and_validator(
 
     Returns
     -------
-    one delegation (or None if such delegation doesn't exist), see get_delegations_by_delegator for fields
+    one delegation (or None if such delegation doesn't exist)
+    see get_delegations_by_delegator for fields
 
     Raises
     ------
@@ -604,15 +597,14 @@ def get_delegation_by_delegator_and_validator(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_available_redelegation_balance(
-    delegator_addr, endpoint=_default_endpoint, timeout=_default_timeout
+    delegator_addr, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> int:
-    """
-    Get amount of locked undelegated tokens
+    """Get amount of locked undelegated tokens.
 
     Parameters
     ----------
@@ -644,15 +636,14 @@ def get_available_redelegation_balance(
                 "result"
             ]
         )
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except (KeyError, TypeError) as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_delegations_by_validator(
-    validator_addr, endpoint=_default_endpoint, timeout=_default_timeout
+    validator_addr, endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> list:
-    """
-    Get list of delegations to a validator
+    """Get list of delegations to a validator.
 
     Parameters
     ----------
@@ -682,18 +673,17 @@ def get_delegations_by_validator(
         return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)[
             "result"
         ]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 ########################
 # Staking Network RPCs #
 ########################
 def get_current_utility_metrics(
-    endpoint=_default_endpoint, timeout=_default_timeout
+    endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> dict:
-    """
-    Get current utility metrics of network
+    """Get current utility metrics of network.
 
     Parameters
     ----------
@@ -722,15 +712,14 @@ def get_current_utility_metrics(
     method = "hmyv2_getCurrentUtilityMetrics"
     try:
         return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_staking_network_info(
-    endpoint=_default_endpoint, timeout=_default_timeout
+    endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> dict:
-    """
-    Get staking network information
+    """Get staking network information.
 
     Parameters
     ----------
@@ -760,13 +749,12 @@ def get_staking_network_info(
     method = "hmyv2_getStakingNetworkInfo"
     try:
         return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
-def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get voting committees for current & previous epoch
+def get_super_committees(endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT) -> dict:
+    """Get voting committees for current & previous epoch.
 
     Parameters
     ----------
@@ -814,13 +802,12 @@ def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -
     method = "hmyv2_getSuperCommittees"
     try:
         return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
-def get_total_staking(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get total staking by validators, only meant to be called on beaconchain
+def get_total_staking(endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT) -> int:
+    """Get total staking by validators, only meant to be called on beaconchain.
 
     Parameters
     ----------
@@ -845,15 +832,14 @@ def get_total_staking(endpoint=_default_endpoint, timeout=_default_timeout) -> i
     method = "hmyv2_getTotalStaking"
     try:
         return int(rpc_request(method, endpoint=endpoint, timeout=timeout)["result"])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except (KeyError, TypeError) as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception
 
 
 def get_raw_median_stake_snapshot(
-    endpoint=_default_endpoint, timeout=_default_timeout
+    endpoint=DEFAULT_ENDPOINT, timeout=DEFAULT_TIMEOUT
 ) -> dict:
-    """
-    Get median stake & additional committee data of the current epoch
+    """Get median stake & additional committee data of the current epoch.
 
     Parameters
     ----------
@@ -891,5 +877,5 @@ def get_raw_median_stake_snapshot(
     method = "hmyv2_getMedianRawStakeSnapshot"
     try:
         return rpc_request(method, endpoint=endpoint, timeout=timeout)["result"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    except KeyError as exception:
+        raise InvalidRPCReplyError(method, endpoint) from exception

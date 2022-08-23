@@ -1,3 +1,7 @@
+"""
+Logger for pyhmy
+"""
+
 import threading
 import datetime
 import gzip
@@ -6,21 +10,18 @@ import logging
 import logging.handlers
 
 
-class _GZipRotator:
+class _GZipRotator: # pylint: disable=too-few-public-methods
     def __call__(self, source, dest):
         os.rename(source, dest)
-        f_in = open(dest, "rb")
-        f_out = gzip.open("%s.gz" % dest, "wb")
-        f_out.writelines(f_in)
-        f_out.close()
-        f_in.close()
+        with open(dest, "rb") as f_in:
+            with gzip.open(f"{dest}.gz", "wb") as f_out:
+                f_out.writelines(f_in)
         os.remove(dest)
 
 
-class ControlledLogger:
-    """
-    A simple logger that only writes to file when the 'write' method is called.
-    """
+class ControlledLogger: # pylint: disable=too-many-instance-attributes
+    """A simple logger that only writes to file when the 'write' method is
+    called."""
 
     def __init__(self, logger_name, log_dir, backup_count=5):
         """
@@ -51,9 +52,7 @@ class ControlledLogger:
         return f"<ControlledLogger @ {self.filepath} : {self.logger}>"
 
     def _clear(self):
-        """
-        Internal method to clear the log buffer.
-        """
+        """Internal method to clear the log buffer."""
         self.info_buffer.clear()
         self.debug_buffer.clear()
         self.warning_buffer.clear()
@@ -63,85 +62,74 @@ class ControlledLogger:
         """
         :param msg: The info message to log
         """
-        self._lock.acquire()
-        self.info_buffer.append(
-            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
-        )
-        self._lock.release()
+        with self._lock:
+            self.info_buffer.append(
+                f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+            )
 
     def debug(self, msg):
         """
         :param msg: The debug message to log
         """
-        self._lock.acquire()
-        self.debug_buffer.append(
-            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
-        )
-        self._lock.release()
+        with self._lock:
+            self.debug_buffer.append(
+                f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+            )
 
     def warning(self, msg):
         """
         :param msg: The warning message to log
         """
-        self._lock.acquire()
-        self.warning_buffer.append(
-            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
-        )
-        self._lock.release()
+        with self._lock:
+            self.warning_buffer.append(
+                f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+            )
 
     def error(self, msg):
         """
         :param msg: The error message to log
         """
-        self._lock.acquire()
-        self.error_buffer.append(
-            f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
-        )
-        self._lock.release()
+        with self._lock:
+            self.error_buffer.append(
+                f"[{threading.get_ident()}] " f"{datetime.datetime.utcnow()} : {msg}"
+            )
 
     def print_info(self):
-        """
-        Prints the current info buffer but does not flush it to log file.
-        """
+        """Prints the current info buffer but does not flush it to log file."""
         print("\n".join(self.info_buffer))
 
     def print_debug(self):
-        """
-        Prints the current debug buffer but does not flush it to log file.
-        """
+        """Prints the current debug buffer but does not flush it to log
+        file."""
         print("\n".join(self.debug_buffer))
 
     def print_warning(self):
-        """
-        Prints the current warning buffer but does not flush it to log file.
-        """
+        """Prints the current warning buffer but does not flush it to log
+        file."""
         print("\n".join(self.warning_buffer))
 
     def print_error(self):
-        """
-        Prints the current error buffer but does not flush it to log file.
-        """
+        """Prints the current error buffer but does not flush it to log
+        file."""
         print("\n".join(self.error_buffer))
 
     def write(self):
-        """
-        Flushes ALL of the log buffers to the log file via the logger.
+        """Flushes ALL of the log buffers to the log file via the logger.
 
-        Note that directly after this method call, the respective prints will print
-        nothing since all log messages are flushed to file.
+        Note that directly after this method call, the respective prints
+        will print nothing since all log messages are flushed to file.
         """
-        self._lock.acquire()
-        self.logger.setLevel(logging.DEBUG)
-        for line in self.debug_buffer:
-            self.logger.debug(line)
-        self.logger.setLevel(logging.WARNING)
-        for line in self.warning_buffer:
-            self.logger.warning(line)
-        self.logger.setLevel(logging.ERROR)
-        for line in self.error_buffer:
-            self.logger.error(line)
-        self.logger.setLevel(logging.INFO)
-        for line in self.info_buffer:
-            self.logger.info(line)
-        self._clear()
-        self._lock.release()
+        with self._lock:
+            self.logger.setLevel(logging.DEBUG)
+            for line in self.debug_buffer:
+                self.logger.debug(line)
+            self.logger.setLevel(logging.WARNING)
+            for line in self.warning_buffer:
+                self.logger.warning(line)
+            self.logger.setLevel(logging.ERROR)
+            for line in self.error_buffer:
+                self.logger.error(line)
+            self.logger.setLevel(logging.INFO)
+            for line in self.info_buffer:
+                self.logger.info(line)
+            self._clear()
