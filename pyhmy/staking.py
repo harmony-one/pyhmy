@@ -1,16 +1,22 @@
-from .rpc.request import (
-    rpc_request
-)
+"""
+Call Harmony's staking API
+"""
 
-_default_endpoint = 'http://localhost:9500'
-_default_timeout = 30
+from .rpc.request import rpc_request
+
+from .exceptions import InvalidRPCReplyError
+
+from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
+
 
 ##################
 # Validator RPCs #
 ##################
-def get_all_validator_addresses(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of all created validator addresses on chain
+def get_all_validator_addresses(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of all created validator addresses on chain.
 
     Parameters
     ----------
@@ -33,15 +39,21 @@ def get_all_validator_addresses(endpoint=_default_endpoint, timeout=_default_tim
     -------------
     https://api.hmny.io/#69b93657-8d3c-4d20-9c9f-e51f08c9b3f5
     """
-    method = 'hmyv2_getAllValidatorAddresses'
+    method = "hmyv2_getAllValidatorAddresses"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validator_information(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get validator information for validator address
+
+def get_validator_information(
+    validator_addr,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get validator information for validator address.
 
     Parameters
     ----------
@@ -60,7 +72,8 @@ def get_validator_information(validator_addr, endpoint=_default_endpoint, timeou
             bls-public-keys: :obj:`list` List of associated public BLS keys
             last-epoch-in-committee: :obj:`int` Last epoch any key of the validator was elected
             min-self-delegation: :obj:`int` Amount that validator must delegate to self in ATTO
-            max-total-delegation: :obj:`int` Total amount that validator will aceept delegations until, in ATTO
+            max-total-delegation: :obj:`int`
+                Total amount that validator will aceept delegations until, in ATTO
             rate: :obj:`str` Current commission rate
             max-rate: :obj:`str` Max commission rate a validator can charge
             max-change-rate: :obj:`str` Maximum amount the commission rate can increase in one epoch
@@ -71,8 +84,9 @@ def get_validator_information(validator_addr, endpoint=_default_endpoint, timeou
             security-contact: :obj:`str` Method to contact the validators
             details: :obj:`str` Validator details, displayed on the Staking Dashboard
             creation-height: :obj:`int` Block number in which the validator was created
-            delegations: :obj:`list` List of delegations, see get_delegations_by_delegator for format
-        metrics: :obj:`dict` BLS key earning metrics for current epoch (or None if no earnings in the current epoch)
+            delegations: :obj:`list`
+                List of delegations, see get_delegations_by_delegator for format
+        metrics: :obj:`dict` BLS key earning metrics for current epoch (or None)
             by-bls-key: :obj:`list` List of dictionaries, each with the following keys
                 key: :obj:`dict` Dictionary with the following keys
                     bls-public-key: :obj:`str` BLS public key
@@ -85,7 +99,8 @@ def get_validator_information(validator_addr, endpoint=_default_endpoint, timeou
                 earned-reward: :obj:`int` Lifetime reward key has earned
         total-delegation: :obj:`int` Total amount delegated to validator
         currently-in-committee: :obj:`bool` if key is currently elected
-        epos-status: :obj:`str` Currently elected, eligible to be elected next epoch, or not eligible to be elected next epoch
+        epos-status: :obj:`str` Currently elected, eligible to be elected next epoch,
+            or not eligible to be elected next epoch
         epos-winning-stake: :obj:`str` Total effective stake of the validator
         booted-status: :obj:`str` Banned status
         active-status: :obj:`str` Active or inactive
@@ -108,18 +123,24 @@ def get_validator_information(validator_addr, endpoint=_default_endpoint, timeou
     -------------
     https://api.hmny.io/#659ad999-14ca-4498-8f74-08ed347cab49
     """
-    method = 'hmyv2_getValidatorInformation'
-    params = [
-        validator_addr
-    ]
+    method = "hmyv2_getValidatorInformation"
+    params = [ validator_addr ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_elected_validator_addresses(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of elected validator addresses
+
+def get_elected_validator_addresses(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of elected validator addresses.
 
     Parameters
     ----------
@@ -143,15 +164,21 @@ def get_elected_validator_addresses(endpoint=_default_endpoint, timeout=_default
     -------------
     https://api.hmny.io/#e90a6131-d67c-4110-96ef-b283d452632d
     """
-    method = 'hmyv2_getElectedValidatorAddresses'
+    method = "hmyv2_getElectedValidatorAddresses"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get validators list for a particular epoch
+
+def get_validators(
+    epoch,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get validators list for a particular epoch.
 
     Parameters
     ----------
@@ -179,18 +206,25 @@ def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) 
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L152
     """
-    method = 'hmyv2_getValidators'
-    params = [
-        epoch
-    ]
+    method = "hmyv2_getValidators"
+    params = [ epoch ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get validator BLS keys in the committee for a particular epoch
+
+def get_validator_keys(
+    epoch,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get validator BLS keys in the committee for a particular epoch.
 
     Parameters
     ----------
@@ -214,18 +248,26 @@ def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeo
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L152
     """
-    method = 'hmyv2_getValidatorKeys'
-    params = [
-        epoch
-    ]
+    method = "hmyv2_getValidatorKeys"
+    params = [ epoch ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validator_information_by_block_number(validator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout):
-    """
-    Get validator information for validator address at a block
+
+def get_validator_information_by_block_number(
+    validator_addr,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+):
+    """Get validator information for validator address at a block.
 
     Parameters
     ----------
@@ -251,24 +293,30 @@ def get_validator_information_by_block_number(validator_addr, block_num, endpoin
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L319
     """
-    method = 'hmyv2_getValidatorInformationByBlockNumber'
-    params = [
-        validator_addr,
-        block_num
-    ]
+    method = "hmyv2_getValidatorInformationByBlockNumber"
+    params = [ validator_addr, block_num ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get validator information for all validators on chain
+
+def get_all_validator_information(
+    page = 0,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get validator information for all validators on chain.
 
     Parameters
     ----------
     page: :obj:`int`, optional
-        Page to request (-1 for all validators), page size is 100 otherwise
+        Page to request, page size is 100 otherwise
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -287,18 +335,25 @@ def get_all_validator_information(page=-1, endpoint=_default_endpoint, timeout=_
     -------------
     https://api.hmny.io/#df5f1631-7397-48e8-87b4-8dd873235b9c
     """
-    method = 'hmyv2_getAllValidatorInformation'
-    params = [
-        page
-    ]
+    method = "hmyv2_getAllValidatorInformation"
+    params = [ page ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validator_self_delegation(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get the amount self delegated by validator
+
+def get_validator_self_delegation(
+    address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get the amount self delegated by validator.
 
     Parameters
     ----------
@@ -322,18 +377,27 @@ def get_validator_self_delegation(address, endpoint=_default_endpoint, timeout=_
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L352
     """
-    method = 'hmyv2_getValidatorSelfDelegation'
-    params = [
-        address
-    ]
+    method = "hmyv2_getValidatorSelfDelegation"
+    params = [ address ]
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validator_total_delegation(address, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get the total amount delegated t ovalidator (including self delegated)
+
+def get_validator_total_delegation(
+    address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get the total amount delegated t ovalidator (including self delegated)
 
     Parameters
     ----------
@@ -357,25 +421,35 @@ def get_validator_total_delegation(address, endpoint=_default_endpoint, timeout=
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L379
     """
-    method = 'hmyv2_getValidatorTotalDelegation'
-    params = [
-        address
-    ]
+    method = "hmyv2_getValidatorTotalDelegation"
+    params = [ address ]
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_all_validator_information_by_block_number(block_num, page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get validator information at block number for all validators on chain
+
+def get_all_validator_information_by_block_number(
+    block_num,
+    page = 0,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get validator information at block number for all validators on chain.
 
     Parameters
     ----------
     block_num: int
         Block number to get validator information for
     page: :obj:`int`, optional
-        Page to request (-1 for all validators), page size is 100
+        Page to request, page size is 100
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -395,27 +469,33 @@ def get_all_validator_information_by_block_number(block_num, page=-1, endpoint=_
     -------------
     https://api.hmny.io/#a229253f-ca76-4b9d-88f5-9fd96e40d583
     """
-    method = 'hmyv2_getAllValidatorInformationByBlockNumber'
-    params = [
-        page,
-        block_num
-    ]
+    method = "hmyv2_getAllValidatorInformationByBlockNumber"
+    params = [ page, block_num ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
+
 
 ###################
 # Delegation RPCs #
 ###################
-def get_all_delegation_information(page=-1, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get delegation information for all delegators on chain
+def get_all_delegation_information(
+    page = 0,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get delegation information for all delegators on chain.
 
     Parameters
     ----------
     page: :obj:`int`, optional
-        Page to request (-1 for all validators), page size is 100
+        Page to request, page size is 100
     endpoint: :obj:`str`, optional
         Endpoint to send request to
     timeout: :obj:`int`, optional
@@ -436,18 +516,25 @@ def get_all_delegation_information(page=-1, endpoint=_default_endpoint, timeout=
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L413
     """
-    method = 'hmyv2_getAllDelegationInformation'
-    params = [
-        page,
-    ]
+    method = "hmyv2_getAllDelegationInformation"
+    params = [ page, ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_delegations_by_delegator(delegator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of delegations by a delegator
+
+def get_delegations_by_delegator(
+    delegator_addr,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of delegations by a delegator.
 
     Parameters
     ----------
@@ -478,18 +565,26 @@ def get_delegations_by_delegator(delegator_addr, endpoint=_default_endpoint, tim
     -------------
     https://api.hmny.io/#454b032c-6072-4ecb-bf24-38b3d6d2af69
     """
-    method = 'hmyv2_getDelegationsByDelegator'
-    params = [
-        delegator_addr
-    ]
+    method = "hmyv2_getDelegationsByDelegator"
+    params = [ delegator_addr ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_delegations_by_delegator_by_block_number(delegator_addr, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of delegations by a delegator at a specific block
+
+def get_delegations_by_delegator_by_block_number(
+    delegator_addr,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of delegations by a delegator at a specific block.
 
     Parameters
     ----------
@@ -515,20 +610,26 @@ def get_delegations_by_delegator_by_block_number(delegator_addr, block_num, endp
     -------------
     https://api.hmny.io/#8ce13bda-e768-47b9-9dbe-193aba410b0a
     """
-    method = 'hmyv2_getDelegationsByDelegatorByBlockNumber'
-    params = [
-        delegator_addr,
-        block_num
-    ]
+    method = "hmyv2_getDelegationsByDelegatorByBlockNumber"
+    params = [ delegator_addr, block_num ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_delegation_by_delegator_and_validator(delegator_addr, validator_address,
-    endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get list of delegations by a delegator at a specific block
+
+def get_delegation_by_delegator_and_validator(
+    delegator_addr,
+    validator_address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT,
+) -> dict:
+    """Get list of delegations by a delegator at a specific block.
 
     Parameters
     ----------
@@ -543,7 +644,8 @@ def get_delegation_by_delegator_and_validator(delegator_addr, validator_address,
 
     Returns
     -------
-    one delegation (or None if such delegation doesn't exist), see get_delegations_by_delegator for fields
+    one delegation (or None if such delegation doesn't exist)
+    see get_delegations_by_delegator for fields
 
     Raises
     ------
@@ -554,19 +656,25 @@ def get_delegation_by_delegator_and_validator(delegator_addr, validator_address,
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L605
     """
-    method = 'hmyv2_getDelegationByDelegatorAndValidator'
-    params = [
-        delegator_addr,
-        validator_address
-    ]
+    method = "hmyv2_getDelegationByDelegatorAndValidator"
+    params = [ delegator_addr, validator_address ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_available_redelegation_balance(delegator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get amount of locked undelegated tokens
+
+def get_available_redelegation_balance(
+    delegator_addr,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get amount of locked undelegated tokens.
 
     Parameters
     ----------
@@ -590,18 +698,27 @@ def get_available_redelegation_balance(delegator_addr, endpoint=_default_endpoin
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L653
     """
-    method = 'hmyv2_getAvailableRedelegationBalance'
-    params = [
-        delegator_addr
-    ]
+    method = "hmyv2_getAvailableRedelegationBalance"
+    params = [ delegator_addr ]
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_delegations_by_validator(validator_addr, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of delegations to a validator
+
+def get_delegations_by_validator(
+    validator_addr,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of delegations to a validator.
 
     Parameters
     ----------
@@ -625,21 +742,27 @@ def get_delegations_by_validator(validator_addr, endpoint=_default_endpoint, tim
     -------------
     https://api.hmny.io/#2e02d8db-8fec-41d9-a672-2c9862f63f39
     """
-    method = 'hmyv2_getDelegationsByValidator'
-    params = [
-        validator_addr
-    ]
+    method = "hmyv2_getDelegationsByValidator"
+    params = [ validator_addr ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
+
 
 ########################
 # Staking Network RPCs #
 ########################
-def get_current_utility_metrics(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get current utility metrics of network
+def get_current_utility_metrics(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get current utility metrics of network.
 
     Parameters
     ----------
@@ -665,15 +788,20 @@ def get_current_utility_metrics(endpoint=_default_endpoint, timeout=_default_tim
     -------------
     https://api.hmny.io/#78dd2d94-9ff1-4e0c-bbac-b4eec1cdf10b
     """
-    method = 'hmyv2_getCurrentUtilityMetrics'
+    method = "hmyv2_getCurrentUtilityMetrics"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_staking_network_info(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get staking network information
+
+def get_staking_network_info(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get staking network information.
 
     Parameters
     ----------
@@ -700,15 +828,20 @@ def get_staking_network_info(endpoint=_default_endpoint, timeout=_default_timeou
     -------------
     https://api.hmny.io/#4a10fce0-2aa4-4583-bdcb-81ee0800993b
     """
-    method = 'hmyv2_getStakingNetworkInfo'
+    method = "hmyv2_getStakingNetworkInfo"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get voting committees for current & previous epoch
+
+def get_super_committees(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get voting committees for current & previous epoch.
 
     Parameters
     ----------
@@ -753,15 +886,20 @@ def get_super_committees(endpoint=_default_endpoint, timeout=_default_timeout) -
     -------------
     https://api.hmny.io/#8eef2fc4-92db-4610-a9cd-f7b75cfbd080
     """
-    method = 'hmyv2_getSuperCommittees'
+    method = "hmyv2_getSuperCommittees"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_total_staking(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get total staking by validators, only meant to be called on beaconchain
+
+def get_total_staking(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get total staking by validators, only meant to be called on beaconchain.
 
     Parameters
     ----------
@@ -783,15 +921,22 @@ def get_total_staking(endpoint=_default_endpoint, timeout=_default_timeout) -> i
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/staking.go#L102
     """
-    method = 'hmyv2_getTotalStaking'
+    method = "hmyv2_getTotalStaking"
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_raw_median_stake_snapshot(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get median stake & additional committee data of the current epoch
+
+def get_raw_median_stake_snapshot(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get median stake & additional committee data of the current epoch.
 
     Parameters
     ----------
@@ -826,8 +971,10 @@ def get_raw_median_stake_snapshot(endpoint=_default_endpoint, timeout=_default_t
     -------------
     https://api.hmny.io/#bef93b3f-6763-4121-9c17-f0b0d9e5cc40
     """
-    method = 'hmyv2_getMedianRawStakeSnapshot'
+    method = "hmyv2_getMedianRawStakeSnapshot"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception

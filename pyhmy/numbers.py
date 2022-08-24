@@ -1,12 +1,15 @@
+"""
+Handles conversion of ONE to ATTO and vice versa
+For more granular conversions, see Web3.toWei
+"""
+
 from decimal import Decimal
 
+_conversion_unit = Decimal( 1e18 )
 
-_conversion_unit = Decimal(1e18)
 
-
-def convert_atto_to_one(atto) -> Decimal:
-    """
-    Convert ATTO to ONE
+def convert_atto_to_one( atto ) -> Decimal:
+    """Convert ATTO to ONE.
 
     Parameters
     ----------
@@ -19,14 +22,13 @@ def convert_atto_to_one(atto) -> Decimal:
     decimal
         Converted value in ONE
     """
-    if isinstance(atto, float):
-        atto = int(atto)
-    return Decimal(atto) / _conversion_unit
+    if isinstance( atto, float ):
+        atto = int( atto )
+    return Decimal( atto ) / _conversion_unit
 
 
-def convert_one_to_atto(one) -> Decimal:
-    """
-    Convert ONE to ATTO
+def convert_one_to_atto( one ) -> Decimal:
+    """Convert ONE to ATTO.
 
     Parameters
     ----------
@@ -38,6 +40,6 @@ def convert_one_to_atto(one) -> Decimal:
     decimal
         Converted value in ATTO
     """
-    if isinstance(one, float):
-        one = str(one)
-    return Decimal(one) * _conversion_unit
+    if isinstance( one, float ):
+        one = str( one )
+    return Decimal( one ) * _conversion_unit

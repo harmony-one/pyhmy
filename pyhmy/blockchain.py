@@ -1,21 +1,24 @@
-from .rpc.request import (
-    rpc_request
-)
+"""
+Interact with the Harmony blockchain to fetch
+blocks, headers, transaction pool, node status, etc.
+"""
+# pylint: disable=too-many-lines
+from .rpc.request import rpc_request
 
-from .exceptions import (
-    InvalidRPCReplyError
-)
+from .exceptions import InvalidRPCReplyError
 
-_default_endpoint = 'http://localhost:9500'
-_default_timeout = 30
+from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
+
 
 #############################
 # Node / network level RPCs #
 #############################
-def get_bad_blocks(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    [WIP] Get list of bad blocks in memory of specific node
-    Known issues with RPC not returning correctly
+def get_bad_blocks(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """[WIP] Get list of bad blocks in memory of specific node Known issues
+    with RPC not returning correctly.
 
     Parameters
     ----------
@@ -37,15 +40,17 @@ def get_bad_blocks(endpoint=_default_endpoint, timeout=_default_timeout) -> list
     -------------
     https://api.hmny.io/#0ba3c7b6-6aa9-46b8-9c84-f8782e935951
     """
-    method = 'hmyv2_getCurrentBadBlocks'
+    method = "hmyv2_getCurrentBadBlocks"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def chain_id(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Chain id of the chain
+
+def chain_id( endpoint = DEFAULT_ENDPOINT, timeout = DEFAULT_TIMEOUT ) -> dict:
+    """Chain id of the chain.
 
     Parameters
     ----------
@@ -67,16 +72,19 @@ def chain_id(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     -------------
     https://github.com/harmony-one/harmony/blob/343dbe89b3c105f8104ab877769070ba6fdd0133/rpc/blockchain.go#L44
     """
-    method = 'hmyv2_chainId'
+    method = "hmyv2_chainId"
     try:
-        data = rpc_request(method, endpoint=endpoint, timeout=timeout)
-        return data['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        data = rpc_request( method, endpoint = endpoint, timeout = timeout )
+        return data[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_node_metadata(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get config for the node
+
+def get_node_metadata(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get config for the node.
 
     Parameters
     ----------
@@ -91,25 +99,8 @@ def get_node_metadata(endpoint=_default_endpoint, timeout=_default_timeout) -> d
         blskey: :obj:`list` of BLS keys on the node
         version: :obj:`str` representing the Harmony binary version
         network: :obj:`str` the Network name that the node is on (Mainnet or Testnet)
-        chain-config: :obj:`dict` with the following keys (more are added over time):
-            chain-id: :obj:`int` Chain ID of the network
-            cross-tx-epoch: :obj:`int` Epoch at which cross shard transactions were enabled
-            cross-link-epoch: :obj:`int` Epoch at which cross links were enabled
-            staking-epoch: :obj:`int` Epoch at which staking was enabled
-            prestaking-epoch: :obj:`int` Epoch at which staking features without election were allowed
-            quick-unlock-epoch: :obj:`int` Epoch at which undelegations unlocked in one epoch
-            eip155-epoch: :obj:`int` Epoch at with EIP155 was enabled
-            s3-epoch: :obj:`int` Epoch at which Mainnet V0 was launched
-            receipt-log-epoch: :obj:`int` Epoch at which receipt logs were enabled
-            eth-compatible-chain-id: :obj:`int` EVM network compatible chain ID
-            eth-compatible-epoch: :obj:`int` Epoch at which EVM compatibility was launched
-            eth-compatible-shard-0-chain-id: :obj:`int` EVM network compatible chain ID on shard 0
-            five-seconds-epoch: :obj:`int` Epoch at which five second finality was enabled and block rewards adjusted to 17.5 ONE/block
-            istanbul-epoch: :obj:`int` Epoch at which Ethereum's Istanbul upgrade was added to Harmony
-            no-early-unlock-epoch: :obj:`int` Epoch at which early unlock of tokens was disabled (https://github.com/harmony-one/harmony/pull/3605)
-            redelegation-epoch: :obj:`int` Epoch at which redelegation was enabled (staking)
-            sixty-percent-epoch: :obj:`int` Epoch when internal voting power reduced from 68% to 60%
-            two-seconds-epoch: :obj:`int` Epoch at which two second finality was enabled and block rewards adjusted to 7 ONE/block
+        chain-config: :obj:`dict` with the hard fork epochs list, and `chain-id`
+            both as :obj:`int`
         is-leader: :obj:`bool` Whether the node is currently leader or not
         shard-id: :obj:`int` Shard that the node is on
         current-epoch: :obj:`int` Current epoch
@@ -140,19 +131,22 @@ def get_node_metadata(endpoint=_default_endpoint, timeout=_default_timeout) -> d
     API Reference
     -------------
     https://api.hmny.io/#03c39b56-8dfc-48ce-bdad-f85776dd8aec
-    https://github.com/harmony-one/harmony/blob/v1.10.2/internal/params/config.go#L233 for chain-config dict
-    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/node/api.go#L110 for consensus dict
+    https://github.com/harmony-one/harmony/blob/v1.10.2/internal/params/config.go#L233
+    https://github.com/harmony-one/harmony/blob/9f320436ff30d9babd957bc5f2e15a1818c86584/node/api.go#L110
     """
-    method = 'hmyv2_getNodeMetadata'
+    method = "hmyv2_getNodeMetadata"
     try:
-        metadata = rpc_request(method, endpoint=endpoint, timeout=timeout)
-        return metadata['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        metadata = rpc_request( method, endpoint = endpoint, timeout = timeout )
+        return metadata[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_peer_info(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get peer info for the node
+
+def get_peer_info(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get peer info for the node.
 
     Parameters
     ----------
@@ -181,15 +175,20 @@ def get_peer_info(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
     --------
     get_node_metadata
     """
-    method = 'hmyv2_getPeerInfo'
+    method = "hmyv2_getPeerInfo"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def protocol_version(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get the current Harmony protocol version this node supports
+
+def protocol_version(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get the current Harmony protocol version this node supports.
 
     Parameters
     ----------
@@ -212,16 +211,19 @@ def protocol_version(endpoint=_default_endpoint, timeout=_default_timeout) -> in
     -------------
     https://api.hmny.io/#cab9fcc2-e3cd-4bc9-b62a-13e4e046e2fd
     """
-    method = 'hmyv2_protocolVersion'
+    method = "hmyv2_protocolVersion"
     try:
-        value = rpc_request(method, endpoint=endpoint, timeout=timeout)
-        return value['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        value = rpc_request( method, endpoint = endpoint, timeout = timeout )
+        return value[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_num_peers(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get number of peers connected to the node
+
+def get_num_peers(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get number of peers connected to the node.
 
     Parameters
     ----------
@@ -244,15 +246,23 @@ def get_num_peers(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     -------------
     https://api.hmny.io/#09287e0b-5b61-4d18-a0f1-3afcfc3369c1
     """
-    method = 'net_peerCount'
-    try:                # Number of peers represented as a hex string
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+    method = "net_peerCount"
+    try:  # Number of peers represented as a hex string
+        return int(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ],
+            16
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_version(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get version of the EVM network (https://chainid.network/)
+
+def get_version(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get version of the EVM network (https://chainid.network/)
 
     Parameters
     ----------
@@ -275,15 +285,20 @@ def get_version(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     -------------
     https://api.hmny.io/#09287e0b-5b61-4d18-a0f1-3afcfc3369c1
     """
-    method = 'net_version'
+    method = "net_version"
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'], 16)   # this is hexadecimal
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ],
+            16
+        )  # this is hexadecimal
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def in_sync(endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
-    """
-    Whether the shard chain is in sync or syncing (not out of sync)
+
+def in_sync( endpoint = DEFAULT_ENDPOINT, timeout = DEFAULT_TIMEOUT ) -> bool:
+    """Whether the shard chain is in sync or syncing (not out of sync)
 
     Parameters
     ----------
@@ -305,15 +320,22 @@ def in_sync(endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/blockchain.go#L690
     """
-    method = 'hmyv2_inSync'
+    method = "hmyv2_inSync"
     try:
-        return bool(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return bool(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def beacon_in_sync(endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
-    """
-    Whether the beacon chain is in sync or syncing (not out of sync)
+
+def beacon_in_sync(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> bool:
+    """Whether the beacon chain is in sync or syncing (not out of sync)
 
     Parameters
     ----------
@@ -335,15 +357,22 @@ def beacon_in_sync(endpoint=_default_endpoint, timeout=_default_timeout) -> bool
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/blockchain.go#L695
     """
-    method = 'hmyv2_beaconInSync'
+    method = "hmyv2_beaconInSync"
     try:
-        return bool(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return bool(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_staking_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get epoch number when blockchain switches to EPoS election
+
+def get_staking_epoch(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get epoch number when blockchain switches to EPoS election.
 
     Parameters
     ----------
@@ -370,16 +399,22 @@ def get_staking_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> i
     ------
     get_node_metadata
     """
-    method = 'hmyv2_getNodeMetadata'
+    method = "hmyv2_getNodeMetadata"
     try:
-        data = rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-        return int(data['chain-config']['staking-epoch'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        data = rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+        return int( data[ "chain-config" ][ "staking-epoch" ] )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_prestaking_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get epoch number when blockchain switches to allow staking features without election
+
+def get_prestaking_epoch(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get epoch number when blockchain switches to allow staking features
+    without election.
 
     Parameters
     ----------
@@ -406,19 +441,21 @@ def get_prestaking_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -
     ------
     get_node_metadata
     """
-    method = 'hmyv2_getNodeMetadata'
+    method = "hmyv2_getNodeMetadata"
     try:
-        data = rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-        return int(data['chain-config']['prestaking-epoch'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        data = rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+        return int( data[ "chain-config" ][ "prestaking-epoch" ] )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
+
 
 ########################
 # Sharding information #
 ########################
-def get_shard(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get shard ID of the node
+def get_shard( endpoint = DEFAULT_ENDPOINT, timeout = DEFAULT_TIMEOUT ) -> int:
+    """Get shard ID of the node.
 
     Parameters
     ----------
@@ -441,15 +478,20 @@ def get_shard(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     --------
     get_node_metadata
     """
-    method = 'hmyv2_getNodeMetadata'
+    method = "hmyv2_getNodeMetadata"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']['shard-id']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ][ "shard-id" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_sharding_structure(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get network sharding structure
+
+def get_sharding_structure(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get network sharding structure.
 
     Parameters
     ----------
@@ -475,18 +517,23 @@ def get_sharding_structure(endpoint=_default_endpoint, timeout=_default_timeout)
     -------------
     https://api.hmny.io/#9669d49e-43c1-47d9-a3fd-e7786e5879df
     """
-    method = 'hmyv2_getShardingStructure'
+    method = "hmyv2_getShardingStructure"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
+
 
 #############################
 # Current status of network #
 #############################
-def get_leader_address(endpoint=_default_endpoint, timeout=_default_timeout) -> str:
-    """
-    Get current leader one address
+def get_leader_address(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> str:
+    """Get current leader one address.
 
     Parameters
     ----------
@@ -509,15 +556,21 @@ def get_leader_address(endpoint=_default_endpoint, timeout=_default_timeout) -> 
     -------------
     https://api.hmny.io/#8b08d18c-017b-4b44-a3c3-356f9c12dacd
     """
-    method = 'hmyv2_getLeader'
+    method = "hmyv2_getLeader"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def is_last_block(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
-    """
-    If the block at block_num is the last block
+
+def is_last_block(
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> bool:
+    """If the block at block_num is the last block.
 
     Parameters
     ----------
@@ -541,18 +594,27 @@ def is_last_block(block_num, endpoint=_default_endpoint, timeout=_default_timeou
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/blockchain.go#L286
     """
-    params = [
-        block_num,
-    ]
-    method = 'hmyv2_isLastBlock'
+    params = [ block_num, ]
+    method = "hmyv2_isLastBlock"
     try:
-        return bool(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return bool(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def epoch_last_block(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Returns the number of the last block in the epoch
+
+def epoch_last_block(
+    epoch,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Returns the number of the last block in the epoch.
 
     Parameters
     ----------
@@ -576,18 +638,26 @@ def epoch_last_block(epoch, endpoint=_default_endpoint, timeout=_default_timeout
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/blockchain.go#L294
     """
-    params = [
-        epoch,
-    ]
-    method = 'hmyv2_epochLastBlock'
+    params = [ epoch, ]
+    method = "hmyv2_epochLastBlock"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_circulating_supply(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get current circulation supply of tokens in ONE
+
+def get_circulating_supply(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get current circulation supply of tokens in ONE.
 
     Parameters
     ----------
@@ -610,15 +680,20 @@ def get_circulating_supply(endpoint=_default_endpoint, timeout=_default_timeout)
     -------------
     https://api.hmny.io/#8398e818-ac2d-4ad8-a3b4-a00927395044
     """
-    method = 'hmyv2_getCirculatingSupply'
+    method = "hmyv2_getCirculatingSupply"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_total_supply(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get total number of pre-mined tokens
+
+def get_total_supply(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get total number of pre-mined tokens.
 
     Parameters
     ----------
@@ -641,15 +716,20 @@ def get_total_supply(endpoint=_default_endpoint, timeout=_default_timeout) -> in
     -------------
     https://api.hmny.io/#3dcea518-9e9a-4a20-84f4-c7a0817b2196
     """
-    method = 'hmyv2_getTotalSupply'
+    method = "hmyv2_getTotalSupply"
     try:
-        rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        rpc_request( method,
+                     endpoint = endpoint,
+                     timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_number(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get current block number
+
+def get_block_number(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get current block number.
 
     Parameters
     ----------
@@ -672,15 +752,22 @@ def get_block_number(endpoint=_default_endpoint, timeout=_default_timeout) -> in
     -------------
     https://api.hmny.io/#2602b6c4-a579-4b7c-bce8-85331e0db1a7
     """
-    method = 'hmyv2_blockNumber'
+    method = "hmyv2_blockNumber"
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_current_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get current epoch number
+
+def get_current_epoch(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get current epoch number.
 
     Parameters
     ----------
@@ -703,15 +790,22 @@ def get_current_epoch(endpoint=_default_endpoint, timeout=_default_timeout) -> i
     -------------
     https://api.hmny.io/#9b8e98b0-46d1-4fa0-aaa6-317ff1ddba59
     """
-    method = 'hmyv2_getEpoch'
+    method = "hmyv2_getEpoch"
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_last_cross_links(endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get last cross shard links
+
+def get_last_cross_links(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get last cross shard links.
 
     Parameters
     ----------
@@ -741,15 +835,20 @@ def get_last_cross_links(endpoint=_default_endpoint, timeout=_default_timeout) -
     -------------
     https://api.hmny.io/#4994cdf9-38c4-4b1d-90a8-290ddaa3040e
     """
-    method = 'hmyv2_getLastCrossLinks'
+    method = "hmyv2_getLastCrossLinks"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_gas_price(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get network gas price
+
+def get_gas_price(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get network gas price.
 
     Parameters
     ----------
@@ -772,18 +871,25 @@ def get_gas_price(endpoint=_default_endpoint, timeout=_default_timeout) -> int:
     -------------
     https://api.hmny.io/#1d53fd59-a89f-436c-a171-aec9d9623f48
     """
-    method = 'hmyv2_gasPrice'
+    method = "hmyv2_gasPrice"
     try:
-        return int(rpc_request(method, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request( method,
+                         endpoint = endpoint,
+                         timeout = timeout )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
+
 
 ##############
 # Block RPCs #
 ##############
-def get_latest_header(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get block header of latest block
+def get_latest_header(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get block header of latest block.
 
     Parameters
     ----------
@@ -798,14 +904,16 @@ def get_latest_header(endpoint=_default_endpoint, timeout=_default_timeout) -> d
         blockHash: :obj:`str` Block hash
         blockNumber: :obj:`int` Block number
         shardID: :obj:`int` Shard ID
-        leader: :obj:`str` Wallet address of leader that proposed this block if prestaking, otherwise sha256 hash of leader's public bls key
+        leader: :obj:`str` Wallet address of leader that proposed this block if prestaking
+            otherwise sha256 hash of leader's public bls key
         viewID: :obj:`int` View ID of the block
         epoch: :obj:`int` Epoch of block
         timestamp: :obj:`str` Timestamp that the block was finalized in human readable format
         unixtime: :obj:`int` Timestamp that the block was finalized in Unix time
         lastCommitSig: :obj:`str` Hex representation of aggregated signatures of the previous block
-        lastCommitBitmap: :obj:`str` Hex representation of aggregated signature bitmap of the previous block
-        crossLinks: list of dicts describing the cross shard links, each dict to have the following keys:
+        lastCommitBitmap: :obj:`str`
+            Hex representation of aggregated signature bitmap of the previous block
+        crossLinks:list of dicts describing the cross shard links:
             block-number: :obj:`int` Number of the cross link block
             epoch-number: :obj:`int` Epoch of the cross link block
             hash: :obj:`str` Hash of the cross link block
@@ -822,15 +930,21 @@ def get_latest_header(endpoint=_default_endpoint, timeout=_default_timeout) -> d
     -------------
     https://api.hmny.io/#73fc9b97-b048-4b85-8a93-4d2bf1da54a6
     """
-    method = 'hmyv2_latestHeader'
+    method = "hmyv2_latestHeader"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_header_by_number(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get block header of block at block_num
+
+def get_header_by_number(
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get block header of block at block_num.
 
     Parameters
     ----------
@@ -854,18 +968,24 @@ def get_header_by_number(block_num, endpoint=_default_endpoint, timeout=_default
     -------------
     https://api.hmny.io/#01148e4f-72bb-426d-a123-718a161eaec0
     """
-    method = 'hmyv2_getHeaderByNumber'
-    params = [
-        block_num
-    ]
+    method = "hmyv2_getHeaderByNumber"
+    params = [ block_num ]
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_latest_chain_headers(endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get block header of latest block for beacon chain & shard chain
+
+def get_latest_chain_headers(
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get block header of latest block for beacon chain & shard chain.
 
     Parameters
     ----------
@@ -877,7 +997,7 @@ def get_latest_chain_headers(endpoint=_default_endpoint, timeout=_default_timeou
     Returns
     -------
     dict with two keys:
-        beacon-chain-header: :obj:`dict` with the following keys, applicable to the beacon chain (cross shard links)
+        beacon-chain-header: :obj:`dict` with the following keys, applicable to the beacon chain
         shard-chain-header: :obj:`dict` with the following keys, applicable to the shard chain
             difficulty: legacy
             epoch: :obj:`int` Epoch of the block
@@ -908,16 +1028,25 @@ def get_latest_chain_headers(endpoint=_default_endpoint, timeout=_default_timeou
     -------------
     https://api.hmny.io/#7625493d-16bf-4611-8009-9635d063b4c0
     """
-    method = 'hmyv2_getLatestChainHeaders'
+    method = "hmyv2_getLatestChainHeaders"
     try:
-        return rpc_request(method, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_by_number(block_num, full_tx=False, include_tx=False, include_staking_tx=False,
-        include_signers=False, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get block by number
+
+def get_block_by_number( # pylint: disable=too-many-arguments
+    block_num,
+    full_tx=False,
+    include_tx=False,
+    include_staking_tx=False,
+    include_signers=False,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
+) -> dict:
+    """Get block by number.
 
     Parameters
     ----------
@@ -955,12 +1084,14 @@ def get_block_by_number(block_num, full_tx=False, include_tx=False, include_stak
         signers: :obj:`list` List of signers (only if include_signers is set to True)
         size: :obj:`int` Block size in bytes
         stakingTransactions: :obj:`list`
-            if full_tx is True: List of dictionaries, each containing a staking transaction (see account.get_staking_transaction_history)
+            if full_tx is True: List of dictionaries,
+                each containing a staking transaction (see account.get_staking_transaction_history)
             if full_tx is False: List of staking transaction hashes
         stateRoot: :obj:`str` Hash of state root
         timestamp: :obj:`int` Unix timestamp of the block
         transactions: :obj:`list`
-            if full_tx is True: List of dictionaries, each containing a transaction (see account.get_transaction_history)
+            if full_tx is True: List of dictionaries,
+                each containing a transaction (see account.get_transaction_history)
             if full_tx is False: List of transaction hashes
         transactionsRoot: :obj:`str` Hash of transactions root
         uncles: :obj:`str` legacy
@@ -979,22 +1110,34 @@ def get_block_by_number(block_num, full_tx=False, include_tx=False, include_stak
     params = [
         block_num,
         {
-            'inclTx': include_tx,
-            'fullTx': full_tx,
-            'inclStaking': include_staking_tx,
-            'withSigners': include_signers,
+            "inclTx": include_tx,
+            "fullTx": full_tx,
+            "inclStaking": include_staking_tx,
+            "withSigners": include_signers,
         },
     ]
-    method = 'hmyv2_getBlockByNumber'
+    method = "hmyv2_getBlockByNumber"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_by_hash(block_hash, full_tx=False, include_tx=False, include_staking_tx=False,
-        include_signers=False, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get block by hash
+
+def get_block_by_hash( # pylint: disable=too-many-arguments
+    block_hash,
+    full_tx=False,
+    include_tx=False,
+    include_staking_tx=False,
+    include_signers=False,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
+) -> dict:
+    """Get block by hash.
 
     Parameters
     ----------
@@ -1027,21 +1170,30 @@ def get_block_by_hash(block_hash, full_tx=False, include_tx=False, include_staki
     params = [
         block_hash,
         {
-            'inclTx': include_tx,
-            'fullTx': full_tx,
-            'inclStaking': include_staking_tx,
-            'withSigners': include_signers,
+            "inclTx": include_tx,
+            "fullTx": full_tx,
+            "inclStaking": include_staking_tx,
+            "withSigners": include_signers,
         },
     ]
-    method = 'hmyv2_getBlockByHash'
+    method = "hmyv2_getBlockByHash"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_transaction_count_by_number(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get transaction count for specific block number
+
+def get_block_transaction_count_by_number(
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get transaction count for specific block number.
 
     Parameters
     ----------
@@ -1068,18 +1220,27 @@ def get_block_transaction_count_by_number(block_num, endpoint=_default_endpoint,
     -------------
     https://api.hmny.io/#26c5adfb-d757-4595-9eb7-c6efef63df32
     """
-    params = [
-        block_num
-    ]
-    method = 'hmyv2_getBlockTransactionCountByNumber'
+    params = [ block_num ]
+    method = "hmyv2_getBlockTransactionCountByNumber"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_transaction_count_by_hash(block_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get transaction count for specific block hash
+
+def get_block_transaction_count_by_hash(
+    block_hash,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get transaction count for specific block hash.
 
     Parameters
     ----------
@@ -1106,18 +1267,27 @@ def get_block_transaction_count_by_hash(block_hash, endpoint=_default_endpoint, 
     -------------
     https://api.hmny.io/#66c68844-0208-49bb-a83b-08722bc113eb
     """
-    params = [
-        block_hash
-    ]
-    method = 'hmyv2_getBlockTransactionCountByHash'
+    params = [ block_hash ]
+    method = "hmyv2_getBlockTransactionCountByHash"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_staking_transaction_count_by_number(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get staking transaction count for specific block number
+
+def get_block_staking_transaction_count_by_number(
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get staking transaction count for specific block number.
 
     Parameters
     ----------
@@ -1144,18 +1314,27 @@ def get_block_staking_transaction_count_by_number(block_num, endpoint=_default_e
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/transaction.go#L494
     """
-    params = [
-        block_num
-    ]
-    method = 'hmyv2_getBlockStakingTransactionCountByNumber'
+    params = [ block_num ]
+    method = "hmyv2_getBlockStakingTransactionCountByNumber"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_staking_transaction_count_by_hash(block_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Get staking transaction count for specific block hash
+
+def get_block_staking_transaction_count_by_hash(
+    block_hash,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> int:
+    """Get staking transaction count for specific block hash.
 
     Parameters
     ----------
@@ -1182,20 +1361,32 @@ def get_block_staking_transaction_count_by_hash(block_hash, endpoint=_default_en
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/transaction.go#L523
     """
-    params = [
-        block_hash
-    ]
-    method = 'hmyv2_getBlockStakingTransactionCountByHash'
+    params = [ block_hash ]
+    method = "hmyv2_getBlockStakingTransactionCountByHash"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_blocks(start_block, end_block, full_tx=False, include_tx=False, include_staking_tx=False,
-        include_signers=False, endpoint=_default_endpoint, timeout=_default_timeout
-    ) -> list:
-    """
-    Get list of blocks from a range
+
+def get_blocks( # pylint: disable=too-many-arguments
+    start_block,
+    end_block,
+    full_tx=False,
+    include_tx=False,
+    include_staking_tx=False,
+    include_signers=False,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
+) -> list:
+    """Get list of blocks from a range.
 
     Parameters
     ----------
@@ -1233,21 +1424,30 @@ def get_blocks(start_block, end_block, full_tx=False, include_tx=False, include_
         start_block,
         end_block,
         {
-            'withSigners': include_signers,
-            'fullTx': full_tx,
-            'inclStaking': include_staking_tx,
-            'inclTx': include_tx
+            "withSigners": include_signers,
+            "fullTx": full_tx,
+            "inclStaking": include_staking_tx,
+            "inclTx": include_tx,
         },
     ]
-    method = 'hmyv2_getBlocks'
+    method = "hmyv2_getBlocks"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_signers(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of block signers for specific block number
+
+def get_block_signers(
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of block signers for specific block number.
 
     Parameters
     ----------
@@ -1272,18 +1472,25 @@ def get_block_signers(block_num, endpoint=_default_endpoint, timeout=_default_ti
     -------------
     https://api.hmny.io/#1e4b5f41-9db6-4dea-92fb-4408db78e622
     """
-    params = [
-        block_num
-    ]
-    method = 'hmyv2_getBlockSigners'
+    params = [ block_num ]
+    method = "hmyv2_getBlockSigners"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_block_signers_keys(block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of block signer public bls keys for specific block number
+
+def get_block_signers_keys(
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of block signer public bls keys for specific block number.
 
     Parameters
     ----------
@@ -1308,18 +1515,27 @@ def get_block_signers_keys(block_num, endpoint=_default_endpoint, timeout=_defau
     -------------
     https://api.hmny.io/#9f9c8298-1a4e-4901-beac-f34b59ed02f1
     """
-    params = [
-        block_num
-    ]
-    method = 'hmyv2_getBlockSignerKeys'
+    params = [ block_num ]
+    method = "hmyv2_getBlockSignerKeys"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def is_block_signer(block_num, address, endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
-    """
-    Determine if the account at address is a signer for the block at block_num
+
+def is_block_signer(
+    block_num,
+    address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> bool:
+    """Determine if the account at address is a signer for the block at
+    block_num.
 
     Parameters
     ----------
@@ -1345,19 +1561,26 @@ def is_block_signer(block_num, address, endpoint=_default_endpoint, timeout=_def
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/blockchain.go#L368
     """
-    params = [
-        block_num,
-        address
-    ]
-    method = 'hmyv2_isBlockSigner'
+    params = [ block_num, address ]
+    method = "hmyv2_isBlockSigner"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_signed_blocks(address, endpoint=_default_endpoint, timeout=_default_timeout) -> bool:
-    """
-    The number of blocks a particular validator signed for last blocksPeriod (1 epoch)
+
+def get_signed_blocks(
+    address,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> bool:
+    """The number of blocks a particular validator signed for last blocksPeriod
+    (1 epoch)
 
     Parameters
     ----------
@@ -1381,18 +1604,27 @@ def get_signed_blocks(address, endpoint=_default_endpoint, timeout=_default_time
     -------------
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/blockchain.go#L406
     """
-    params = [
-        address
-    ]
-    method = 'hmyv2_getSignedBlocks'
+    params = [ address ]
+    method = "hmyv2_getSignedBlocks"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'])
-    except (KeyError, TypeError) as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ]
+        )
+    except ( KeyError, TypeError ) as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> dict:
-    """
-    Get list of validators for specific epoch number
+
+def get_validators(
+    epoch,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> dict:
+    """Get list of validators for specific epoch number.
 
     Parameters
     ----------
@@ -1420,18 +1652,25 @@ def get_validators(epoch, endpoint=_default_endpoint, timeout=_default_timeout) 
     -------------
     https://api.hmny.io/#4dfe91ad-71fa-4c7d-83f3-d1c86a804da5
     """
-    params = [
-        epoch
-    ]
-    method = 'hmyv2_getValidators'
+    params = [ epoch ]
+    method = "hmyv2_getValidators"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeout) -> list:
-    """
-    Get list of validator public bls keys for specific epoch number
+
+def get_validator_keys(
+    epoch,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> list:
+    """Get list of validator public bls keys for specific epoch number.
 
     Parameters
     ----------
@@ -1456,11 +1695,14 @@ def get_validator_keys(epoch, endpoint=_default_endpoint, timeout=_default_timeo
     -------------
     https://api.hmny.io/#1439b580-fa3c-4d44-a79d-303390997a8c
     """
-    params = [
-        epoch
-    ]
-    method = 'hmyv2_getValidatorKeys'
+    params = [ epoch ]
+    method = "hmyv2_getValidatorKeys"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception

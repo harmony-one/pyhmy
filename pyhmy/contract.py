@@ -1,27 +1,36 @@
-from .rpc.request import (
-    rpc_request
-)
+"""
+Basic smart contract functions on Harmony
+For full ABI driven interaction, use something like web3py or brownie
+"""
 
-from .transaction import (
-    get_transaction_receipt
-)
+from .rpc.request import rpc_request
 
+from .transaction import get_transaction_receipt
 
-_default_endpoint = 'http://localhost:9500'
-_default_timeout = 30
+from .exceptions import InvalidRPCReplyError
+
+from .constants import DEFAULT_ENDPOINT, DEFAULT_TIMEOUT
 
 
 #########################
 # Smart contract RPCs
 #########################
-def call(to, block_num, from_address=None, gas=None, gas_price=None, value=None, data=None,
-        endpoint=_default_endpoint, timeout=_default_timeout) -> str:
-    """
-    Execute a smart contract without saving state
+def call( # pylint: disable=too-many-arguments
+    to_address,
+    block_num,
+    from_address=None,
+    gas=None,
+    gas_price=None,
+    value=None,
+    data=None,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
+) -> str:
+    """Execute a smart contract without saving state.
 
     Parameters
     ----------
-    to: :obj:`str`
+    to_address: :obj:`str`
         Address of the smart contract
     block_num: :obj:`int`
         Block number to execute the contract for
@@ -48,7 +57,7 @@ def call(to, block_num, from_address=None, gas=None, gas_price=None, value=None,
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
@@ -56,29 +65,42 @@ def call(to, block_num, from_address=None, gas=None, gas_price=None, value=None,
     """
     params = [
         {
-        'to': to,
-        'from': from_address,
-        'gas': gas,
-        'gasPrice': gas_price,
-        'value': value,
-        'data': data
+            "to": to_address,
+            "from": from_address,
+            "gas": gas,
+            "gasPrice": gas_price,
+            "value": value,
+            "data": data,
         },
-        block_num
+        block_num,
     ]
-    method = 'hmyv2_call'
+    method = "hmyv2_call"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def estimate_gas(to, from_address=None, gas=None, gas_price=None, value=None, data=None,
-        endpoint=_default_endpoint, timeout=_default_timeout) -> int:
-    """
-    Estimate the gas price needed for a smart contract call
+
+def estimate_gas( # pylint: disable=too-many-arguments
+    to_address,
+    from_address=None,
+    gas=None,
+    gas_price=None,
+    value=None,
+    data=None,
+    endpoint=DEFAULT_ENDPOINT,
+    timeout=DEFAULT_TIMEOUT,
+) -> int:
+    """Estimate the gas price needed for a smart contract call.
 
     Parameters
     ----------
-    to: :obj:`str`
+    to_address: :obj:`str`
         Address of the smart contract
     from_address: :obj:`str`, optional
         Wallet address
@@ -103,29 +125,45 @@ def estimate_gas(to, from_address=None, gas=None, gas_price=None, value=None, da
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
     https://api.hmny.io/?version=latest#b9bbfe71-8127-4dda-b26c-ff95c4c22abd
     """
-    params = [ {
-        'to': to,
-        'from': from_address,
-        'gas': gas,
-        'gasPrice': gas_price,
-        'value': value,
-        'data': data
-    } ]
-    method = 'hmyv2_estimateGas'
+    params = [
+        {
+            "to": to_address,
+            "from": from_address,
+            "gas": gas,
+            "gasPrice": gas_price,
+            "value": value,
+            "data": data,
+        }
+    ]
+    method = "hmyv2_estimateGas"
     try:
-        return int(rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result'], 16)
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return int(
+            rpc_request(
+                method,
+                params = params,
+                endpoint = endpoint,
+                timeout = timeout
+            )[ "result" ],
+            16,
+        )
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_code(address, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
-    """
-    Get the code stored at the given address in the state for the given block number
+
+def get_code(
+    address,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> str:
+    """Get the code stored at the given address in the state for the given
+    block number.
 
     Parameters
     ----------
@@ -146,26 +184,35 @@ def get_code(address, block_num, endpoint=_default_endpoint, timeout=_default_ti
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
     https://api.hmny.io/?version=latest#e13e9d78-9322-4dc8-8917-f2e721a8e556
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/contract.go#L59
     """
-    params = [
-        address,
-        block_num
-        ]
-    method = 'hmyv2_getCode'
+    params = [ address, block_num ]
+    method = "hmyv2_getCode"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_storage_at(address, key, block_num, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
-    """
-    Get the storage from the state at the given address, the key and the block number
+
+def get_storage_at(
+    address,
+    key,
+    block_num,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> str:
+    """Get the storage from the state at the given address, the key and the
+    block number.
 
     Parameters
     ----------
@@ -188,28 +235,33 @@ def get_storage_at(address, key, block_num, endpoint=_default_endpoint, timeout=
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
     https://api.hmny.io/?version=latest#fa8ac8bd-952d-4149-968c-857ca76da43f
     https://github.com/harmony-one/harmony/blob/1a8494c069dc3f708fdf690456713a2411465199/rpc/contract.go#L84
     """
-    params = [
-        address,
-        key,
-        block_num
-        ]
-    method = 'hmyv2_getStorageAt'
+    params = [ address, key, block_num ]
+    method = "hmyv2_getStorageAt"
     try:
-        return rpc_request(method, params=params, endpoint=endpoint, timeout=timeout)['result']
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return rpc_request(
+            method,
+            params = params,
+            endpoint = endpoint,
+            timeout = timeout
+        )[ "result" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError( method, endpoint ) from exception
 
-def get_contract_address_from_hash(tx_hash, endpoint=_default_endpoint, timeout=_default_timeout) -> str:
-    """
-    Get address of the contract which was deployed in the transaction
-        represented by tx_hash
+
+def get_contract_address_from_hash(
+    tx_hash,
+    endpoint = DEFAULT_ENDPOINT,
+    timeout = DEFAULT_TIMEOUT
+) -> str:
+    """Get address of the contract which was deployed in the transaction
+    represented by tx_hash.
 
     Parameters
     ----------
@@ -228,13 +280,18 @@ def get_contract_address_from_hash(tx_hash, endpoint=_default_endpoint, timeout=
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint, or
+        If received unknown result from exceptionndpoint, or
 
     API Reference
     -------------
     https://github.com/harmony-one/harmony-test/blob/master/localnet/rpc_tests/test_contract.py#L36
     """
     try:
-        return get_transaction_receipt(tx_hash, endpoint, timeout)["contractAddress"]
-    except KeyError as e:
-        raise InvalidRPCReplyError(method, endpoint) from e
+        return get_transaction_receipt( tx_hash,
+                                        endpoint,
+                                        timeout )[ "contractAddress" ]
+    except KeyError as exception:
+        raise InvalidRPCReplyError(
+            "hmyv2_getTransactionReceipt",
+            endpoint
+        ) from exception
