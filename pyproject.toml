@@ -29,7 +29,9 @@ dev = [ "black", "autopep8", "yapf", "twine", "build", "docformatter", "bumpver"
 current_version = "0.1.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
+# git commit --amend -S
 commit = true
+# git tag ${bumpver show -n | head -1 | awk '{print $3}'} -f -s
 tag = true
 push = false
 
