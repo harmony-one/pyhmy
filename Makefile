@@ -1,6 +1,4 @@
-CURRENT_SIGN_SETTING := $(shell git config commit.gpgSign)
-
-.PHONY: clean-py clean-build
+.PHONY: clean clean-py clean-build
 
 help:
 	@echo "clean-build - remove build artifacts"
@@ -25,8 +23,7 @@ clean-py:
 	find . -name '*~' -exec rm -f {} +
 
 dev:
-	python3 -m pip install pytest
-	python3 -m pip install pytest-ordering
+	python3 -m pip install pyhmy[dev]
 
 test:
 	python3 -m pytest -r s -s tests
@@ -35,16 +32,9 @@ install:
 	python3 -m pip install -e .
 
 release: clean
-	python3 -m incremental.update pyhmy --patch --rc
-	python3 -m incremental.update pyhmy
-	python3 setup.py sdist bdist_wheel
+	python3 -m build
 	twine upload dist/*
 
 sdist: clean
-ifdef VERSION  # Argument for incremental, reference: https://pypi.org/project/incremental/ .
-	python3 -m incremental.update pyhmy --$(VERSION)
-else
-	python3 -m incremental.update pyhmy --dev
-endif
-	python3 setup.py sdist bdist_wheel
+	python3 -m build
 	ls -l dist

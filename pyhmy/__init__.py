@@ -4,7 +4,7 @@
 import sys
 import warnings
 
-from ._version import __version__
+__version__ = "0.1.0"
 
 if sys.version_info.major < 3:
     warnings.simplefilter( "always", DeprecationWarning )
