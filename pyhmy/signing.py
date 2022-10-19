@@ -44,6 +44,7 @@ class UnsignedHarmonyTxData( HashableRLP ):
     Includes `shardID` and `toShardID`
     as the difference against Eth
     """
+
     fields = (
         ( "nonce",
           big_endian_int ),
@@ -71,6 +72,7 @@ class SignedHarmonyTxData( HashableRLP ):
     Includes `shardID` and `toShardID`
     as the difference against Eth
     """
+
     fields = UnsignedHarmonyTxData._meta.fields + (
         ("v", big_endian_int),  # Recovery value + 27
         ("r", big_endian_int),  # First 32 bytes
@@ -107,8 +109,12 @@ def encode_transaction( unsigned_transaction, vrs ):
 
 def serialize_transaction( filled_transaction ):
     """serialize a signed/unsigned transaction."""
+    # although this will always be present for this module
+    # keep this check anyway
     if "v" in filled_transaction:
-        if "shardID" in filled_transaction:
+        # https://github.com/harmony-one/harmony/blob/f8879f5e0288157bf95ae2898a9a27f0c85ff9ad/core/types/transaction_signing.go#L173
+        if "shardID" in filled_transaction and filled_transaction[
+            "v" ] < 1666600000:
             serializer = SignedHarmonyTxData
         else:
             serializer = SignedEthereumTxData
@@ -132,10 +138,9 @@ def serialize_transaction( filled_transaction ):
 def sanitize_transaction( transaction_dict, private_key ):
     """remove the originating address from the dict and convert chainId to
     int."""
-    account = Account.from_key( # pylint: disable=no-value-for-parameter
-        private_key
-    )
-    sanitized_transaction = transaction_dict.copy(
+    account = Account.from_key( private_key )  # pylint: disable=no-value-for-parameter
+    sanitized_transaction = (
+        transaction_dict.copy()
     )  # do not alter the original dictionary
     if "from" in sanitized_transaction:
         sanitized_transaction[ "from" ] = convert_one_to_hex(
@@ -227,13 +232,13 @@ def sign_transaction( transaction_dict, private_key ) -> SignedTransaction:
         chain_id = None
     else:
         chain_id = unsigned_transaction.v
-    ( v, # pylint: disable=invalid-name
-      r, # pylint: disable=invalid-name
-      s ) = sign_transaction_hash( # pylint: disable=invalid-name
-          account._key_obj,
-          transaction_hash,
-          chain_id
-      )
+    (
+        v,  # pylint: disable=invalid-name
+        r,  # pylint: disable=invalid-name
+        s,  # pylint: disable=invalid-name
+    ) = sign_transaction_hash(
+        account._key_obj, transaction_hash, chain_id
+    )
     encoded_transaction = encode_transaction(
         unsigned_transaction,
         vrs = ( v,
