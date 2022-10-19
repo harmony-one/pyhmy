@@ -99,7 +99,17 @@ def test_hmy_transaction():
         "0xf85f02016480019414791697260e4c9a71f18484c9f997b308e59325058026a02a203357ca6d7cdec981ad3d3692ad2c9e24536a9b6e7b486ce2f94f28c7563ea010d38cd0312a153af0aa7d8cd986040c36118bba373cb94e3e86fd4aedce904d"
     )
 
-
+# ./hmy transfer --offline-sign \
+# --nonce 0 \
+# --from one1r8n7xah8cgfm0el8u3kvwzja6zrd4le2ntjy82 \
+# --to one1r8n7xah8cgfm0el8u3kvwzja6zrd4le2ntjy82 \
+# --amount 1 \
+# --gas-limit 21000 \
+# --gas-price 100 \
+# --from-shard 0 \
+# --to-shard 1 \
+# --chain-id 1666600000 \
+# --data 0xabcd
 def test_hmy_eth_compatible_transaction():
     transaction_dict = {
         "chainId": 1666600000,
