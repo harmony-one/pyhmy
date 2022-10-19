@@ -99,6 +99,7 @@ def test_hmy_transaction():
         "0xf85f02016480019414791697260e4c9a71f18484c9f997b308e59325058026a02a203357ca6d7cdec981ad3d3692ad2c9e24536a9b6e7b486ce2f94f28c7563ea010d38cd0312a153af0aa7d8cd986040c36118bba373cb94e3e86fd4aedce904d"
     )
 
+
 def test_hmy_eth_compatible_transaction():
     transaction_dict = {
         "chainId": 1666600000,
@@ -108,7 +109,8 @@ def test_hmy_eth_compatible_transaction():
         "shardID": 0,
         "to": "0x19e7e376e7c213b7e7e7e46cc70a5dd086daff2a",
         "toShardID": 1,
-        "value": 1000000000000000000
+        "value": 1000000000000000000,
+        "data": "0xabcd",
     }
     signed_tx = signing.sign_transaction(
         transaction_dict,
@@ -116,5 +118,5 @@ def test_hmy_eth_compatible_transaction():
     )
     assert (
         signed_tx.rawTransaction.hex() ==
-        "0xf8728085174876e80082520880019419e7e376e7c213b7e7e7e46cc70a5dd086daff2a880de0b6b3a76400008084c6ac98a3a0322cca082c3ca0a1d9ad5fffb4dc0e09ade49b4b0e3b0c9dfa5f6288bc7363d6a05604874964abaaf364e8b10108e8bfed5561c341aa5e4abb92b2c6f4c009ef4c"
+        "0xf8748085174876e80082520880019419e7e376e7c213b7e7e7e46cc70a5dd086daff2a880de0b6b3a764000082abcd84c6ac98a4a0ef05b0bc0827ddd046ee8196253c6609484e28b8f250d860736ce8e053469f04a07229a88ce68241a9e77dcb1592a67a9a6a215d855a784467c9f550f8c4cb9b76"
     )
