@@ -81,20 +81,12 @@ class SignedHarmonyTxData( HashableRLP ):
 
 
 # https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L55
-def encode_transaction( unsigned_transaction, vrs ):
+def encode_transaction( filled_transaction, vrs ):
     """serialize and encode an unsigned transaction with v,r,s."""
+    # Equivalent to `rlp.EncodeToBytes(signedTransaction)`
     ( v, r, s ) = vrs  # pylint: disable=invalid-name
-    chain_naive_transaction = dissoc(
-        unsigned_transaction.as_dict(),
-        "v",
-        "r",
-        "s"
-    )
-    if isinstance(
-        unsigned_transaction,
-        ( UnsignedHarmonyTxData,
-          SignedHarmonyTxData )
-    ):
+    chain_naive_transaction = dissoc( filled_transaction, "v", "r", "s" )
+    if "shardID" in filled_transaction:
         serializer = SignedHarmonyTxData
     else:
         serializer = SignedEthereumTxData
@@ -109,8 +101,7 @@ def encode_transaction( unsigned_transaction, vrs ):
 
 def serialize_transaction( filled_transaction ):
     """serialize a signed/unsigned transaction."""
-    # although this will always be present for this module
-    # keep this check anyway
+    # Equivalent to the implementation of `h := s.Hash(tx)`
     if "v" in filled_transaction:
         # https://github.com/harmony-one/harmony/blob/f8879f5e0288157bf95ae2898a9a27f0c85ff9ad/core/types/transaction_signing.go#L173
         if "shardID" in filled_transaction and filled_transaction[
@@ -119,7 +110,8 @@ def serialize_transaction( filled_transaction ):
         else:
             serializer = SignedEthereumTxData
     else:
-        if "shardID" in filled_transaction:
+        if "shardID" in filled_transaction and filled_transaction[
+            "v" ] < 1666600000:
             serializer = UnsignedHarmonyTxData
         else:
             serializer = UnsignedEthereumTxData
@@ -236,14 +228,13 @@ def sign_transaction( transaction_dict, private_key ) -> SignedTransaction:
         v,  # pylint: disable=invalid-name
         r,  # pylint: disable=invalid-name
         s,  # pylint: disable=invalid-name
-    ) = sign_transaction_hash(
-        account._key_obj, transaction_hash, chain_id
-    )
+    ) = sign_transaction_hash(account._key_obj, transaction_hash, chain_id)
     encoded_transaction = encode_transaction(
-        unsigned_transaction,
+        # full transaction, not just the hashed bits
+        filled_transaction,
         vrs = ( v,
                 r,
-                s )
+                s ),
     )
     signed_transaction_hash = keccak( encoded_transaction )
     return SignedTransaction(
