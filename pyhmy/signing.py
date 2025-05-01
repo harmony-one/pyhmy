@@ -238,7 +238,7 @@ def sign_transaction( transaction_dict, private_key ) -> SignedTransaction:
     )
     signed_transaction_hash = keccak( encoded_transaction )
     return SignedTransaction(
-        rawTransaction = HexBytes( encoded_transaction ),
+        raw_transaction = HexBytes( encoded_transaction ),
         hash = HexBytes( signed_transaction_hash ),
         r = r,
         s = s,

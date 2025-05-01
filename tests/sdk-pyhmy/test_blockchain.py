@@ -163,7 +163,7 @@ def test_get_prestaking_epoch( setup_blockchain ):
 
 def test_get_bad_blocks( setup_blockchain ):
     # TODO: Remove skip when RPC is fixed
-    pytest.skip( "Known error with hmyv2_getCurrentBadBlocks" )
+    # pytest.skip( "Known error with hmyv2_getCurrentBadBlocks" )
     bad_blocks = _test_blockchain_rpc( blockchain.get_bad_blocks )
     assert isinstance( bad_blocks, list )
 

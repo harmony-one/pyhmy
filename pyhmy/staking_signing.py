@@ -224,7 +224,7 @@ def _sign_transaction_generic(
     signed_transaction_hash = keccak( encoded_transaction )
     # return is
     return SignedTransaction(
-        rawTransaction = HexBytes( encoded_transaction ),
+        raw_transaction = HexBytes( encoded_transaction ),
         hash = HexBytes( signed_transaction_hash ),
         r = r,
         s = s,

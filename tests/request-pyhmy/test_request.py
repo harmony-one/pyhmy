@@ -9,7 +9,7 @@ from pyhmy.rpc import exceptions, request
 
 @pytest.fixture( scope = "session", autouse = True )
 def setup():
-    endpoint = "http://localhost:9500"
+    endpoint = "http://localhost:9620"
     timeout = 30
     method = "hmyv2_getNodeMetadata"
     params = []
@@ -75,7 +75,7 @@ def test_request_rpc_error():
 
 
 def test_rpc_request():
-    endpoint = "http://localhost:9500"
+    endpoint = "http://localhost:9620"
     timeout = 30
     method = "hmyv2_getNodeMetadata"
     params = []

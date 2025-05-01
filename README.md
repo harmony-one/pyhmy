@@ -323,7 +323,7 @@ signed_create_tx_hash = validator.sign_create_validator_transaction(
             gas_price = 1,
             gas_limit = 100,
             private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48',
-            chain_id = 2).rawTransaction.hex()
+            chain_id = 2).raw_transaction.to_0x_hex()
 ```
 To edit validator, change its parameters using the `setter` functions, for example, `validator.set_details`, except the  `rate`, `bls_keys_to_add` and `bls_keys_to_remove` which can be passed to the below function:
 ```py
@@ -336,7 +336,7 @@ signed_edit_tx_hash = validator.sign_edit_validator_transaction(
             bls_key_to_add_sig = "0x3de4dff17451fb76a9690efce34bced97dd87eccd371fcd25335826cb879ca21281e82e5c2c76d4ef0ab0fc16e462312628834cbc1f29008b28e16a757367808be85180945b991be3103f98c14c7e3b3e54796d34aab4d8e812d440aa251c419",
             bls_keys_to_remove = '0xa20e70089664a874b00251c5e85d35a73871531306f3af43e02138339d294e6bb9c4eb82162199c6a852afeaa8d68712',
             private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48',
-            chain_id = 2).rawTransaction.hex()
+            chain_id = 2).raw_transaction.to_0x_hex()
 ```
 
 ### Transactions
@@ -390,7 +390,7 @@ tx = {
 'toShardID': 0,
 'value': 500000000000000000000
 }
-transaction.send_raw_transaction(signing.sign_transaction(tx, '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
+transaction.send_raw_transaction(signing.sign_transaction(tx, '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').raw_transaction.to_0x_hex(), test_net)
 ```
 A similar approach can be followed for staking transactions
 ```py
@@ -403,7 +403,7 @@ tx = {
  'gasPrice': 1,
  'nonce': 6056
 }
-transaction.send_raw_staking_transaction(staking_signing.sign_staking_transaction(tx, private_key = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
+transaction.send_raw_staking_transaction(staking_signing.sign_staking_transaction(tx, private_key = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').raw_transaction.to_0x_hex(), test_net)
 ```
 ### Contracts
 ```py
@@ -454,7 +454,7 @@ tx = {
  'toShardID': 0,
  'value': 500000000000000000000
 }
-tx_hash = transaction.send_raw_transaction(signing.sign_transaction(tx, '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
+tx_hash = transaction.send_raw_transaction(signing.sign_transaction(tx, '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').raw_transaction.to_0x_hex(), test_net)
 ```
 To deploy a contract, sign a transaction from your account without a `to` field and with the byte code as `data` and send it.
 ```py
@@ -470,7 +470,7 @@ contract_tx = {
  'shardID': 0,
  'toShardID': 0
 }
-ctx_hash = transaction.send_raw_transaction(signing.sign_transaction(contract_tx, private_key = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').rawTransaction.hex(), test_net)
+ctx_hash = transaction.send_raw_transaction(signing.sign_transaction(contract_tx, private_key = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').raw_transaction.to_0x_hex(), test_net)
 # the below may be need a time gap before the transaction reaches the chain
 contract_address = transaction.get_transaction_receipt(ctx_hash, test_net)['contractAddress']
 ```
@@ -491,7 +491,7 @@ transaction_dict = {
         'chainId': 'HmyMainnet'
     }
 signed_tx = signing.sign_transaction(transaction_dict, private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
-signed_hash = signed_tx.rawTransaction.hex()
+signed_hash = signed_tx.raw_transaction.to_0x_hex()
 ```
 For a transaction with is Ethereum-like, the `shardID` and `toShardID` are optional, which implies that the transaction is not cross-shard.
 ```py
@@ -503,7 +503,7 @@ transaction_dict = {
         'value': 5,
     }
 signed_tx = signing.sign_transaction(transaction_dict, private_key = '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
-signed_hash = signed_tx.rawTransaction.hex()
+signed_hash = signed_tx.raw_transaction.to_0x_hex()
 ```
 The `chainId` parameter is also optional, and [according to Ethereum](https://github.com/ethereum/eth-account/blob/00e7b10005c5fa7090086fcef37a76296c524e17/eth_account/_utils/transactions.py#L122), it should not be passed if "you want a transaction that can be replayed across networks." A full list of the possible values of `chainId` is provided below. You can pass either the `str` or the `int`. The RPC API may, however, reject the transaction, which is why it is recommended to pass either `1` or `2` for `mainnet` and `testnet` respectively.
 ```py

@@ -9,7 +9,7 @@ import requests
 # 1f84c95ac16e6a50f08d44c7bde7aff8742212fda6e4321fde48bf83bef266dc / one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3 (genesis)
 # 3c86ac59f6b038f584be1c08fced78d7c71bb55d5655f81714f3cddc82144c65 / one1ru3p8ff0wsyl7ncsx3vwd5szuze64qz60upg37 (transferred 503)
 
-endpoint = "http://localhost:9500"
+endpoint = "http://localhost:9620"
 timeout = 30
 headers = {
     "Content-Type": "application/json"

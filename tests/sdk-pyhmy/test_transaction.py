@@ -4,8 +4,8 @@ from pyhmy import transaction
 
 from pyhmy.rpc import exceptions
 
-endpoint = "http://localhost:9500"
-endpoint_shard_one = "http://localhost:9502"
+endpoint = "http://localhost:9620"
+endpoint_shard_one = "http://localhost:9622"
 fake_shard = "http://example.com"
 
 # previously sent txs to get and check

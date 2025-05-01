@@ -69,7 +69,7 @@ class ControlledLogger:  # pylint: disable=too-many-instance-attributes
         with self._lock:
             self.info_buffer.append(
                 f"[{threading.get_ident()}] "
-                f"{datetime.datetime.utcnow()} : {msg}"
+                f"{datetime.datetime.now(datetime.UTC)} : {msg}"
             )
 
     def debug( self, msg ):
@@ -79,7 +79,7 @@ class ControlledLogger:  # pylint: disable=too-many-instance-attributes
         with self._lock:
             self.debug_buffer.append(
                 f"[{threading.get_ident()}] "
-                f"{datetime.datetime.utcnow()} : {msg}"
+                f"{datetime.datetime.now(datetime.UTC)} : {msg}"
             )
 
     def warning( self, msg ):
@@ -89,7 +89,7 @@ class ControlledLogger:  # pylint: disable=too-many-instance-attributes
         with self._lock:
             self.warning_buffer.append(
                 f"[{threading.get_ident()}] "
-                f"{datetime.datetime.utcnow()} : {msg}"
+                f"{datetime.datetime.now(datetime.UTC)} : {msg}"
             )
 
     def error( self, msg ):
@@ -99,7 +99,7 @@ class ControlledLogger:  # pylint: disable=too-many-instance-attributes
         with self._lock:
             self.error_buffer.append(
                 f"[{threading.get_ident()}] "
-                f"{datetime.datetime.utcnow()} : {msg}"
+                f"{datetime.datetime.now(datetime.UTC)} : {msg}"
             )
 
     def print_info( self ):
