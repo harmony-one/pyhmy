@@ -156,7 +156,7 @@ def test_get_staking_transaction_by_hash( setup_blockchain ):
     stx_index = int( staking_tx[ "transactionIndex" ] )
 
 
-def test_get_transaction_by_block_hash_and_index( setup_blockchain ):
+def test_get_staking_transaction_by_block_hash_and_index( setup_blockchain ):
     if not stx_block_hash:
         pytest.skip( "Failed to get reference block hash" )
     stx = _test_transaction_rpc(
@@ -168,7 +168,7 @@ def test_get_transaction_by_block_hash_and_index( setup_blockchain ):
     assert isinstance( stx, dict )
 
 
-def test_get_transaction_by_block_number_and_index( setup_blockchain ):
+def test_get_staking_transaction_by_block_number_and_index( setup_blockchain ):
     if not stx_block_num:
         pytest.skip( "Failed to get reference block num" )
     stx = _test_transaction_rpc(
