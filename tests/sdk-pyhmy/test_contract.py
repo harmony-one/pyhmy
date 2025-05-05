@@ -50,8 +50,20 @@ def test_call( setup_blockchain ):
 def test_estimate_gas( setup_blockchain ):
     if not contract_address:
         pytest.skip( "Contract address not loaded yet" )
-    gas = _test_contract_rpc( contract.estimate_gas, contract_address )
+    # equivalent of solidity getValue(), our smart contract doesn't have a fallback function
+    data = "0x4936cd36"
+    gas = _test_contract_rpc(contract.estimate_gas, contract_address,
+                             data=data)
     assert isinstance( gas, int )
+
+
+def test_estimate_gas_fails_without_data(setup_blockchain):
+    if not contract_address:
+        pytest.skip("Contract address not loaded yet")
+    # This should trigger the skip due to evm: execution reverted
+    with pytest.raises(pytest.skip.Exception) as skip_info:
+        _test_contract_rpc(contract.estimate_gas, contract_address)
+    assert "evm: execution reverted" in str(skip_info.value)
 
 
 def test_get_code( setup_blockchain ):
