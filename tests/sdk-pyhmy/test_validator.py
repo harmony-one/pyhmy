@@ -24,7 +24,7 @@ def test_instantiate_validator( setup_blockchain ):
 
 def test_load_validator( setup_blockchain ):
     if not test_validator_object:
-        pytest.skip( "Validator not instantiated yet" )
+        pytest.fail( "Validator not instantiated yet" )
     info = {
         "name": "Alice",
         "identity": "alice",
@@ -80,7 +80,7 @@ console.log(signed)
 
 def test_create_validator_sign( setup_blockchain ):
     if not ( test_validator_object or test_validator_loaded ):
-        pytest.skip( "Validator not instantiated yet" )
+        pytest.fail( "Validator not instantiated yet" )
     signed_hash = test_validator_object.sign_create_validator_transaction(
         2,
         int( convert_one_to_atto( 1 ) ),
@@ -139,7 +139,7 @@ console.log(signed)
 
 def test_edit_validator_sign( setup_blockchain ):
     if not ( test_validator_object or test_validator_loaded ):
-        pytest.skip( "Validator not instantiated yet" )
+        pytest.fail( "Validator not instantiated yet" )
     signed_hash = test_validator_object.sign_edit_validator_transaction(
         2,
         int(convert_one_to_atto(1)),
@@ -159,7 +159,7 @@ def test_edit_validator_sign( setup_blockchain ):
 
 def test_invalid_validator( setup_blockchain ):
     if not ( test_validator_object or test_validator_loaded ):
-        pytest.skip( "Validator not instantiated yet" )
+        pytest.fail( "Validator not instantiated yet" )
     with pytest.raises( InvalidValidatorError ):
         info = {
             "name": "Alice",
@@ -191,7 +191,7 @@ def test_invalid_validator( setup_blockchain ):
 
 def test_validator_getters( setup_blockchain ):
     if not ( test_validator_object or test_validator_loaded ):
-        pytest.skip( "Validator not instantiated yet" )
+        pytest.fail( "Validator not instantiated yet" )
     assert (
         test_validator_object.get_address() ==
         "one1a0x3d6xpmr6f8wsyaxd9v36pytvp48zckswvv9"

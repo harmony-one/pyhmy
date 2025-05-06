@@ -23,7 +23,7 @@ def _test_blockchain_rpc( fn, *args, **kwargs ):
         if isinstance( e,
                        exceptions.RPCError
                       ) and "does not exist/is not available" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         pytest.fail( f"Unexpected error: {e.__class__} {e}" )
     return response
 
@@ -90,7 +90,7 @@ def test_get_block_by_number( setup_blockchain ):
 
 def test_get_block_by_hash( setup_blockchain ):
     if not test_block_hash:
-        pytest.skip( "Failed to get reference block hash" )
+        pytest.fail( "Failed to get reference block hash" )
     block = _test_blockchain_rpc(
         blockchain.get_block_by_hash,
         test_block_hash
@@ -108,7 +108,7 @@ def test_get_block_transaction_count_by_number( setup_blockchain ):
 
 def test_get_block_transaction_count_by_hash( setup_blockchain ):
     if not test_block_hash:
-        pytest.skip( "Failed to get reference block hash" )
+        pytest.fail( "Failed to get reference block hash" )
     tx_count = _test_blockchain_rpc(
         blockchain.get_block_transaction_count_by_hash,
         test_block_hash
@@ -162,8 +162,6 @@ def test_get_prestaking_epoch( setup_blockchain ):
 
 
 def test_get_bad_blocks( setup_blockchain ):
-    # TODO: Remove skip when RPC is fixed
-    # pytest.skip( "Known error with hmyv2_getCurrentBadBlocks" )
     bad_blocks = _test_blockchain_rpc( blockchain.get_bad_blocks )
     assert isinstance( bad_blocks, list )
 
@@ -254,7 +252,7 @@ def test_get_block_staking_transaction_count_by_number( setup_blockchain ):
 
 def test_get_block_staking_transaction_count_by_hash( setup_blockchain ):
     if not test_block_hash:
-        pytest.skip( "Failed to get reference block hash" )
+        pytest.fail( "Failed to get reference block hash" )
     tx_count = _test_blockchain_rpc(
         blockchain.get_block_staking_transaction_count_by_hash,
         test_block_hash

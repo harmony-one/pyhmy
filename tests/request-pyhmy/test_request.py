@@ -33,9 +33,8 @@ def setup():
             allow_redirects = True,
         )
     except Exception as e:
-        pytest.skip(
-            "can not connect to local blockchain",
-            allow_module_level = True
+        pytest.fail(
+            "can not connect to local blockchain"
         )
 
 
@@ -47,7 +46,7 @@ def test_request_connection_error():
     s.close()
 
     if port == 0:
-        pytest.skip( "could not find available port" )
+        pytest.fail( "could not find available port" )
     bad_endpoint = f"http://localhost:{port}"
     bad_request = None
     try:
@@ -65,9 +64,8 @@ def test_request_rpc_error():
     try:
         error_request = request.rpc_request( "hmyv2_getBalance" )
     except ( exceptions.RequestsTimeoutError, exceptions.RequestsError ) as err:
-        pytest.skip(
-            "can not connect to local blockchain",
-            allow_module_level = True
+        pytest.fail(
+            "can not connect to local blockchain"
         )
     except Exception as e:
         assert isinstance( e, exceptions.RPCError )
@@ -100,14 +98,14 @@ def test_rpc_request():
             allow_redirects = True,
         )
     except:
-        pytest.skip( "can not connect to local blockchain" )
+        pytest.fail( "can not connect to local blockchain" )
     assert response is not None
 
     resp = None
     try:
         resp = json.loads( response.content )
     except json.decoder.JSONDecodeError as err:
-        pytest.skip( "unable to decode response" )
+        pytest.fail( "unable to decode response" )
     assert resp is not None
 
     rpc_response = None

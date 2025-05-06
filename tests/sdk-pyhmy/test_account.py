@@ -24,7 +24,7 @@ def _test_account_rpc( fn, *args, **kwargs ):
         if isinstance( e,
                        exceptions.RPCError
                       ) and "does not exist/is not available" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         pytest.fail( f"Unexpected error: {e.__class__} {e}" )
     return response
 

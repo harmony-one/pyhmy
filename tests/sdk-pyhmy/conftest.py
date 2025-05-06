@@ -53,10 +53,9 @@ def setup_blockchain():
         tx_hash = tx_hashes[ i ]
         _send_transaction( tx, endpoint )
         if not _wait_for_transaction_confirmed( tx_hash, endpoint ):
-            pytest.skip(
+            pytest.fail(
                 "Could not confirm initial transaction #{} on chain"
-                .format( i ),
-                allow_module_level = True,
+                .format( i )
             )
 
     for i in range( len( stxs ) ):
@@ -64,10 +63,9 @@ def setup_blockchain():
         stx_hash = stx_hashes[ i ]
         _send_staking_transaction( stx, endpoint )
         if not _wait_for_staking_transaction_confirmed( stx_hash, endpoint ):
-            pytest.skip(
+            pytest.fail(
                 "Could not confirm initial staking transaction #{} on chain"
-                .format( i ),
-                allow_module_level = True,
+                .format( i )
             )
 
 
@@ -89,20 +87,17 @@ def _check_connection():
         )
         metadata = json.loads( response.content )
         if "error" in metadata:
-            pytest.skip(
-                f"Error in hmyv2_getNodeMetadata reply: {metadata['error']}",
-                allow_module_level = True,
+            pytest.fail(
+                f"Error in hmyv2_getNodeMetadata reply: {metadata['error']}"
             )
         if "chain-config" not in metadata[ "result" ]:
-            pytest.skip(
-                "Chain config not found in hmyv2_getNodeMetadata reply",
-                allow_module_level = True,
+            pytest.fail(
+                "Chain config not found in hmyv2_getNodeMetadata reply"
             )
         return metadata
     except Exception as e:
-        pytest.skip(
-            "Can not connect to local blockchain or bad hmyv2_getNodeMetadata reply",
-            allow_module_level = True,
+        pytest.fail(
+            "Can not connect to local blockchain or bad hmyv2_getNodeMetadata reply"
         )
 
 
@@ -125,14 +120,12 @@ def _check_staking_epoch( metadata ):
         )
         latest_header = json.loads( response.content )
         if "error" in latest_header:
-            pytest.skip(
-                f"Error in hmyv2_latestHeader reply: {latest_header['error']}",
-                allow_module_level = True,
+            pytest.fail(
+                f"Error in hmyv2_latestHeader reply: {latest_header['error']}"
             )
     except Exception as e:
-        pytest.skip(
-            "Failed to get hmyv2_latestHeader reply",
-            allow_module_level = True
+        pytest.fail(
+            "Failed to get hmyv2_latestHeader reply"
         )
 
     if metadata and latest_header:
@@ -140,9 +133,8 @@ def _check_staking_epoch( metadata ):
                                                                ]
         current_epoch = latest_header[ "result" ][ "epoch" ]
         if staking_epoch > current_epoch:
-            pytest.skip(
-                f"Not staking epoch: current {current_epoch}, staking {staking_epoch}",
-                allow_module_level = True,
+            pytest.fail(
+                f"Not staking epoch: current {current_epoch}, staking {staking_epoch}"
             )
 
 
@@ -164,14 +156,12 @@ def _send_transaction( raw_tx, endpoint ):
         )
         tx = json.loads( response.content )
         if "error" in tx:
-            pytest.skip(
-                f"Error in hmyv2_sendRawTransaction reply: {tx['error']}",
-                allow_module_level = True,
+            pytest.fail(
+                f"Error in hmyv2_sendRawTransaction reply: {tx['error']}"
             )
     except Exception as e:
-        pytest.skip(
-            "Failed to get hmyv2_sendRawTransaction reply",
-            allow_module_level = True
+        pytest.fail(
+            "Failed to get hmyv2_sendRawTransaction reply"
         )
 
 
@@ -194,9 +184,8 @@ def _check_transaction( tx_hash, endpoint ):
         tx_data = json.loads( response.content )
         return tx_data
     except Exception as e:
-        pytest.skip(
-            "Failed to get hmyv2_getTransactionByHash reply",
-            allow_module_level = True
+        pytest.fail(
+            "Failed to get hmyv2_getTransactionByHash reply"
         )
 
 
@@ -231,14 +220,12 @@ def _send_staking_transaction( raw_tx, endpoint = endpoint ):
         )
         staking_tx = json.loads( response.content )
         if "error" in staking_tx:
-            pytest.skip(
-                f"Error in hmyv2_sendRawStakingTransaction reply: {staking_tx['error']}",
-                allow_module_level = True,
+            pytest.fail(
+                f"Error in hmyv2_sendRawStakingTransaction reply: {staking_tx['error']}"
             )
     except Exception as e:
-        pytest.skip(
-            "Failed to get hmyv2_sendRawStakingTransaction reply",
-            allow_module_level = True,
+        pytest.fail(
+            "Failed to get hmyv2_sendRawStakingTransaction reply"
         )
 
 
@@ -261,9 +248,8 @@ def _check_staking_transaction( stx_hash, endpoint = endpoint ):
         stx_data = json.loads( response.content )
         return stx_data
     except Exception as e:
-        pytest.skip(
-            "Failed to get hmyv2_getStakingTransactionByHash reply",
-            allow_module_level = True,
+        pytest.fail(
+            "Failed to get hmyv2_getStakingTransactionByHash reply"
         )
 
 

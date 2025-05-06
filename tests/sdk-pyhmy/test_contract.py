@@ -22,11 +22,11 @@ def _test_contract_rpc( fn, *args, **kwargs ):
         if isinstance( e,
                        exceptions.RPCError
                       ) and "does not exist/is not available" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         elif isinstance( e,
                          exceptions.RPCError
                         ) and "estimateGas returned" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         pytest.fail( f"Unexpected error: {e.__class__} {e}" )
     return response
 
@@ -42,14 +42,14 @@ def test_get_contract_address_from_hash( setup_blockchain ):
 
 def test_call( setup_blockchain ):
     if not contract_address:
-        pytest.skip( "Contract address not loaded yet" )
+        pytest.fail( "Contract address not loaded yet" )
     called = _test_contract_rpc( contract.call, contract_address, "latest" )
     assert isinstance( called, str ) and called.startswith( "0x" )
 
 
 def test_estimate_gas( setup_blockchain ):
     if not contract_address:
-        pytest.skip( "Contract address not loaded yet" )
+        pytest.fail( "Contract address not loaded yet" )
     # equivalent of solidity getValue(), our smart contract doesn't have a fallback function
     data = "0x4936cd36"
     gas = _test_contract_rpc(contract.estimate_gas, contract_address,
@@ -59,23 +59,23 @@ def test_estimate_gas( setup_blockchain ):
 
 def test_estimate_gas_fails_without_data(setup_blockchain):
     if not contract_address:
-        pytest.skip("Contract address not loaded yet")
+        pytest.fail("Contract address not loaded yet")
     # This should trigger the skip due to evm: execution reverted
-    with pytest.raises(pytest.skip.Exception) as skip_info:
+    with pytest.raises(pytest.fail.Exception) as skip_info:
         _test_contract_rpc(contract.estimate_gas, contract_address)
     assert "evm: execution reverted" in str(skip_info.value)
 
 
 def test_get_code( setup_blockchain ):
     if not contract_address:
-        pytest.skip( "Contract address not loaded yet" )
+        pytest.fail( "Contract address not loaded yet" )
     code = _test_contract_rpc( contract.get_code, contract_address, "latest" )
     assert code == contract_code
 
 
 def test_get_storage_at( setup_blockchain ):
     if not contract_address:
-        pytest.skip( "Contract address not loaded yet" )
+        pytest.fail( "Contract address not loaded yet" )
     storage = _test_contract_rpc(
         contract.get_storage_at,
         contract_address,
