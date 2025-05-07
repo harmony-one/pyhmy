@@ -51,6 +51,8 @@ def setup_blockchain():
     for i in range( len( txs ) ):
         tx = txs[ i ]
         tx_hash = tx_hashes[ i ]
+        # sleep a bit between transactions without putting all of them in one block
+        time.sleep( random.uniform( 2, 4 ) )
         _send_transaction( tx, endpoint )
         if not _wait_for_transaction_confirmed( tx_hash, endpoint ):
             pytest.fail(
@@ -61,6 +63,8 @@ def setup_blockchain():
     for i in range( len( stxs ) ):
         stx = stxs[ i ]
         stx_hash = stx_hashes[ i ]
+        # sleep a bit between transactions without putting all of them in one block
+        time.sleep( random.uniform( 2, 4 ) )
         _send_staking_transaction( stx, endpoint )
         if not _wait_for_staking_transaction_confirmed( stx_hash, endpoint ):
             pytest.fail(
