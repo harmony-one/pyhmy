@@ -9,7 +9,7 @@ name = "pyhmy"
 version = "0.1.2"
 description = "A library for interacting and working the Harmony blockchain and related codebases"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 keywords = [ "Harmony", "blockchain", "protocol", "staking" ]
 dependencies = [
     "pexpect == 4.9.0",
