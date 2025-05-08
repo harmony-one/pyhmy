@@ -4,8 +4,8 @@ from pyhmy import transaction
 
 from pyhmy.rpc import exceptions
 
-endpoint = "http://localhost:9500"
-endpoint_shard_one = "http://localhost:9502"
+endpoint = "http://localhost:9620"
+endpoint_shard_one = "http://localhost:9622"
 fake_shard = "http://example.com"
 
 # previously sent txs to get and check
@@ -39,7 +39,7 @@ def _test_transaction_rpc( fn, *args, **kwargs ):
         if isinstance( e,
                        exceptions.RPCError
                       ) and "does not exist/is not available" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         pytest.fail( f"Unexpected error: {e.__class__} {e}" )
     return response
 
@@ -69,7 +69,7 @@ def test_get_transaction_by_hash( setup_blockchain ):
 
 def test_get_transaction_by_block_hash_and_index( setup_blockchain ):
     if not tx_block_hash:
-        pytest.skip( "Failed to get reference block hash" )
+        pytest.fail( "Failed to get reference block hash" )
     tx = _test_transaction_rpc(
         transaction.get_transaction_by_block_hash_and_index,
         tx_block_hash,
@@ -82,7 +82,7 @@ def test_get_transaction_by_block_hash_and_index( setup_blockchain ):
 
 def test_get_transaction_by_block_number_and_index( setup_blockchain ):
     if not tx_block_num:
-        pytest.skip( "Failed to get reference block num" )
+        pytest.fail( "Failed to get reference block num" )
     tx = _test_transaction_rpc(
         transaction.get_transaction_by_block_number_and_index,
         tx_block_num,
@@ -156,9 +156,9 @@ def test_get_staking_transaction_by_hash( setup_blockchain ):
     stx_index = int( staking_tx[ "transactionIndex" ] )
 
 
-def test_get_transaction_by_block_hash_and_index( setup_blockchain ):
+def test_get_staking_transaction_by_block_hash_and_index( setup_blockchain ):
     if not stx_block_hash:
-        pytest.skip( "Failed to get reference block hash" )
+        pytest.fail( "Failed to get reference block hash" )
     stx = _test_transaction_rpc(
         transaction.get_staking_transaction_by_block_hash_and_index,
         stx_block_hash,
@@ -168,9 +168,9 @@ def test_get_transaction_by_block_hash_and_index( setup_blockchain ):
     assert isinstance( stx, dict )
 
 
-def test_get_transaction_by_block_number_and_index( setup_blockchain ):
+def test_get_staking_transaction_by_block_number_and_index( setup_blockchain ):
     if not stx_block_num:
-        pytest.skip( "Failed to get reference block num" )
+        pytest.fail( "Failed to get reference block num" )
     stx = _test_transaction_rpc(
         transaction.get_staking_transaction_by_block_number_and_index,
         stx_block_num,

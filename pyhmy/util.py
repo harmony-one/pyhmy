@@ -118,7 +118,7 @@ def is_active_shard( endpoint, delay_tolerance = 60 ):
     :return: If shard is active or not
     """
     try:
-        curr_time = datetime.datetime.utcnow()
+        curr_time = datetime.datetime.now(datetime.UTC)
         latest_header = get_latest_header( endpoint = endpoint )
         time_str = latest_header[ "timestamp" ][ : 19 ] + ".0"  # Fit time format
         timestamp = datetime.datetime.strptime(

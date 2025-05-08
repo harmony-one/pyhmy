@@ -31,7 +31,7 @@ console.log(signed)
 #         'gasLimit': 100,
 #     }
 #     signed_tx = staking_signing.sign_staking_transaction(transaction_dict, '4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48')
-#     assert signed_tx.rawTransaction.hex() == '0xf85a04d594ebcd16e8c1d8f493ba04e99a56474122d81a9c5823a0490e4ceb747563ba40da3e0db8a65133cf6f6ae4c48a24866cd6aa1f0d6c2414a06dbd51a67b35b5685e7b7420cba26e63b0e7d3c696fc6cb69d48e54fcad280e9'
+#     assert signed_tx.raw_transaction.to_0x_hex() == '0xf85a04d594ebcd16e8c1d8f493ba04e99a56474122d81a9c5823a0490e4ceb747563ba40da3e0db8a65133cf6f6ae4c48a24866cd6aa1f0d6c2414a06dbd51a67b35b5685e7b7420cba26e63b0e7d3c696fc6cb69d48e54fcad280e9'
 """
 let stakingTx
 let stakeMsg3: CollectRewards = new CollectRewards(
@@ -65,7 +65,7 @@ def test_collect_rewards_chain_id():
         "4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48",
     )
     assert (
-        signed_tx.rawTransaction.hex() ==
+        signed_tx.raw_transaction.to_0x_hex() ==
         "0xf86504d594ebcd16e8c1d8f493ba04e99a56474122d81a9c5802880de0b6b3a76400006425a055d6c3c0d8e7a1e75152db361a2ed47f5ab54f6f19b0d8e549953dbdf13ba647a076e1367dfca38eae3bd0e8da296335acabbaeb87dc17e47ebe4942db29334099"
     )
 
@@ -107,6 +107,6 @@ def test_delegate():
         "4edef2c24995d15b0e25cbd152fb0e2c05d3b79b9c2afd134e6f59f91bf99e48",
     )
     assert (
-        signed_tx.rawTransaction.hex() ==
+        signed_tx.raw_transaction.to_0x_hex() ==
         "0xf87b02eb94ebcd16e8c1d8f493ba04e99a56474122d81a9c5894ebcd16e8c1d8f493ba04e99a56474122d81a9c580502880de0b6b3a76400006428a0c856fd483a989ca4db4b5257f6996729527828fb21ec13cc65f0bffe6c015ab1a05e9d3c92742e8cb7450bebdfb7ad277ccbfc9fa0719db0b12a715a0a173cadd6"
     )

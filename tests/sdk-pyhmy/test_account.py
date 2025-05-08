@@ -5,8 +5,8 @@ from pyhmy import account
 
 from pyhmy.rpc import exceptions
 
-explorer_endpoint = "http://localhost:9700"
-endpoint_shard_one = "http://localhost:9502"
+explorer_endpoint = "http://localhost:9620"
+endpoint_shard_one = "http://localhost:9622"
 local_test_address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
 test_validator_address = local_test_address
 genesis_block_number = 0
@@ -24,7 +24,7 @@ def _test_account_rpc( fn, *args, **kwargs ):
         if isinstance( e,
                        exceptions.RPCError
                       ) and "does not exist/is not available" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         pytest.fail( f"Unexpected error: {e.__class__} {e}" )
     return response
 

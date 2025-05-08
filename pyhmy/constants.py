@@ -3,7 +3,7 @@ Constants
 """
 
 # localnet constants
-DEFAULT_ENDPOINT = 'http://localhost:9500'
+DEFAULT_ENDPOINT = 'http://localhost:9620'
 DEFAULT_TIMEOUT = 30
 
 # staking percentage constants

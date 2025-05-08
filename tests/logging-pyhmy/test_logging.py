@@ -29,3 +29,6 @@ def test_basic_logger():
             assert "test warning" in line
         if "ERROR" in line:
             assert "test error" in line
+    if os.path.exists( f"{os.getcwd()}/logs/pytest.log"):
+        os.remove( f"{os.getcwd()}/logs/pytest.log")
+        os.rmdir( f"{os.getcwd()}/logs/")

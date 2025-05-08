@@ -5,7 +5,7 @@ from pyhmy import staking
 
 from pyhmy.rpc import exceptions
 
-explorer_endpoint = "http://localhost:9700"
+explorer_endpoint = "http://localhost:9620"
 test_validator_address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
 fake_shard = "http://example.com"
 
@@ -20,7 +20,7 @@ def _test_staking_rpc( fn, *args, **kwargs ):
         if isinstance( e,
                        exceptions.RPCError
                       ) and "does not exist/is not available" in str( e ):
-            pytest.skip( f"{str(e)}" )
+            pytest.fail( f"{str(e)}" )
         pytest.fail( f"Unexpected error: {e.__class__} {e}" )
     return response
 
@@ -119,7 +119,7 @@ def test_get_delegations_by_delegator_by_block( setup_blockchain ):
     assert isinstance( delegations, list )
 
 
-def test_get_elected_validator_addresses( setup_blockchain ):
+def test_get_elected_validator_addresses():
     validator_addresses = _test_staking_rpc(
         staking.get_elected_validator_addresses
     )
