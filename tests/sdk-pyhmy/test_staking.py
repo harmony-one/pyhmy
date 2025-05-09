@@ -1,5 +1,5 @@
 import pytest
-import requests
+import time
 
 from pyhmy import staking
 
@@ -120,9 +120,19 @@ def test_get_delegations_by_delegator_by_block( setup_blockchain ):
 
 
 def test_get_elected_validator_addresses():
-    validator_addresses = _test_staking_rpc(
-        staking.get_elected_validator_addresses
-    )
+    timeout = 300
+    check_interval = 10
+    start_time = time.time()
+
+    while True:
+        validator_addresses = _test_staking_rpc(
+            staking.get_elected_validator_addresses
+        )
+        if isinstance(validator_addresses, list) and len(validator_addresses) > 0:
+            break
+        if time.time() - start_time > timeout:
+            pytest.fail("Timed out waiting for elected validators")
+        time.sleep(check_interval)
     assert isinstance( validator_addresses, list )
     assert len( validator_addresses ) > 0
 

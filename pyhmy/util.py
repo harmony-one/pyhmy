@@ -111,7 +111,7 @@ def convert_hex_to_one( addr ):
     return str( bech32_encode( "one", buf ) )
 
 
-def is_active_shard( endpoint, delay_tolerance = 60 ):
+def is_active_shard(endpoint, delay_tolerance=60):
     """
     :param endpoint: The endpoint of the SHARD to check
     :param delay_tolerance: The time (in seconds) that the shard timestamp can be behind
@@ -119,15 +119,14 @@ def is_active_shard( endpoint, delay_tolerance = 60 ):
     """
     try:
         curr_time = datetime.datetime.now(datetime.UTC)
-        latest_header = get_latest_header( endpoint = endpoint )
-        time_str = latest_header[ "timestamp" ][ : 19 ] + ".0"  # Fit time format
+        latest_header = get_latest_header(endpoint=endpoint)
+        time_str = latest_header["timestamp"][:19] + ".0"  # Fit time format
         timestamp = datetime.datetime.strptime(
-            time_str,
-            "%Y-%m-%d %H:%M:%S.%f"
-        ).replace( tzinfo = None )
+            time_str, "%Y-%m-%d %H:%M:%S.%f"
+        ).replace(tzinfo=datetime.UTC)
         time_delta = curr_time - timestamp
-        return abs( time_delta.seconds ) < delay_tolerance
-    except ( RPCError, RequestsError, RequestsTimeoutError ):
+        return abs(time_delta.total_seconds()) < delay_tolerance
+    except (RPCError, RequestsError, RequestsTimeoutError):
         return False
 
 
