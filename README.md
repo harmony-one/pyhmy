@@ -34,7 +34,7 @@ git clone https://github.com/harmony-one/mcl.git
 git clone https://github.com/harmony-one/bls.git
 git clone https://github.com/harmony-one/harmony.git
 cd harmony
-make debug
+make clean debug-multi-bls-multi-ext-node
 ```
 
 Once the terminal displays a couple of `Started server` lines, use another shell to run the following tests
