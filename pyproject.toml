@@ -13,7 +13,7 @@ license = "MIT"
 keywords = [ "Harmony", "blockchain", "protocol", "staking" ]
 dependencies = [
     "pexpect == 4.9.0",
-    "requests == 2.32.3",
+    "requests == 2.32.4",
     "eth-rlp == 2.2.0",
     "eth-account == 0.13.7",
     "eth-utils == 5.3.0",
