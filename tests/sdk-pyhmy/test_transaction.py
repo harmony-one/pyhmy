@@ -6,7 +6,7 @@ from pyhmy.rpc import exceptions
 
 endpoint = "http://localhost:9620"
 endpoint_shard_one = "http://localhost:9622"
-fake_shard = "http://example.com"
+fake_shard = "https://faucet.pops.one/"
 
 # previously sent txs to get and check
 tx_hash = "0xc26be5776aa57438bccf196671a2d34f3f22c9c983c0f844c62b2fb90403aa43"
