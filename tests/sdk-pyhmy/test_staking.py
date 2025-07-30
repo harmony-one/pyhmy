@@ -7,7 +7,7 @@ from pyhmy.rpc import exceptions
 
 explorer_endpoint = "http://localhost:9620"
 test_validator_address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
-fake_shard = "http://example.com"
+fake_shard = "https://faucet.pops.one/"
 
 
 def _test_staking_rpc( fn, *args, **kwargs ):

@@ -9,7 +9,7 @@ test_epoch_number = 0
 genesis_block_number = 0
 test_block_number = 1
 test_block_hash = None
-fake_shard = "http://example.com"
+fake_shard = "https://faucet.pops.one/"
 address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
 
 

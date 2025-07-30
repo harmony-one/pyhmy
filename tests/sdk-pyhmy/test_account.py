@@ -11,7 +11,7 @@ local_test_address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
 test_validator_address = local_test_address
 genesis_block_number = 0
 test_block_number = 1
-fake_shard = "http://example.com"
+fake_shard = "https://faucet.pops.one/"
 
 
 def _test_account_rpc( fn, *args, **kwargs ):

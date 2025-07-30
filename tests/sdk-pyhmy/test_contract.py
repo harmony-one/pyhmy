@@ -9,7 +9,7 @@ contract_tx_hash = "0xa605852dd2fa39ed42e101c17aaca9d344d352ba9b24b14b9af94ec9cb
 # deployedBytecode from json file
 contract_code = "0x6080604052348015600f57600080fd5b506004361060285760003560e01c80634936cd3614602d575b600080fd5b604080516001815290519081900360200190f3fea2646970667358221220fa3fa0e8d0267831a59f4dd5edf39a513d07e98461cb06660ad28d4beda744cd64736f6c634300080f0033"
 contract_address = None
-fake_shard = "http://example.com"
+fake_shard = "https://faucet.pops.one/"
 
 
 def _test_contract_rpc( fn, *args, **kwargs ):
