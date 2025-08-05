@@ -60,10 +60,10 @@ def test_estimate_gas( setup_blockchain ):
 def test_estimate_gas_fails_without_data(setup_blockchain):
     if not contract_address:
         pytest.fail("Contract address not loaded yet")
-    # This should trigger the skip due to evm: execution reverted
+    # This should trigger the skip due to `execution reverted`
     with pytest.raises(pytest.fail.Exception) as skip_info:
         _test_contract_rpc(contract.estimate_gas, contract_address)
-    assert "evm: execution reverted" in str(skip_info.value)
+    assert "execution reverted" in str(skip_info.value)
 
 
 def test_get_code( setup_blockchain ):
