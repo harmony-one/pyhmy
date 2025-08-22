@@ -7,7 +7,7 @@ from pyhmy.rpc import exceptions
 
 explorer_endpoint = "http://localhost:9620"
 test_validator_address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
-fake_shard = "https://faucet.pops.one/"
+fake_shard = "https://faucet.hmny.io/"
 
 
 def _wait_for_total_staking(max_retries=15, delay=5):
