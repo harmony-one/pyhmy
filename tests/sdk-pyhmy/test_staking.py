@@ -7,7 +7,20 @@ from pyhmy.rpc import exceptions
 
 explorer_endpoint = "http://localhost:9620"
 test_validator_address = "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3"
-fake_shard = "https://faucet.pops.one/"
+fake_shard = "https://faucet.hmny.io/"
+
+
+def _wait_for_total_staking(max_retries=15, delay=5):
+    """
+    Wait until total_staking > 0, retrying max_retries times
+    with delay (seconds) between attempts.
+    """
+    for attempt in range(max_retries):
+        total_staking = staking.get_total_staking()
+        if total_staking > 0:
+            return total_staking
+        time.sleep(delay)
+    raise TimeoutError(f"total_staking stayed 0 after {max_retries} retries")
 
 
 def _test_staking_rpc( fn, *args, **kwargs ):
@@ -202,6 +215,7 @@ def test_get_total_staking( setup_blockchain ):
             explorer_endpoint
         )[ "active-status" ] == "active"
     ):
+        total_staking = _wait_for_total_staking(max_retries=15, delay=5)
         assert total_staking > 0
 
 
