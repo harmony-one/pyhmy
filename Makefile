@@ -28,6 +28,12 @@ dev:
 test:
 	python3 -m pytest -r s -s tests
 
+test-mock:
+	python3 -m pytest -r s -s tests -k "mock" --ignore=tests/request-pyhmy
+
+test-integration:
+	python3 -m pytest -r s -s tests --ignore=tests/request-pyhmy -k "not mock"
+
 install:
 	python3 -m pip install -e .
 

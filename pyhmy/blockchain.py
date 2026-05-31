@@ -694,19 +694,7 @@ def get_total_supply(
     timeout = DEFAULT_TIMEOUT
 ) -> int:
     """Get total number of pre-mined tokens.
-
-    Parameters
-    ----------
-    endpoint: :obj:`str`, optional
-        Endpoint to send request to
-    timeout: :obj:`int`, optional
-        Timeout in seconds
-
-    Returns
-    -------
-    str
-        Total number of pre-mined tokens, or None if no such tokens
-
+    ...
     Raises
     ------
     InvalidRPCReplyError
@@ -718,9 +706,9 @@ def get_total_supply(
     """
     method = "hmyv2_getTotalSupply"
     try:
-        rpc_request( method,
-                     endpoint = endpoint,
-                     timeout = timeout )[ "result" ]
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
     except KeyError as exception:
         raise InvalidRPCReplyError( method, endpoint ) from exception
 

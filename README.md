@@ -26,7 +26,19 @@ make install
 ```
 
 ## Running tests
-Before you can run tests, you need the python dependencies (`make install`), `docker` and `go` installed to quickly run a local blockchain with staking enabled (detailed instructions [here](https://github.com/harmony-one/harmony/blob/main/README.md)):
+
+### Mock-based tests (no localnet required)
+Run unit tests with mocked RPC responses. No blockchain or Docker required:
+```bash
+make test-mock
+```
+Or directly:
+```bash
+pytest tests -k "mock"
+```
+
+### Integration tests (requires localnet)
+Before running integration tests, ensure a local Harmony blockchain is running:
 ```bash
 mkdir -p $(go env GOPATH)/src/github.com/harmony-one
 cd $(go env GOPATH)/src/github.com/harmony-one
@@ -37,11 +49,11 @@ cd harmony
 make clean debug-multi-bls-multi-ext-node
 ```
 
-Once the terminal displays a couple of `Started server` lines, use another shell to run the following tests
+Once the terminal displays a couple of `Started server` lines:
 ```bash
 make test
 ```
-Or directly with `pytest` (reference [here](https://docs.pytest.org/en/latest/index.html) for more info):
+Or directly with `pytest`:
 ```bash
 pytest tests
 ```
@@ -406,6 +418,62 @@ tx = {
 transaction.send_raw_staking_transaction(staking_signing.sign_staking_transaction(tx, private_key = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD').raw_transaction.to_0x_hex(), test_net)
 ```
 ### Contracts
+```py
+from pyhmy import contract
+from pyhmy.util import convert_one_to_hex
+contract_addr = 'one1rcs4yy4kln53ux60qdeuhhvpygn2sutn500dhw'
+
+# ... (existing functions) ...
+```
+
+##### Calling a contract function by ABI
+```py
+abi = [{"name":"balanceOf","type":"function","inputs":[{"name":"account","type":"address"}],"outputs":[{"name":"","type":"uint256"}]}]
+result = contract.call_by_abi(abi, "balanceOf", contract_addr, args=["one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7"], endpoint=test_net)
+print(f"Balance: {int(result, 16)}")
+```
+
+##### Encoding a function call
+```py
+encoded = contract.encode_abi_function(abi, "balanceOf", args=["one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7"])
+print(f"Encoded: {encoded}")
+```
+
+##### Deploying a contract
+```py
+deployment = contract.deploy_contract(
+    bytecode='0x608060...',
+    from_address='one18t4yj4fuutj83uwqckkvxp9gfa0568uc48ggj7',
+    gas_limit=6721900,
+    gas_price=1000000000,
+    chain_id=2,
+    endpoint=test_net,
+)
+print(f"Contract address: {deployment['contract_address']}")
+print(f"Tx hash: {deployment['transaction_hash']}")
+```
+
+##### Log filtering
+```py
+# Get event logs for a contract
+logs = contract.get_logs(
+    from_block=0,
+    to_block='latest',
+    address='one1rcs4yy4kln53ux60qdeuhhvpygn2sutn500dhw',
+    topics=[["0x...topic1", "0x...topic2"]],
+    endpoint=test_net,
+)
+
+# Create a new filter and poll for changes
+filter_id = contract.new_filter(address='one1rcs4yy4kln53ux60qdeuhhvpygn2sutn500dhw', endpoint=test_net)
+changes = contract.get_filter_changes(filter_id, endpoint=test_net)
+contract.uninstall_filter(filter_id, endpoint=test_net)
+
+# Block filter
+block_filter_id = contract.new_block_filter(endpoint=test_net)
+new_blocks = contract.get_filter_changes(block_filter_id, endpoint=test_net)
+```
+
 ```py
 from pyhmy import contract
 from pyhmy.util import convert_one_to_hex
