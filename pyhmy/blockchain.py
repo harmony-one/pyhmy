@@ -693,7 +693,7 @@ def get_total_supply(
     endpoint = DEFAULT_ENDPOINT,
     timeout = DEFAULT_TIMEOUT
 ) -> int:
-    """Get total number of pre-mined tokens.
+    """Get the RPC result for the total number of pre-mined tokens.
 
     Parameters
     ----------
@@ -705,12 +705,12 @@ def get_total_supply(
     Returns
     -------
     str
-        Total number of pre-mined tokens, or None if no such tokens
+        Total number of pre-mined tokens returned by the RPC
 
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint
+        If the RPC payload is malformed or missing a result
 
     API Reference
     -------------
