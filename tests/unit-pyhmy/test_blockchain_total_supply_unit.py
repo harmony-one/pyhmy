@@ -27,4 +27,3 @@ def test_get_total_supply_raises_on_missing_result(monkeypatch):
     monkeypatch.setattr(blockchain, "rpc_request", fake_rpc_request)
     with pytest.raises(InvalidRPCReplyError):
         blockchain.get_total_supply()
-
