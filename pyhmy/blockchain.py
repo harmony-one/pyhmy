@@ -685,7 +685,7 @@ def get_circulating_supply(
         return rpc_request( method,
                             endpoint = endpoint,
                             timeout = timeout )[ "result" ]
-    except KeyError as exception:
+    except ( KeyError, TypeError ) as exception:
         raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
