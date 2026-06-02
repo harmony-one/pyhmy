@@ -3,6 +3,8 @@ Interact with the Harmony blockchain to fetch
 blocks, headers, transaction pool, node status, etc.
 """
 # pylint: disable=too-many-lines
+from typing import Optional
+
 from .rpc.request import rpc_request
 
 from .exceptions import InvalidRPCReplyError
@@ -656,7 +658,7 @@ def epoch_last_block(
 def get_circulating_supply(
     endpoint = DEFAULT_ENDPOINT,
     timeout = DEFAULT_TIMEOUT
-) -> int:
+) -> Optional[str]:
     """Get current circulation supply of tokens in ONE.
 
     Parameters
@@ -668,8 +670,8 @@ def get_circulating_supply(
 
     Returns
     -------
-    str
-        Current circulation supply (with decimal point)
+    str or None
+        Current circulation supply (with decimal point) or `None` if the RPC returns it
 
     Raises
     ------
@@ -692,7 +694,7 @@ def get_circulating_supply(
 def get_total_supply(
     endpoint = DEFAULT_ENDPOINT,
     timeout = DEFAULT_TIMEOUT
-) -> int:
+) -> Optional[str]:
     """Get the RPC result for the total number of pre-mined tokens.
 
     Parameters
@@ -704,8 +706,8 @@ def get_total_supply(
 
     Returns
     -------
-    str
-        Total number of pre-mined tokens returned by the RPC
+    str or None
+        Total number of pre-mined tokens returned by the RPC, or `None` if the RPC returns it
 
     Raises
     ------
