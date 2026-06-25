@@ -68,7 +68,21 @@ def test_convert_hex_to_one():
 
 
 def test_get_bls_build_variables():
-    assert isinstance( util.get_bls_build_variables(), dict )
+    hmy_path = f"{util.get_gopath()}/src/github.com/harmony-one"
+    bls_dir = f"{hmy_path}/bls"
+    mcl_dir = f"{hmy_path}/mcl"
+
+    if (
+        os.getenv("HARMONY_PREBUILT_STATIC") == "true"
+        and (not os.path.exists(bls_dir) or not os.path.exists(mcl_dir))
+    ):
+        pytest.skip(
+            "Skipping BLS/MCL build variable check because localnet uses "
+            "prebuilt static Harmony binaries "
+            "and BLS/MCL repos are not mounted."
+        )
+
+    assert isinstance(util.get_bls_build_variables(), dict)
 
 
 def test_is_active_shard():
