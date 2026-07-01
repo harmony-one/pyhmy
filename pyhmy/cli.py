@@ -48,6 +48,7 @@ import stat
 import sys
 from pathlib import Path
 import pexpect
+import platform
 
 import requests
 
@@ -401,89 +402,73 @@ def expect_call( command, timeout = 60 ):
     return proc
 
 
-def download( path = "./bin/hmy", replace = True, verbose = True ):
-    """Download the CLI binary to the specified path. Related files will be
-    saved in the same directory.
+def _get_hmy_asset_name():
+    system = sys.platform
+    machine = platform.machine().lower()
 
-    :param path: The desired path (absolute or relative) of the saved binary.
+    if not system.startswith("linux"):
+        raise RuntimeError(
+            f"Unsupported platform for prebuilt hmy binary: {system}/{machine}"
+        )
+
+    if machine in ("x86_64", "amd64"):
+        return "hmy-amd64"
+
+    if machine in ("aarch64", "arm64"):
+        return "hmy-arm64"
+
+    raise RuntimeError(f"Unsupported CPU architecture for hmy binary: {machine}")
+
+
+def _get_hmy_download_url(asset_name, release_tag=None):
+    if release_tag:
+        return (
+            "https://github.com/harmony-one/go-sdk/releases/download/"
+            f"{release_tag}/{asset_name}"
+        )
+
+    return (
+        "https://github.com/harmony-one/go-sdk/releases/latest/download/"
+        f"{asset_name}"
+    )
+
+
+def download(path="./bin/hmy", replace=True, verbose=True, release_tag=None):
+    """Download the CLI binary to the specified path.
+
+    :param path: The desired path, absolute or relative, of the saved binary.
     :param replace: A flag to force a replacement of the binary/file.
     :param verbose: A flag to enable a report message once the binary is downloaded.
-    :returns the environment to run the saved CLI binary.
+    :param release_tag: Optional release tag, for example "v2026.0.0".
+                        If not provided, GitHub latest release is used.
+    :returns: the environment to run the saved CLI binary.
     """
-    path = os.path.realpath( path )
-    parent_dir = Path( path ).parent
+    path = os.path.realpath(path)
+    parent_dir = Path(path).parent
+
     assert not os.path.isdir(
         path
     ), f"path `{path}` must specify a file, not a directory."
 
-    if not os.path.exists( path ) or replace:
-        old_cwd = os.getcwd()
-        os.makedirs( parent_dir, exist_ok = True )
-        os.chdir( parent_dir )
-        hmy_script_path = os.path.join( parent_dir, "hmy.sh" )
-        with open( hmy_script_path, "w", encoding = 'utf8' ) as script_file:
-            script_file.write(
-                requests.get(
-                    "https://raw.githubusercontent.com/harmony-one/go-sdk/master/scripts/hmy.sh"
-                ).content.decode()
-            )
-        os.chmod(
-            hmy_script_path,
-            os.stat( hmy_script_path ).st_mode | stat.S_IEXEC
-        )
-        same_name_file = False
-        if (
-            os.path.exists( os.path.join( parent_dir,
-                                          "hmy" ) ) and
-            Path( path ).name != "hmy"
-        ):  # Save same name file.
-            same_name_file = True
-            os.rename(
-                os.path.join( parent_dir,
-                              "hmy" ),
-                os.path.join( parent_dir,
-                              ".hmy_tmp" )
-            )
+    if not os.path.exists(path) or replace:
+        os.makedirs(parent_dir, exist_ok=True)
+
+        asset_name = _get_hmy_asset_name()
+        download_url = _get_hmy_download_url(asset_name, release_tag)
+
         if verbose:
-            subprocess.call( [ hmy_script_path, "-d" ] )
-        else:
-            with open( os.devnull, "w", encoding = "UTF-8" ) as devnull:
-                subprocess.call(
-                    [ hmy_script_path,
-                      "-d" ],
-                    stdout = devnull,
-                    stderr = subprocess.STDOUT,
-                )
-        os.rename( os.path.join( parent_dir, "hmy" ), path )
-        if same_name_file:
-            os.rename(
-                os.path.join( parent_dir,
-                              ".hmy_tmp" ),
-                os.path.join( parent_dir,
-                              "hmy" )
-            )
+            print(f"Downloading hmy binary `{asset_name}` from `{download_url}`")
+
+        response = requests.get(download_url, allow_redirects=True, timeout=120)
+        response.raise_for_status()
+
+        with open(path, "wb") as binary_file:
+            binary_file.write(response.content)
+
+        os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+
         if verbose:
-            print( f"Saved harmony binary to: `{path}`" )
-        os.chdir( old_cwd )
+            print(f"Saved harmony binary to: `{path}`")
 
     env = os.environ.copy()
-    if sys.platform.startswith( "darwin" ):  # Dynamic linking for darwin
-        try:
-            files_in_parent_dir = set( os.listdir( parent_dir ) )
-            if files_in_parent_dir.intersection( _libs ) == _libs:
-                env[ "DYLD_FALLBACK_LIBRARY_PATH" ] = parent_dir
-            elif os.path.exists(
-                f"{get_gopath()}/src/github.com/harmony-one/bls"
-            ) and os.path.exists(
-                f"{get_gopath()}/src/github.com/harmony-one/mcl"
-            ):
-                env.update( get_bls_build_variables() )
-            else:
-                raise RuntimeWarning(
-                    f"Could not get environment for downloaded hmy CLI at `{path}`"
-                )
-        except Exception as exception:
-            raise RuntimeWarning(
-                f"Could not get environment for downloaded hmy CLI at `{path}`"
-            ) from exception
     return env
