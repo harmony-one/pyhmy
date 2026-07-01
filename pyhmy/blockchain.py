@@ -718,9 +718,9 @@ def get_total_supply(
     """
     method = "hmyv2_getTotalSupply"
     try:
-        rpc_request( method,
-                     endpoint = endpoint,
-                     timeout = timeout )[ "result" ]
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
     except KeyError as exception:
         raise InvalidRPCReplyError( method, endpoint ) from exception
 
