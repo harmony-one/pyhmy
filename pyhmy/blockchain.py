@@ -3,6 +3,8 @@ Interact with the Harmony blockchain to fetch
 blocks, headers, transaction pool, node status, etc.
 """
 # pylint: disable=too-many-lines
+from typing import Optional
+
 from .rpc.request import rpc_request
 
 from .exceptions import InvalidRPCReplyError
@@ -656,7 +658,7 @@ def epoch_last_block(
 def get_circulating_supply(
     endpoint = DEFAULT_ENDPOINT,
     timeout = DEFAULT_TIMEOUT
-) -> int:
+) -> Optional[str]:
     """Get current circulation supply of tokens in ONE.
 
     Parameters
@@ -668,8 +670,8 @@ def get_circulating_supply(
 
     Returns
     -------
-    str
-        Current circulation supply (with decimal point)
+    str or None
+        Current circulation supply (with decimal point) or `None` if the RPC returns it
 
     Raises
     ------
@@ -685,15 +687,15 @@ def get_circulating_supply(
         return rpc_request( method,
                             endpoint = endpoint,
                             timeout = timeout )[ "result" ]
-    except KeyError as exception:
+    except ( KeyError, TypeError ) as exception:
         raise InvalidRPCReplyError( method, endpoint ) from exception
 
 
 def get_total_supply(
     endpoint = DEFAULT_ENDPOINT,
     timeout = DEFAULT_TIMEOUT
-) -> int:
-    """Get total number of pre-mined tokens.
+) -> Optional[str]:
+    """Get the RPC result for the total number of pre-mined tokens.
 
     Parameters
     ----------
@@ -704,13 +706,13 @@ def get_total_supply(
 
     Returns
     -------
-    str
-        Total number of pre-mined tokens, or None if no such tokens
+    str or None
+        Total number of pre-mined tokens returned by the RPC, or `None` if the RPC returns it
 
     Raises
     ------
     InvalidRPCReplyError
-        If received unknown result from endpoint
+        If the RPC payload is malformed or missing a result
 
     API Reference
     -------------
@@ -718,10 +720,10 @@ def get_total_supply(
     """
     method = "hmyv2_getTotalSupply"
     try:
-        rpc_request( method,
-                     endpoint = endpoint,
-                     timeout = timeout )[ "result" ]
-    except KeyError as exception:
+        return rpc_request( method,
+                            endpoint = endpoint,
+                            timeout = timeout )[ "result" ]
+    except ( KeyError, TypeError ) as exception:
         raise InvalidRPCReplyError( method, endpoint ) from exception
 
 

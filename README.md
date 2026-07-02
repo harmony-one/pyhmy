@@ -173,7 +173,7 @@ leader_address = blockchain.get_leader_address(test_net)
 is_last_block = blockchain.is_last_block(block_num=0, test_net)
 last_block_of_epoch5 = blockchain.epoch_last_block(block_num=5, test_net)
 circulating_supply = Decimal(blockchain.get_circulating_supply(test_net))
-premined = blockchain.get_total_supply(test_net)					# should be None?
+premined = blockchain.get_total_supply(test_net)					# RPC result for the pre-mined token supply
 current_block_num = blockchain.get_block_number(test_net)
 current_epoch = blockchain.get_current_epoch(test_net)
 gas_price = blockchain.get_gas_price(test_net)						# this returns 1 always
